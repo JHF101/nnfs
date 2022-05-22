@@ -1,5 +1,4 @@
 import numpy as np
-import pprint
 import matplotlib.pyplot as plt
 
 def sigmoid(x, derivative=0):
@@ -31,9 +30,7 @@ for p in range(0, 1000):
             h_net[j] += x[i] * weights_layer1[j][i]
         h_net[i] += bias[0] # Adding the first layer bias
 
-    #print("Intermediate result is",h_net)
     h_out = sigmoid(h_net)
-    #print("Output after activation is",h_out)
 
     y_net = [0,0]
     y_out = [0,0]
@@ -43,17 +40,13 @@ for p in range(0, 1000):
             y_net[j] += h_out[i] * weights_layer2[j][i]
         y_net[i] += bias[1] # Adding the second layer bias
 
-    #print("Y Intermediate result is", y_net)
     y_out = sigmoid(y_net)
-    #print("Y Output after activation is",y_out)
 
     E_y = []
     for i in range(len(y_out)):
         E_y.append((1/2)*(y_actual[i]-y_out[i])**2)
-    #print(E_y)
 
     E_total = np.sum(E_y)
-    #print(E_total)
 
     # Output Layer
     # Derivative for the output layer dE/dw
@@ -62,14 +55,10 @@ for p in range(0, 1000):
     for i in range(len(y_out)):
         der_E_wrt_w.append( -(y_actual[i]-y_out[i])*(y_out[i]*(1-y_out[i]))*h_out[i])
 
-    #print(der_E_wrt_w)
-
     new_weights_layer_2 = [[0,0],[0,0]]
     for j in range(len(der_E_wrt_w)):
         for i in range(len(weights_layer2[0])):
             new_weights_layer_2[j][i] = weights_layer2[j][i] - 0.5*der_E_wrt_w[j]
-
-    #print(new_weights_layer_2)
 
     # We still need to keep track of the old weights for the entire backprop 
     der_Etotal_wrt_out = []
@@ -107,35 +96,3 @@ for p in range(0, 1000):
     plt.plot(p,E_total,'rx')
 
 plt.show()
-
-# #print("Final Iteration")
-# # ----- Feed Forward
-# # First Layer
-# for i in range(0,len(x)):
-#     for j in range(0,len(weights_layer1[0])):
-#         h_net[j] += x[i] * weights_layer1[j][i]
-#     h_net[i] += bias[0] # Adding the first layer bias
-
-# #print("Intermediate result is",h_net)
-# h_out = sigmoid(h_net)
-# #print("Output after activation is",h_out)
-
-# y_net = [0,0]
-# y_out = [0,0]
-# # First Layer
-# for i in range(0,len(x)):
-#     for j in range(0,len(weights_layer1[0])):
-#         y_net[j] += h_out[i] * weights_layer2[j][i]
-#     y_net[i] += bias[1] # Adding the second layer bias
-
-# ##print("Y Intermediate result is", y_net)
-# y_out = sigmoid(y_net)
-# print("Y Output after activation is",y_out)
-
-# E_y = []
-# for i in range(len(y_out)):
-#     E_y.append((1/2)*(y_actual[i]-y_out[i])**2)
-# #print(E_y)
-
-# E_total = np.sum(E_y)
-# print(E_total)
