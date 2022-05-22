@@ -70,12 +70,10 @@ for p in range(0, 1000):
             der_E_wrt_y.append(-(y_actual[i]-y_out[i])*(y_out[i]*(1-y_out[i]))*(weights_layer2[i][j]))
         # derivative of error wrt y per node
         der_Etotal_wrt_out.append(sum(der_E_wrt_y))
-    #print(der_Etotal_wrt_out)
 
     out_h_wrt_h_net = []
     for i in range(len(h_out)):
         out_h_wrt_h_net.append(h_out[i]*(1-h_out[i]))
-    #print(out_h_wrt_h_net)
 
     Etotal_wrt_w = []
     for i in range(len(out_h_wrt_h_net)):
