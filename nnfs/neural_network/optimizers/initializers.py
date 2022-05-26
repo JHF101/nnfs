@@ -56,14 +56,5 @@ class Initializers:
 
         return scaled_initialized.reshape((prev_layer,next_layer))
         
-if __name__=="__main__":
-    # init = Initializers()
-    # print(init.xavier(dim0=9,dim1=6, normalized=True))
-    # print(init.heuristic(lower=-1, upper=1, dim0=9, dim1=6))
-    # print(init.he(lower=-1, upper=1, dim0=9, dim1=6))
-    optimizer_param=dict(name='heuristic', lower=-1, upper=1, dim0=9, dim1=6)
-    print(optimizer_param)
-    intializer=getattr(Initializers(),'he')
-    print(intializer(**optimizer_param))
 
 

@@ -158,7 +158,7 @@ class Network:
         training_set_size = 0
 
         if (x_validate is not None) and (y_validate is not None):
-            # Determing the validation sets were actually given
+            # Determine the validation sets were actually given
             x_validation_set = x_validate
             y_validation_set = y_validate
             training_set_size = x_train_size 
@@ -203,9 +203,9 @@ class Network:
                     test_accuracy, total_test_error = \
                         self.optimizer.init_measures(self.weights)
 
-            # ------------------------------------------------------------------ #
-            #                              Training                              #
-            # ------------------------------------------------------------------ #
+            # -------------------------------------------------------------- #
+            #                          Training                              #
+            # -------------------------------------------------------------- #
             # Randomizing the data order
             if (shuffle_training_data==True):
                 x_train, y_train = shuffle_arrays(x_train, y_train)
@@ -337,9 +337,9 @@ class Network:
             else:
                 log.exception("Something went wrong! Optimizer type is not being used correctly.")
 
-            # ------------------------------------------------------------------ #
-            #                              Validating                            #
-            # ------------------------------------------------------------------ #
+            # -------------------------------------------------------------- #
+            #                          Validating                            #
+            # -------------------------------------------------------------- #
 
             if ((validations_set_percent > 0.0) or (validations_set_size > 0)):
                 for v in range(0, validations_set_size):
@@ -357,9 +357,9 @@ class Network:
                 total_validation_error /= validations_set_size
                 validation_accuracy /= validations_set_size 
             
-            # ------------------------------------------------------------------ #
-            #                              Testing                               #
-            # ------------------------------------------------------------------ #
+            # -------------------------------------------------------------- #
+            #                              Testing                           #
+            # -------------------------------------------------------------- #
 
             # Saving for confusion matrix
             all_predictions = []
@@ -393,9 +393,9 @@ class Network:
             total_test_error /= y_test_len
             test_accuracy /= y_test_len
             
-            # ------------------------------------------------------------------ #
-            #                       Confusion Matrix                             #
-            # ------------------------------------------------------------------ #
+            # -------------------------------------------------------------- #
+            #                    Confusion Matrix                            #
+            # -------------------------------------------------------------- #
 
             actual_values = np.array(actual_values)
             all_predictions = np.array(all_predictions)
@@ -430,9 +430,9 @@ class Network:
                 # No validation set used
                 log.info(f"""epoch {i+1}/{epochs} train_loss = {total_training_error} - train_accuracy = {train_accuracy} | test_loss={total_test_error} - test_accuracy = {test_accuracy} \r""")
 
-            # ------------------------------------------------------------------ #
-            #                         Saving Model                               #
-            # ------------------------------------------------------------------ #
+            # -------------------------------------------------------------- #
+            #                         Saving Model                           #
+            # -------------------------------------------------------------- #
             # Saving error and accuracy plots
             self.epoch_error_training_plot.append(total_training_error)
             self.epoch_training_accuracy_plot.append(train_accuracy)
@@ -452,9 +452,9 @@ class Network:
             if self.use_bias:
                 self.mega_bias_array.append(self.bias)
 
-            # ------------------------------------------------------------------ #
-            #                         Stopping Condition                         #
-            # ------------------------------------------------------------------ #
+            # -------------------------------------------------------------- #
+            #                      Stopping Condition                        #
+            # -------------------------------------------------------------- #
             
             if (self.early_stopping is not None):
                 # Number of epochs actually run
