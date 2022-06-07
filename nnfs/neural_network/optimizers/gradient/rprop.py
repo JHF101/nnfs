@@ -1,8 +1,9 @@
 from .gradient_optimizer import GradientOptimizer
 import logging
 import numpy as np
-log = logging.getLogger(__name__)
 
+from utils.logs import create_logger
+log = create_logger(__name__)
 class Rprop(GradientOptimizer):
     def __init__(self, eta_plus, eta_minus, delta_max, delta_min, weights_initialization=None):
         super().__init__()

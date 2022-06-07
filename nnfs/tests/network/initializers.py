@@ -1,7 +1,8 @@
 from neural_network.optimizers.initializers import Initializers
 import logging
 
-log = logging.getLogger('optimizer')
+from utils.logs import create_logger
+log = create_logger(__name__)
 
 init = Initializers()
 log.info(init.xavier(dim0=9,dim1=6, normalized=True))

@@ -1,7 +1,9 @@
 from .gradient_optimizer import GradientOptimizer
 import logging
 import numpy as np
-log = logging.getLogger(__name__)
+
+from utils.logs import create_logger
+log = create_logger(__name__)
 
 class DeltaBarDelta(GradientOptimizer):
     def __init__(self, theta, mini_k, phi, weights_initialization=None):

@@ -1,8 +1,8 @@
 import numpy as np
-from optimizers.initializers import Initializers
-import logging
+from .initializers import Initializers
 
-log = logging.getLogger('optimizer')
+from utils.logs import create_logger
+log = create_logger(__name__)
 
 # Create a base Optimizer class
 class Optimizer(Initializers):

@@ -4,6 +4,8 @@ import numpy as np
 import wget
 import re
 
+
+
 class Proben1:
 
     def __init__(self):
@@ -31,12 +33,9 @@ class Proben1:
 
     def get_dataset_dirs(self):
         
-        # Note: Assuming that the file is downloaded and in the directory
-
         # Find all of the directories in here
         directories = [x[0] for x in os.walk(self.WORKING_DIR)]
 
-        # print(list_of_dirs)
         # Find all of the dt files
         file_dirs = [] # Array of .dt files with their directory on the computer
         for dir in directories:
@@ -71,12 +70,14 @@ class Proben1:
                 return self.file_parser(dirs['directory'])        
 
     def file_parser(self, file_names):
-        """_summary_
+        """Gets files that correspond to the dataset file types and
+        the proceeds to return the data in a standardized format similar
+        to that of keras.datasets
 
         Parameters
         ----------
-        file_names : _type_
-            _description_
+        file_names : Str
+            The filenames of the dataset of interest.
 
         References
         ----------
@@ -136,7 +137,7 @@ class Proben1:
                             data_set_input_length = real_in
                         else: 
                             raise Exception("There is no input data length")
-                        
+
                         data_set_output_length = 0
                         if (bool_out != 0):
                             print("It has boolean outputs")
@@ -148,10 +149,7 @@ class Proben1:
                             raise Exception("There is no output data length")
                         data_state = False
 
-
-                    # TODO: Create a check that makes sure there is no empty spaces
-                    
-                    # data = read_line[t].split(' ')
+                    # Splitting by removing the spaces
                     data = re.split("(?<=\\S) ", read_line[t])
 
                     if data == ['']:
@@ -167,7 +165,7 @@ class Proben1:
                     # Split data into x and y
                     x_data = data[0:data_set_input_length]
                     y_data = data[data_set_input_length:]
-                    
+
                     # Checks
                     if len(y_data)!=data_set_output_length:
                         raise Exception(f"The length of y_data {len(y_data)}!= {data_set_output_length}")
@@ -188,6 +186,7 @@ class Proben1:
 
                 idx_counter += 1 
 
+            # Dataset returned in same format keras datasets
             data_set_output_array.append(
                     [(
                         np.array(x_train_temp), np.array(y_train_temp)),
@@ -196,6 +195,7 @@ class Proben1:
                     (
                         np.array(x_test_temp), np.array(y_test_temp))]
                 )
+
         return data_set_output_array
 
 

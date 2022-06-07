@@ -5,15 +5,9 @@ import seaborn as sn
 import numpy as np
 
 plt.style.use('fivethirtyeight')
-import logging
 
-log = logging.getLogger('plotting')
-log.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-fh = logging.FileHandler('program_logs/plotting.log')
-fh.setLevel(logging.DEBUG)
-fh.setFormatter(formatter)
-log.addHandler(fh)
+from utils.logs import create_logger
+log = create_logger(__name__)
 
 def random_color():
     rgbl=[255,0,0]
