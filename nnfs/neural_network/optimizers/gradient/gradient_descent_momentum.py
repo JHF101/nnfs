@@ -1,7 +1,6 @@
 from .gradient_optimizer import GradientOptimizer
-import logging
-log = logging.getLogger(__name__)
-
+from utils.logs import create_logger
+log = create_logger(__name__)
 class GradientDescentWithMomentum(GradientOptimizer):
     def __init__(self, learning_rate, beta, weights_initialization=None):
         super().__init__()

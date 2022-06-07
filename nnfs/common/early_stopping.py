@@ -1,7 +1,8 @@
 import numpy as np
 import logging
 
-log = logging.getLogger(__name__)
+from utils.logs import create_logger
+log = create_logger(__name__)
 
 class EarlyStopping:
     def __init__(self, k_epochs=None, pkt_threshold=None, alpha=None):

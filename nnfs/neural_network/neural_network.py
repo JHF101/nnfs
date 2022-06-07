@@ -4,10 +4,10 @@ import pickle
 import numpy as np
 
 from sklearn.metrics import confusion_matrix
-from common.utils import shuffle_arrays
+from utils.utils import shuffle_arrays
 
-log = logging.getLogger(__name__)
-
+from utils.logs import create_logger
+log = create_logger(__name__)
 class Network:
     """
     Neural Network class that uses fully connected layers

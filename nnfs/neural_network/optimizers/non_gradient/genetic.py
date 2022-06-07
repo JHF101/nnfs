@@ -3,7 +3,8 @@ from propagation.feedforward import FeedForward
 from optimizer import Optimizer
 import logging
 
-log = logging.getLogger('optimizer')
+from utils.logs import create_logger
+log = create_logger(__name__)
 
 class GeneticOptimizer(FeedForward, Optimizer):
     """

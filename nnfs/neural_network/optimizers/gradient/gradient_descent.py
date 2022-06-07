@@ -2,7 +2,8 @@
 from .gradient_optimizer import GradientOptimizer
 import logging
 
-log = logging.getLogger(__name__)
+from utils.logs import create_logger
+log = create_logger(__name__)
 
 class GradientDescent(GradientOptimizer):
     def __init__(self, learning_rate, weights_initialization=None):

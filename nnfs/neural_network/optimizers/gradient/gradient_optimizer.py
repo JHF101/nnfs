@@ -4,14 +4,8 @@ from ..optimizer import Optimizer
 import numpy as np
 import logging
 
-
-log = logging.getLogger('optimizer')
-log.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-fh = logging.FileHandler('program_logs/optimizer.log')
-fh.setLevel(logging.DEBUG)
-fh.setFormatter(formatter)
-log.addHandler(fh)
+from utils.logs import create_logger
+log = create_logger(__name__)
 
 class GradientOptimizer(FeedForward, BackProp, Optimizer):
     def __init__(self):

@@ -1,4 +1,5 @@
 import numpy as np
+import logging
 
 def shuffle_arrays(X, y):
     assert len(X) == len(y)
