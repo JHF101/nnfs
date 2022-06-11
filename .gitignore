@@ -1,10 +1,12 @@
 weights
-.png
-.log
+*.png
+*.log
 proben1-master
 .dt
 mnist
 setup.py
+*.pdf
+*.pickle
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
