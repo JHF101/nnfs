@@ -212,7 +212,7 @@ class Network:
             
             # Total number of iterations
             batches = int(np.ceil(example_size/batch_size)) 
-            log.debug("Number of batches", batches)
+            log.debug(f"Number of batches {batches}")
 
             for outer in range(0, batches):
 
