@@ -5,6 +5,7 @@ proben1-master
 .dt
 mnist
 setup.py
+*.pdf
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
