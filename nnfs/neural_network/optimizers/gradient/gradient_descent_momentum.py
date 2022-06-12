@@ -14,7 +14,7 @@ class GradientDescentWithMomentum(GradientOptimizer):
 
     def optimize(self, **kwargs):
         # --- Weights
-        dE_dwij_t = kwargs["dE_dwij_t"] 
+        dE_dwij_t = kwargs["dE_dwij_t"]
         weights = kwargs["weights"]
         mega_delta_weights_array = kwargs["mega_delta_weights_array"]
 
@@ -25,7 +25,7 @@ class GradientDescentWithMomentum(GradientOptimizer):
             mega_delta_bias_array = kwargs["mega_delta_bias_array"]
 
         # --------------------------------------------------------------------------------- #
-        #                       Backpropagation + Momentum                                  #
+        #                       Back propagation + Momentum                                 #
         # --------------------------------------------------------------------------------- #
         for w in range(0,len(weights)):
             if (len(mega_delta_weights_array)>1):
@@ -46,7 +46,7 @@ class GradientDescentWithMomentum(GradientOptimizer):
                 # --- Bias
                 if self.use_bias:
                     bias[w] -= self.learning_rate * dE_dbij_t[w]
-        
+
         if self.use_bias:
             return weights, bias
         else:

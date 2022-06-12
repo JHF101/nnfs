@@ -15,8 +15,8 @@ class GradientDescent(GradientOptimizer):
 
     # Maybe seperate here
     def optimize(self, **kwargs):
-        
-        dE_dwij_t=kwargs["dE_dwij_t"] 
+
+        dE_dwij_t=kwargs["dE_dwij_t"]
         dE_dbij_t=kwargs["dE_dbij_t"]
         weights=kwargs["weights"]
         bias=kwargs["bias"]
