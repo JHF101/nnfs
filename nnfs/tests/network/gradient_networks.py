@@ -11,17 +11,20 @@ from neural_network.optimizers.gradient.gradient_descent_momentum import \
     GradientDescentWithMomentum
 from neural_network.optimizers.gradient.rprop import Rprop
 from neural_network.optimizers.gradient.rms_prop import RMSProp
+from neural_network.optimizers.gradient.adam import Adam
 
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
 proben = Proben1()
 # proben.download_data()
-proben.get_dataset_dirs() 
+proben.get_dataset_dirs()
 
-(x_train, y_train), (x_validate, y_validate), (x_test, y_test) = proben.load_data(data_set_name='cancer')[2]
-filename = proben.get_filenames(data_set_name='cancer')[2]
+(x_train, y_train), (x_validate, y_validate), (x_test, y_test) = proben.load_data(data_set_name='cancer')[1]
+filename = proben.get_filenames(data_set_name='cancer')[1]
 
 print('-'*10)
-print(filename) 
+print(filename)
 print('-'*10)
 
 # -------------------------------------------------------------------- #
@@ -52,7 +55,7 @@ y_test /= normalizing_factor_y
 input_layer_size = x_train[0].shape[1]
 output_layer_size = y_train[0].shape[1]
 
-# optimizer_param=dict(name='heuristic', lower=-0.6, upper=0.3)
+# optimizer_param=dict(name='heuristic', lower=-0.3, upper=0.3)
 # optimizer_param=dict(name='xavier')
 # optimizer_param=dict(name='he')
 optimizer_param=None
@@ -62,52 +65,58 @@ nn_train = Network(
 
     layers=[
         (input_layer_size,tanh),
-        (16,tanh),
+        # (64,tanh),
         (8,tanh),
-        (output_layer_size,softmax)
+        (4,tanh),
+        (output_layer_size,tanh)
     ],
 
     error_function=squared_error,
 
     use_bias=True,
-    
-    # optimizer = GeneticOptimizer(number_of_parents=4, 
+
+    # optimizer = GeneticOptimizer(number_of_parents=4,
     #                             fitness_eval='accuracy',
     #                             weights_initialization=optimizer_param),
 
-    # optimizer= GradientDescent(learning_rate=0.5, weights_initialization=optimizer_param),
+    optimizer= GradientDescent(learning_rate=0.5, weights_initialization=optimizer_param),
 
-    # optimizer= GradientDescentWithMomentum(learning_rate=0.05, beta=0.9, weights_initialization=optimizer_param),
+    # optimizer= GradientDescentWithMomentum(learning_rate=0.09, beta=0.9, weights_initialization=optimizer_param),
 
     # optimizer= DeltaBarDelta(theta=0.1, mini_k=0.01, phi=0.1, weights_initialization=optimizer_param),
 
     # optimizer= Rprop(delta_max=50, delta_min=0, eta_plus=1.1, eta_minus=0.5, weights_initialization=optimizer_param),
 
-    optimizer= RMSProp(learning_rate=0.1, beta=0.999, weights_initialization=optimizer_param),
-    
-    # training_params = EarlyStopping(alpha=10,
-    #                                 pkt_threshold=0.1,
-    #                                 k_epochs=5,
-    #                                 )
+    # optimizer= RMSProp(learning_rate=0.01, beta=0.99, weights_initialization=optimizer_param),
+
+    # optimizer= Adam(learning_rate=0.01, beta1=0.65, beta2=0.6, weights_initialization=optimizer_param),
+
+    training_params = EarlyStopping(alpha=5,
+                                    pkt_threshold=0.1,
+                                    k_epochs=5,
+                                    )
 )
 
 nn_train.fit(
-            x_train=x_train, 
-            y_train=y_train, 
-            x_test=x_test, 
-            y_test=y_test, 
+            x_train=x_train,
+            y_train=y_train,
+            x_test=x_test,
+            y_test=y_test,
             x_validate=x_validate,
             y_validate=y_validate,
-            epochs=150,
-            batch_size=64, # If batch size equals 1, we have online learning
+            epochs=100,
+            batch_size=8, # If batch size equals 1, we have online learning
             shuffle_training_data=True,
-            )      
+            generate_plots=True
+            )
 
-plots = Plots(nn_train)
+
+# plots = Plots(nn_train)
 # plots.plot_epoch_error(ds_name="Cancer",save_dir="cancer")
-plots.plot_epoch_accuracy(ds_name="Cancer",save_dir="cancer1")
+# plots.plot_epoch_accuracy(ds_name="Cancer",save_dir="cancer1")
+# plots.plot_confusion_matrix(save_dir="cancer2")
 
 # Make a prediction
-print(nn_train.predict(x_test[1])) 
-print(y_test[1]) 
+print(nn_train.predict(x_test[1]))
+print(y_test[1])
 

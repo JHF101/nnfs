@@ -13,8 +13,8 @@ class Initializers:
         # Upper
         # dim0
         # dim1
-        return np.random.uniform(low=kwargs['lower'], 
-                        high=kwargs['upper'], 
+        return np.random.uniform(low=kwargs['lower'],
+                        high=kwargs['upper'],
                         size=(kwargs['dim0'],kwargs['dim1']))
 
     def xavier(self, **kwargs):
@@ -29,12 +29,12 @@ class Initializers:
             main_term = (np.sqrt(6.0) / np.sqrt(prev_layer+next_layer))
             lower = - main_term
             upper =  main_term
-            
+
         else:
             main_term = (1.0 / np.sqrt(prev_layer))
             lower = - main_term
             upper = main_term
-            
+
         initalized = np.random.rand(prev_layer * next_layer)
 
         scaled_initialized = lower + initalized * (upper - lower)
@@ -55,6 +55,6 @@ class Initializers:
         scaled_initialized = intialized * ranges
 
         return scaled_initialized.reshape((prev_layer,next_layer))
-        
+
 
 

@@ -7,6 +7,7 @@ mnist
 setup.py
 *.pdf
 *.pickle
+plotting_functions_dynamic.py
 
 
 # Byte-compiled / optimized / DLL files
