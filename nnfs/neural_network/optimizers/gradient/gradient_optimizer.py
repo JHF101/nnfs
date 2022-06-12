@@ -43,7 +43,6 @@ class GradientOptimizer(FeedForward, BackProp, Optimizer):
             # Weights initializer
             optimizer_params = self.initialization_method
             log.info(f"The initialization paramters are {optimizer_params}")
-            # intializer=getattr(Initializers(), optimizer_params['name'])
             intializer=getattr(Optimizer(), optimizer_params['name'])
 
         # Initialize random weights and biases (Find different way to init)
@@ -61,7 +60,6 @@ class GradientOptimizer(FeedForward, BackProp, Optimizer):
 
             weights.append(
                 resulting_init
-                #np.random.rand(self.layers[i-1][0], self.layers[i][0]) - 0.5,
             )
             if self.use_bias:
                 bias.append(
@@ -71,7 +69,7 @@ class GradientOptimizer(FeedForward, BackProp, Optimizer):
             log.info(f"Weights Shape: {weights[i-1].shape}")
             if self.use_bias:
                 log.info(f"Bias Shape: {bias[i-1].shape}")
-        
+
         if self.use_bias:
             return weights, bias
         else:
@@ -80,13 +78,13 @@ class GradientOptimizer(FeedForward, BackProp, Optimizer):
     def init_propagations(self):
         # Initializing FeedForward
         FeedForward.__init__(self,
-                                use_bias=self.use_bias, 
+                                use_bias=self.use_bias,
                                 activation_functions=self.activation_functions
                             )
 
         # Initializing Back Propagation
         BackProp.__init__(self,
-                            use_bias=self.use_bias, 
+                            use_bias=self.use_bias,
                             activation_functions=self.activation_functions,
                             error_function=self.error_function
                             )
@@ -109,9 +107,9 @@ class GradientOptimizer(FeedForward, BackProp, Optimizer):
                 verification_accuarcy_results, total_verification_error, \
                     test_accuarcy_results, total_test_error
 
-    def forward_prop_fit(self, 
-                        X, 
-                        Y, 
+    def forward_prop_fit(self,
+                        X,
+                        Y,
                         accuracy_results, # TODO: Make into kwargs
                         total_training_error, # TODO
                         weights, bias):
@@ -128,7 +126,7 @@ class GradientOptimizer(FeedForward, BackProp, Optimizer):
         final_layer_output = self.error_function(Y, final_layer)
         total_training_error += final_layer_output
 
-        # --- Training Accuracy 
+        # --- Training Accuracy
         if (np.argmax(final_layer) == np.argmax(Y)):
             accuracy_results += 1 # Used for genetic algorithm
 
@@ -158,7 +156,7 @@ class GradientOptimizer(FeedForward, BackProp, Optimizer):
         # --------------------------------------------------------------------------- #
         # --- Reversing the gradients
         dE_dwij_t = average_gradients[::-1] # Weight Gradient
-        
+
         if self.use_bias:
             dE_dbij_t = average_bias[::-1] # Bias Gradient
         else:

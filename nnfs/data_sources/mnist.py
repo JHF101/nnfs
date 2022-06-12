@@ -14,13 +14,13 @@ class MNIST:
     def byte_to_int(self, byte):
         """
         Converts 4 Bytes to an int32
-        
+
         Parameters
         ----------
 
         """
         return int(codecs.encode(byte, 'hex'), 16)
-    
+
     def download_data(self):
         import gzip
         import glob
@@ -47,7 +47,7 @@ class MNIST:
 
     def load_data(self, directory):
         """
-        Loads the MNIST Data into the directory specified 
+        Loads the MNIST Data into the directory specified
 
         Parameters
         ----------
@@ -66,7 +66,7 @@ class MNIST:
         training_set_size = 60000
         test_set_size = 10000
 
-        # Determine way to get this 
+        # Determine way to get this
         files = os.listdir(self.WORKING_DIR+directory)
 
         # Create a dictionary to store train images, train labels, test images and test labels
@@ -85,7 +85,7 @@ class MNIST:
                         row_count = self.byte_to_int(data[8:12]) # Number of rows
                         col_count = self.byte_to_int(data[12:16]) # Number of columns
                         parsed_data = np.frombuffer(data, dtype=np.uint8, offset=16) # read the pixel data
-                        parsed_data = parsed_data.reshape(length_of_arr, row_count, col_count) 
+                        parsed_data = parsed_data.reshape(length_of_arr, row_count, col_count)
 
                     # Just for completeness
                     elif ((magic_number == training_set_label_file) or (magic_number == test_set_label_file)):
@@ -98,7 +98,7 @@ class MNIST:
                     elif (length_of_arr == training_set_size):
                         set_type = 'train'
                     dataset_dict[set_type + '_' + data_type] = parsed_data
-        
+
         # Structure from how tensorflow does it
         return ((dataset_dict['train_images'], dataset_dict['train_labels']),
                 (dataset_dict['test_images'], dataset_dict['test_labels']))

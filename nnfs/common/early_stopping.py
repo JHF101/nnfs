@@ -19,7 +19,7 @@ class EarlyStopping:
     def training_progress(self, epoch_error_training_plot, pkt_threshold):
         # TODO: Make sure that the optimal weight is saved at the minimum
         k_epochs = self.k_epochs
-        try:            
+        try:
             numerator = 0
             denominator = 0
             denom_check_arr= []

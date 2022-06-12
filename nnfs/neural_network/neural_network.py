@@ -1,22 +1,25 @@
-import logging
 import pickle
+
+import matplotlib.pyplot as plt
+from matplotlib.pyplot import figure
 
 import numpy as np
 
 from sklearn.metrics import confusion_matrix
+from common.plotting_functions import Plots
 from utils.utils import shuffle_arrays
 
 from utils.logs import create_logger
 log = create_logger(__name__)
-class Network:
+class Network(Plots):
     """
     Neural Network class that uses fully connected layers
     """
-    def __init__(self, 
+    def __init__(self,
                 optimizer=None,
-                layers=[], 
+                layers=[],
                 use_bias=False,
-                error_function=None, 
+                error_function=None,
                 training_params=None,
                 load_model=False):
         """Initialization of Neural Network
@@ -29,7 +32,7 @@ class Network:
         learning_rate : float
             Learning rate used in the model
         use_bias : bool, optional
-            Determines whether to add bias nodes on each layer, except the 
+            Determines whether to add bias nodes on each layer, except the
             output layer, by default True
         plotting_func_bool : bool, optional
             Determines whether to plot, by default False
@@ -42,12 +45,12 @@ class Network:
             # Number of weights is number of layers - 1
             self.optimizer = optimizer
             log.info(f"Using the {self.optimizer.optimizer_name} is used")
-            
+
             # Just init for now
             self.bias = []
-            
+
             # Intialize layers
-            self.layers = layers 
+            self.layers = layers
 
             # Initialize error function
             self.error_function = error_function
@@ -58,9 +61,9 @@ class Network:
 
             # Initialize weight structures
             self.weights, self.bias = self.optimizer.init_network_structures(
-                                                                layers=self.layers, 
+                                                                layers=self.layers,
                                                                 )
-            
+
             # Initialize activation functions
             self.activation_functions = self.optimizer.init_activation_functions()
 
@@ -68,8 +71,8 @@ class Network:
             self.optimizer.init_propagations()
 
             # TODO: Save these plots
-            self.epoch_error_training_plot = [] 
-            self.epoch_error_validation_plot = [] 
+            self.epoch_error_training_plot = []
+            self.epoch_error_validation_plot = []
             self.epoch_error_testing_plot = []
             self.epoch_training_accuracy_plot = []
             self.epoch_validation_accuracy_plot = []
@@ -91,9 +94,9 @@ class Network:
 
                 # Overfit parameter
                 self.GL = 0
-                self.k_epochs = self.early_stopping.k_epochs 
-                self.pkt_threshold = self.early_stopping.pkt_threshold 
-                self.alpha = self.early_stopping.alpha 
+                self.k_epochs = self.early_stopping.k_epochs
+                self.pkt_threshold = self.early_stopping.pkt_threshold
+                self.alpha = self.early_stopping.alpha
             else :
                 self.early_stopping = None
                 log.info("No early stopping is used")
@@ -101,20 +104,21 @@ class Network:
             # Total number of epochs
             self.total_epochs = 0
 
-            # The point at which training was stopped 
+            # The point at which training was stopped
             self.optimal_error_position = 0
         else:
             # Expecting model
             self.optimizer = optimizer
 
-    def fit(self, 
-            x_train, y_train, 
-            x_test, y_test, 
-            x_validate=None, y_validate=None, 
-            epochs=1, 
-            validations_set_percent=0.0, 
-            batch_size=1, 
-            shuffle_training_data=True):
+    def fit(self,
+            x_train, y_train,
+            x_test, y_test,
+            x_validate=None, y_validate=None,
+            epochs=1,
+            validations_set_percent=0.0,
+            batch_size=1,
+            shuffle_training_data=True,
+            generate_plots=False):
         """Fit the model to the dataset.
 
         x_validate and y_validate can be given by the user, however
@@ -149,7 +153,10 @@ class Network:
         ------
         Exception
             Validation set percentage must be [0,1]
-        """        
+        """
+        # Whether to display graphs or not
+        self.generate_plots = generate_plots
+
         x_train_size = len(x_train)
 
         # Init
@@ -161,8 +168,8 @@ class Network:
             # Determine the validation sets were actually given
             x_validation_set = x_validate
             y_validation_set = y_validate
-            training_set_size = x_train_size 
-            validations_set_size = len(x_validate) 
+            training_set_size = x_train_size
+            validations_set_size = len(x_validate)
 
         else:
             if (1.0 > validations_set_percent > 0.0):
@@ -170,7 +177,7 @@ class Network:
                 training_set_size = int(x_train_size*(1-validations_set_percent))
                 validations_set_size = x_train_size - training_set_size
                 x_validation_set = x_train[training_set_size:training_set_size+validations_set_size]
-                y_validation_set = y_train[training_set_size:training_set_size+validations_set_size]  
+                y_validation_set = y_train[training_set_size:training_set_size+validations_set_size]
 
             elif (validations_set_percent == 0.0):
                 # No validation set will be used
@@ -180,7 +187,7 @@ class Network:
 
             else:
                 raise Exception("Validation percentage size must be between 0 and 1")
-        
+
         # Setting the training size
         x_train = x_train[0:training_set_size]
         y_train = y_train[0:training_set_size]
@@ -197,7 +204,7 @@ class Network:
         # Train
         for i in range(epochs):
 
-            # Initializing accuracy measures    
+            # Initializing accuracy measures
             train_accuracy, total_training_error, \
                 validation_accuracy, total_validation_error, \
                     test_accuracy, total_test_error = \
@@ -209,23 +216,23 @@ class Network:
             # Randomizing the data order
             if (shuffle_training_data==True):
                 x_train, y_train = shuffle_arrays(x_train, y_train)
-            
+
             # Total number of iterations
-            batches = int(np.ceil(example_size/batch_size)) 
+            batches = int(np.ceil(example_size/batch_size))
             log.debug(f"Number of batches {batches}")
 
             for outer in range(0, batches):
 
-                if (self.optimizer.optimizer_type == 'gradient'):    
+                if (self.optimizer.optimizer_type == 'gradient'):
                     # Used as a state control variable
-                    delta_weight_counter = 0 
+                    delta_weight_counter = 0
                     # Keeps track of the number of gradients
-                    num_of_summations_per_batch = 0 
+                    num_of_summations_per_batch = 0
 
                 # Setting lower and upper bounds for batch
                 lower_batch = int(outer*batch_size)
                 upper_batch = int((outer+1)*batch_size)
-                
+
                 for j in range(lower_batch, upper_batch):
 
                     # Condition to break out of the training loop
@@ -238,19 +245,19 @@ class Network:
                         # Forward Propagation
                         total_training_error, train_accuracy, ff_results = \
                             self.optimizer.forward_prop_fit(
-                                x_train[j], 
-                                y_train[j], 
-                                train_accuracy, 
-                                total_training_error, 
+                                x_train[j],
+                                y_train[j],
+                                train_accuracy,
+                                total_training_error,
                                 self.weights,
                                 self.bias)
 
                         # Backward Propagation
                         self.delta_weight, self.delta_bias = \
                             self.optimizer.backpropagation(
-                                y_train[j], 
-                                ff_results[-1], 
-                                self.weights, 
+                                y_train[j],
+                                ff_results[-1],
+                                self.weights,
                                 ff_results)
 
                         # Keeping ttrack of gradients
@@ -277,21 +284,21 @@ class Network:
                         total_training_error, train_accuracy, _ = \
                             self.optimizer.forward_prop_fit(
                                 x_train[j],
-                                y_train[j], 
-                                train_accuracy, 
-                                total_training_error, 
-                                self.weights, 
+                                y_train[j],
+                                train_accuracy,
+                                total_training_error,
+                                self.weights,
                                 self.bias)
 
                     else:
                         log.exception("Something went wrong!")
 
 
-            # Averaging over all samples 
+            # Averaging over all samples
             total_training_error /= example_size # TODO: Consider PROBEN1 error
             train_accuracy /= example_size
 
-            if (self.optimizer.optimizer_type == 'gradient'):    
+            if (self.optimizer.optimizer_type == 'gradient'):
 
                 # Averaging gradients
                 average_gradients = [average_gradients[i]/num_of_summations_per_batch for i in range(len(average_gradients))]
@@ -318,9 +325,9 @@ class Network:
 
                 # Optimizing the weights
                 self.weights, self.bias = self.optimizer.optimize(
-                    dE_dwij_t=dE_dwij_t, 
-                    dE_dbij_t=dE_dbij_t, 
-                    weights=self.weights, 
+                    dE_dwij_t=dE_dwij_t,
+                    dE_dbij_t=dE_dbij_t,
+                    weights=self.weights,
                     bias=self.bias,
                     mega_delta_weights_array=self.mega_delta_weights_array,
                     mega_delta_bias_array=self.mega_delta_bias_array if self.use_bias else 0)
@@ -329,8 +336,8 @@ class Network:
                     and (self.optimizer.optimizer_name == 'genetic')):
                 # Only genetic algorithm for now is being used
                 self.weights, self.bias = self.optimizer.optimize(
-                    error=total_training_error, 
-                    accuracy=train_accuracy, 
+                    error=total_training_error,
+                    accuracy=train_accuracy,
                     weights=self.weights,
                     bias=self.bias)
 
@@ -346,17 +353,17 @@ class Network:
                     # Forward Propagation
                     total_validation_error, validation_accuracy, _ = \
                         self.optimizer.forward_prop_fit(
-                            X=x_validation_set[v], 
-                            Y=y_validation_set[v], 
-                            accuracy_results=validation_accuracy, 
-                            total_training_error=total_validation_error, 
-                            weights=self.weights, 
+                            X=x_validation_set[v],
+                            Y=y_validation_set[v],
+                            accuracy_results=validation_accuracy,
+                            total_training_error=total_validation_error,
+                            weights=self.weights,
                             bias=self.bias)
 
                 # Averaging
                 total_validation_error /= validations_set_size
-                validation_accuracy /= validations_set_size 
-            
+                validation_accuracy /= validations_set_size
+
             # -------------------------------------------------------------- #
             #                              Testing                           #
             # -------------------------------------------------------------- #
@@ -368,22 +375,24 @@ class Network:
             for t in range(y_test_len):
                 total_test_error, test_accuracy, ff_test_result = \
                     self.optimizer.forward_prop_fit(
-                        X=x_test[t], 
-                        Y=y_test[t], 
-                        accuracy_results=test_accuracy, 
-                        total_training_error=total_test_error, 
-                        weights=self.weights, 
+                        X=x_test[t],
+                        Y=y_test[t],
+                        accuracy_results=test_accuracy,
+                        total_training_error=total_test_error,
+                        weights=self.weights,
                         bias=self.bias)
 
                 temp_all_predictions = []
                 temp_actual_values=[]
 
-                for cp in range(len(ff_test_result)):
-                    # Testing accuracy
-                    categorical_prediction = np.argmax(ff_test_result[cp])
-                    temp_all_predictions.append(categorical_prediction)
-                    actual_output= np.argmax(y_test[t])
-                    temp_actual_values.append(actual_output)
+                # for cp in range(len(ff_test_result)):
+                # Testing accuracy
+                categorical_prediction = np.argmax(ff_test_result[-1])
+                log.warning(f"Categorical prediction of : {categorical_prediction}")
+                temp_all_predictions.append(categorical_prediction)
+                actual_output= np.argmax(y_test[t])
+                log.warning(f"Actual output prediction of : {actual_output}")
+                temp_actual_values.append(actual_output)
 
                 # Arrays used for confusion matrix
                 all_predictions.append(temp_all_predictions)
@@ -392,7 +401,7 @@ class Network:
             # Averaging
             total_test_error /= y_test_len
             test_accuracy /= y_test_len
-            
+
             # -------------------------------------------------------------- #
             #                    Confusion Matrix                            #
             # -------------------------------------------------------------- #
@@ -401,13 +410,15 @@ class Network:
             all_predictions = np.array(all_predictions)
 
             # Get the columns of the predictions
-            for cm in range(all_predictions.shape[0]):
-                self.confusion_matrix.append(
-                    confusion_matrix(actual_values[cm,:], all_predictions[cm,:])
-                )
+            # TODO: This is causing big errors
+            # for cm in range(all_predictions.shape[0]):
+            #     self.confusion_matrix.append(
+            #         confusion_matrix(actual_values[cm,:], all_predictions[cm,:]) # This is wrong
+            #     )
+            self.confusion_matrix.append(confusion_matrix(actual_values, all_predictions))
 
             # Non-Gradient (Genetic)
-            if (type(validation_accuracy)==list): # Means that we have more          
+            if (type(validation_accuracy)==list): # Means that we have more
                 log.info("="*30)
                 log.info(f"epoch {i+1}/{epochs}")
                 log.info("*"*5, "Training", "*"*5)
@@ -438,7 +449,7 @@ class Network:
             self.epoch_training_accuracy_plot.append(train_accuracy)
 
             try:
-                if (validations_set_percent>0.0) or (len(x_validate)>0):    
+                if (validations_set_percent>0.0) or (len(x_validate)>0):
                     self.epoch_error_validation_plot.append(total_validation_error)
                     self.epoch_validation_accuracy_plot.append(validation_accuracy)
             except:
@@ -455,17 +466,17 @@ class Network:
             # -------------------------------------------------------------- #
             #                      Stopping Condition                        #
             # -------------------------------------------------------------- #
-            
+
             if (self.early_stopping is not None):
                 # Number of epochs actually run
                 self.total_epochs += 1 # NOTE: actually has an offset of 1
                 try:
-                    """Only take the top performing for genetic and only one element for 
+                    """Only take the top performing for genetic and only one element for
                     the gradient based methods.
                     """
                     for es in range(1): #len(validation_accuracy)):
                         if (self.optimizer == 'non-gradient'):
-                            epoch_error_validation_plot_temp = np.array(self.epoch_error_validation_plot, dtype=object) 
+                            epoch_error_validation_plot_temp = np.array(self.epoch_error_validation_plot, dtype=object)
                             epoch_error_validation_plot_per_parent = epoch_error_validation_plot_temp[:,es].tolist()
                         else:
                             epoch_error_validation_plot_per_parent = self.epoch_error_validation_plot
@@ -498,6 +509,14 @@ class Network:
                     log.debug(f"Skipping the stopping criterion, epoch = {i}.")
                     pass
 
+        # -------------------------------------------------------------- #
+        #                        Live Plotting                           #
+        # -------------------------------------------------------------- #
+        if self.generate_plots:
+            self.plot_epoch_error(self, ds_name="Stream", save_dir="Stream")
+            self.plot_epoch_accuracy(self, ds_name="Stream1", save_dir="Stream1")
+            self.plot_confusion_matrix(self, ds_name="Stream2", save_dir="Stream2")
+
         log.info("Done Training Model.")
 
     def predict(self, X):
@@ -515,7 +534,7 @@ class Network:
         """
 
         # X is a single element
-        return self.optimizer.predict(X=X, 
+        return self.optimizer.predict(X=X,
                                     weights=self.weights,
                                     bias=self.bias)
 
@@ -527,13 +546,13 @@ class Network:
         file_dir : str
             The directory to which the model will be saved
         """
-        model_params={ key:value for key, value in vars(self).items() }      
+        model_params={ key:value for key, value in vars(self).items() }
         with open(f'{file_dir}', 'wb') as f:
             pickle.dump(model_params, f)
 
         log.info(f'The following class variables were saved: {[key for key, value in vars(self).items()]}')
         log.info(f"Saved model successfully to {file_dir}")
-    
+
     def load_model(self, file_dir, **kwargs):
         """Loads the saved model to the class.
 
@@ -556,8 +575,8 @@ class Network:
         log.info(f"Elements contained in class: {[key for key, value in vars(self).items()]}")
         log.info(f"Optimal error position: {self.optimal_error_position}")
         log.info(f"Validation accuracy of previous model: {self.epoch_validation_accuracy_plot[self.optimal_error_position-1]}")
-        
-        # Load the optimal weights (The one from the best epoch)   
+
+        # Load the optimal weights (The one from the best epoch)
         self.weights = self.mega_weights_array[self.optimal_error_position-1]
 
         # Determine if bias is being used
@@ -597,7 +616,7 @@ class Network:
             self.optimizer.init_activation_functions()
             log.info("Using the same activation functions.")
 
-        # Ability to change error function 
+        # Ability to change error function
         if ('error_function' in kwargs.keys()):
             self.optimizer.init_error_func(kwargs['error_function'])
             log.info('Using new error_function functions.')

@@ -2,7 +2,7 @@ import numpy as np
 
 #TODO: allow for other types of activation functions, that are not products of themselves
 # def rprop_sigmoid(x, derivative=0):
-    
+
 #     x = np.array(x)
 #     if derivative==0:
 #         # return x/(1+np.abs(x))
@@ -12,12 +12,12 @@ import numpy as np
 #         return -sig*(1-sig)
 
 def sigmoid(x, derivative=0):
-    
+
     x = np.array(x)
     if derivative==0:
         return 1/(1+np.exp(-x))
     else:
-        sig = x # 1/(1+np.exp(-x))
+        sig = 1/(1+np.exp(-x)) # x
         return sig*(1-sig)
 
 def tanh(x, derivative=0):
@@ -25,7 +25,7 @@ def tanh(x, derivative=0):
     if derivative==0:
         return np.tanh(x)
     else:
-        return 1 - x**2 #1-np.tanh(x)**2
+        return 1-np.tanh(x)**2 #1 - x**2 #
 
 def relu(x, derivative=0):
     """
@@ -34,7 +34,7 @@ def relu(x, derivative=0):
     Parameters
     ----------
     x : numpy.ndarray
-        input from weights to layers / the output of layers 
+        input from weights to layers / the output of layers
     derivative : int, optional
         If 0 it is the ReLu function
         else it is the derivative function, by default 0
@@ -43,7 +43,7 @@ def relu(x, derivative=0):
     -------
     numpy.ndarray
         - ReLu output
-        - Derivative of input (assuming that we are getting data that has been 
+        - Derivative of input (assuming that we are getting data that has been
         passed through the function)
 
     References
@@ -59,7 +59,7 @@ def relu(x, derivative=0):
         x[x<=0] = 0
         x[x>0] = 1
         return x
-        
+
 def softmax(x, derivative=0):
     if derivative == 0:
         # Not stable

@@ -8,7 +8,7 @@ log = create_logger(__name__)
 class Optimizer(Initializers):
     def __init__(self):
         self.activation_functions = []
-    
+
     def init_bias_usage(self, use_bias):
         """Initializes the bias usage for the optimizer.
 
@@ -58,7 +58,7 @@ class Optimizer(Initializers):
             activation_func_len = len(kwargs['activation_functions'])
             layer_len = len(self.layers)
 
-            if (layer_len == activation_func_len): 
+            if (layer_len == activation_func_len):
                 # Can change the activation functions
                 self.activation_functions = kwargs['activation_functions']
 

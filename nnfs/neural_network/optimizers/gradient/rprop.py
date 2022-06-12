@@ -29,7 +29,7 @@ class Rprop(GradientOptimizer):
 
     def optimize(self, **kwargs):
         # --- Weights
-        dE_dwij_t = kwargs["dE_dwij_t"] 
+        dE_dwij_t = kwargs["dE_dwij_t"]
         weights = kwargs["weights"]
 
         # --- Bias
@@ -50,23 +50,23 @@ class Rprop(GradientOptimizer):
                     bias_multiplication = dE_dbij_t[w]
 
                 self.del_ij_t_w.append(np.random.uniform(low=0.05, high=0.2, size=gradient_multiplication.shape))
-                self.dE_dwij_t_1.append(np.random.uniform(low=0.05, high=0.2, size=gradient_multiplication.shape))   
+                self.dE_dwij_t_1.append(np.random.uniform(low=0.05, high=0.2, size=gradient_multiplication.shape))
 
                 if self.use_bias:
                     self.del_ij_t_b.append(np.random.uniform(low=0.05, high=0.2, size=bias_multiplication.shape))
-                    self.dE_dbij_t_1.append(np.random.uniform(low=0.05, high=0.2, size=bias_multiplication.shape))  
+                    self.dE_dbij_t_1.append(np.random.uniform(low=0.05, high=0.2, size=bias_multiplication.shape))
 
         self.rprop_init_process= False
 
         if len(dE_dwij_t) != len(self.dE_dwij_t_1):
             raise Exception("The size of the derivatives in RProp do not match")
-        
+
         if self.use_bias:
             if len(dE_dwij_t) != len(dE_dbij_t):
                 raise Exception("Length of bias gradients does not equal the length of the weights gradients")
 
         for outer in range(0, len(dE_dwij_t)): # Looping through the first set of weights
-            
+
             if (dE_dwij_t[outer].shape[0] != self.dE_dwij_t_1[outer].shape[0]):
                 raise Exception("The element size of derivatives in RProp do not match")
 
@@ -74,10 +74,10 @@ class Rprop(GradientOptimizer):
 
                 if (dE_dwij_t[outer].shape[1] != self.dE_dwij_t_1[outer].shape[1]):
                     raise Exception("The row size of derivatives in RProp do not match")
-                    
+
                 for q in range(0, dE_dwij_t[outer].shape[1]):
 
-                    # (dE(t)/dw_i(t))*(dE(t-1)/dw_i(t-1)) 
+                    # (dE(t)/dw_i(t))*(dE(t-1)/dw_i(t-1))
                     gradient_mult = self.dE_dwij_t_1[outer][p][q] * dE_dwij_t[outer][p][q]
                     # print("Index", outer, p, q)
                     if (gradient_mult > 0.0): # This loop only runs once
@@ -130,7 +130,7 @@ class Rprop(GradientOptimizer):
         # --------------------------------------------------------------------------------- #
         #                                   END RPROP                                       #
         # --------------------------------------------------------------------------------- #
-        
+
         if self.use_bias:
             return weights, bias
         else:

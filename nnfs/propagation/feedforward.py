@@ -13,23 +13,23 @@ class FeedForward:
             return np.matmul(input_data, weight) + bias
         else:
             return np.matmul(input_data, weight)
-    
+
     def feedforward(self, x, **kwargs):
         """
         Propagates the result through the entire network, kind of like the predict function
-        Kwargs allow us to overwrite the weights 
+        Kwargs allow us to overwrite the weights
         """
-        # Data layer holds all of the intermediate data between that is 
+        # Data layer holds all of the intermediate data between that is
         # calculated during forward passes and can be used by backward pass
         data_layer = []
         data_layer.append(x)
-            
+
         if self.use_bias:
             if ('weights' not in kwargs.keys()) and ('bias' not in kwargs.keys()):
                 print('kwarg items', kwargs.keys())
                 raise NotImplementedError("The weights or biases are not being used")
 
-        else: 
+        else:
             if 'weights' not in kwargs.keys():
                 print('kwarg items', kwargs.keys())
                 raise NotImplementedError("The weights have not been used")
@@ -48,5 +48,5 @@ class FeedForward:
             data_layer.append(
                 self.activation_functions[i+1](result)
                 )
-        
+
         return data_layer # Returning the data layer output (the output is at [-1])

@@ -9,7 +9,7 @@ class Proben1:
     def __init__(self):
         self.WORKING_DIR = os.getcwd() + '/'
         self.DATASET_DIR = self.WORKING_DIR+'proben1/'
-    
+
     def download_data(self):
         import glob
         import zipfile
@@ -30,7 +30,7 @@ class Proben1:
             os.remove(f)
 
     def get_dataset_dirs(self):
-        
+
         # Find all of the directories in here
         directories = [x[0] for x in os.walk(self.WORKING_DIR)]
 
@@ -48,9 +48,9 @@ class Proben1:
                             "path": dir,
                         }
                     )
-        
+
         self.file_dirs = file_dirs
-    
+
     def get_filenames(self, data_set_name):
         filenames = []
         for dirs in self.file_dirs:
@@ -60,12 +60,12 @@ class Proben1:
         return filenames
 
     def load_data(self, data_set_name):
-        # Returns an array of tuples of the processed data 
-        # The user can the choose which element of the array that 
+        # Returns an array of tuples of the processed data
+        # The user can the choose which element of the array that
         # They would like to use for training
         for dirs in self.file_dirs:
             if data_set_name in dirs['dataset']:
-                return self.file_parser(dirs['directory'])        
+                return self.file_parser(dirs['directory'])
 
     def file_parser(self, file_names):
         """Gets files that correspond to the dataset file types and
@@ -97,7 +97,7 @@ class Proben1:
                 #           Determine Dataset Structure               #
                 # --------------------------------------------------- #
                 if (idx_counter <= 6):
-                    structure_value = int(read_line[t].split('=')[-1]) 
+                    structure_value = int(read_line[t].split('=')[-1])
                     if idx_counter == 0:
                         bool_in = structure_value
                         print("Bool_in",bool_in)
@@ -133,7 +133,7 @@ class Proben1:
                         elif (real_in != 0):
                             print("It has Real valued inputs")
                             data_set_input_length = real_in
-                        else: 
+                        else:
                             raise Exception("There is no input data length")
 
                         data_set_output_length = 0
@@ -143,7 +143,7 @@ class Proben1:
                         elif (real_out != 0):
                             print("It has Real valued outputs")
                             data_set_output_length = real_out
-                        else: 
+                        else:
                             raise Exception("There is no output data length")
                         data_state = False
 
@@ -182,7 +182,7 @@ class Proben1:
 
                     data_set_counter += 1
 
-                idx_counter += 1 
+                idx_counter += 1
 
             # Dataset returned in same format keras datasets
             data_set_output_array.append(

@@ -1,4 +1,4 @@
-import inspect  
+import inspect
 # Initialize the terminal for color
 import logging
 import os
@@ -6,9 +6,9 @@ import os
 class ColourAndCustomFormatter(logging.Formatter):
     """Adds colours to the log files.
 
-    Returns ANSI in logs. 
+    Returns ANSI in logs.
     https://marketplace.visualstudio.com/items?itemName=iliazeus.vscode-ansi"""
-    
+
     grey = "\x1b[38;20m"
     yellow = "\x1b[33;20m"
     red = "\x1b[31;20m"
