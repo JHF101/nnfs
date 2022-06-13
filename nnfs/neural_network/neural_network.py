@@ -6,10 +6,10 @@ from matplotlib.pyplot import figure
 import numpy as np
 
 from sklearn.metrics import confusion_matrix
-from common.plotting_functions import Plots
-from utils.utils import shuffle_arrays
+from nnfs.common.plotting_functions import Plots
+from nnfs.utils.utils import shuffle_arrays
 
-from utils.logs import create_logger
+from nnfs.utils.logs import create_logger
 log = create_logger(__name__)
 class Network(Plots):
     """
@@ -156,6 +156,9 @@ class Network(Plots):
         """
         # Whether to display graphs or not
         self.generate_plots = generate_plots
+
+        if self.generate_plots:
+            Plots.__init__(self)
 
         x_train_size = len(x_train)
 
@@ -509,13 +512,14 @@ class Network(Plots):
                     log.debug(f"Skipping the stopping criterion, epoch = {i}.")
                     pass
 
-        # -------------------------------------------------------------- #
-        #                        Live Plotting                           #
-        # -------------------------------------------------------------- #
-        if self.generate_plots:
-            self.plot_epoch_error(self, ds_name="Stream", save_dir="Stream")
-            self.plot_epoch_accuracy(self, ds_name="Stream1", save_dir="Stream1")
-            self.plot_confusion_matrix(self, ds_name="Stream2", save_dir="Stream2")
+            # -------------------------------------------------------------- #
+            #                        Live Plotting                           #
+            # -------------------------------------------------------------- #
+            if self.generate_plots:
+                self.update_data(self_data=self)
+                self.plot_epoch_error(ds_name="Stream", save_dir="Stream")
+                self.plot_epoch_accuracy(ds_name="Stream1", save_dir="Stream1")
+                self.plot_confusion_matrix(ds_name="Stream2", save_dir="Stream2")
 
         log.info("Done Training Model.")
 

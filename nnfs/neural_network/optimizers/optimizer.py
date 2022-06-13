@@ -1,7 +1,7 @@
 import numpy as np
 from .initializers import Initializers
 
-from utils.logs import create_logger
+from nnfs.utils.logs import create_logger
 log = create_logger(__name__)
 
 # Create a base Optimizer class

@@ -1,8 +1,7 @@
-from .gradient_optimizer import GradientOptimizer
-import logging
+from nnfs.neural_network.optimizers.gradient.gradient_optimizer import GradientOptimizer
 import numpy as np
 
-from utils.logs import create_logger
+from nnfs.utils.logs import create_logger
 log = create_logger(__name__)
 class Rprop(GradientOptimizer):
     def __init__(self, eta_plus, eta_minus, delta_max, delta_min, weights_initialization=None):

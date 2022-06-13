@@ -1,5 +1,5 @@
-from .gradient_optimizer import GradientOptimizer
-from utils.logs import create_logger
+from nnfs.neural_network.optimizers.gradient.gradient_optimizer import GradientOptimizer
+from nnfs.utils.logs import create_logger
 
 log = create_logger(__name__)
 
