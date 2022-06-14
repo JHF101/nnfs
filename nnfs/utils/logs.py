@@ -49,7 +49,7 @@ def create_logger(logger_name):
     except FileExistsError:
         pass
     logger_name = os.getcwd() + '/program_logs/'+logger_name+'.log'
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.CRITICAL)
     shandler = logging.FileHandler(logger_name)
     shandler.setFormatter(ColourAndCustomFormatter())
     logger.addHandler(shandler)

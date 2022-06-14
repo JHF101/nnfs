@@ -15,9 +15,11 @@ from nnfs.neural_network.optimizers.gradient.rprop import Rprop
 from nnfs.neural_network.optimizers.gradient.rms_prop import RMSProp
 from nnfs.neural_network.optimizers.gradient.adam import Adam
 
+st.set_page_config(layout="wide")
+
 if st.button('Execute Program'):
     proben = Proben1()
-    # proben.download_data()
+    proben.download_data()
     proben.get_dataset_dirs()
 
     (x_train, y_train), (x_validate, y_validate), (x_test, y_test) = proben.load_data(data_set_name='soybean')[1]
@@ -96,7 +98,8 @@ if st.button('Execute Program'):
         #                                 k_epochs=5,
         #                                 )
     )
-
+    
+    # Where graph is getting plotted
     nn_train.fit(
                 x_train=x_train,
                 y_train=y_train,
@@ -104,8 +107,8 @@ if st.button('Execute Program'):
                 y_test=y_test,
                 x_validate=x_validate,
                 y_validate=y_validate,
-                epochs=100,
-                batch_size=64, # If batch size equals 1, we have online learning
+                epochs=1000,
+                batch_size=32, # If batch size equals 1, we have online learning
                 shuffle_training_data=True,
                 generate_plots=True
                 )

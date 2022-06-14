@@ -519,7 +519,9 @@ class Network(Plots):
                 self.update_data(self_data=self)
                 self.plot_epoch_error(ds_name="Stream", save_dir="Stream")
                 self.plot_epoch_accuracy(ds_name="Stream1", save_dir="Stream1")
-                self.plot_confusion_matrix(ds_name="Stream2", save_dir="Stream2")
+
+        if self.generate_plots:
+            self.plot_confusion_matrix(ds_name="Stream2", save_dir="Stream2")
 
         log.info("Done Training Model.")
 
