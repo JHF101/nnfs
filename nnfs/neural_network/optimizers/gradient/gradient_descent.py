@@ -1,8 +1,6 @@
+from nnfs.neural_network.optimizers.gradient.gradient_optimizer import GradientOptimizer
 
-from .gradient_optimizer import GradientOptimizer
-import logging
-
-from utils.logs import create_logger
+from nnfs.utils.logs import create_logger
 log = create_logger(__name__)
 
 class GradientDescent(GradientOptimizer):

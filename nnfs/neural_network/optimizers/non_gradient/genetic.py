@@ -1,9 +1,8 @@
 import numpy as np
-from propagation.feedforward import FeedForward
-from optimizer import Optimizer
-import logging
+from nnfs.propagation.feedforward import FeedForward
+from nnfs.neural_network.optimizers.optimizer import Optimizer
 
-from utils.logs import create_logger
+from nnfs.utils.logs import create_logger
 log = create_logger(__name__)
 
 class GeneticOptimizer(FeedForward, Optimizer):

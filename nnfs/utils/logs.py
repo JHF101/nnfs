@@ -44,6 +44,10 @@ def create_logger(logger_name):
     """
     print("Creating loggers")
     logger = logging.getLogger(logger_name)
+    try:
+        os.mkdir(os.getcwd() + '/program_logs/')
+    except FileExistsError:
+        pass
     logger_name = os.getcwd() + '/program_logs/'+logger_name+'.log'
     logger.setLevel(logging.DEBUG)
     shandler = logging.FileHandler(logger_name)

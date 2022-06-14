@@ -1,6 +1,6 @@
-from .gradient_optimizer import GradientOptimizer
+from nnfs.neural_network.optimizers.gradient.gradient_optimizer import GradientOptimizer
 import numpy as np
-from utils.logs import create_logger
+from nnfs.utils.logs import create_logger
 
 log = create_logger(__name__)
 
@@ -41,7 +41,6 @@ class RMSProp(GradientOptimizer):
                     self.s_dB.append(np.zeros(shape=b.shape))
 
         for w in range(0, len(weights)):
-            log.info(f"The index we are currently on is {w}")
             # --- Weights
             dW = dE_dwij_t[w]
             self.s_dW[w] = (self.beta* self.s_dW[w]) + (1-self.beta)*(np.power(dW, 2)) # Element wise squaring

@@ -1,27 +1,28 @@
 import numpy as np
-from activations.activation_functions import relu, sigmoid, softmax, tanh
-from common.early_stopping import EarlyStopping
-from common.plotting_functions import Plots
-from data_sources.proben1 import Proben1
-from errors.error_functions import mse, rms, squared_error
-from neural_network.neural_network import Network
-from neural_network.optimizers.gradient.delta_bar_delta import DeltaBarDelta
-from neural_network.optimizers.gradient.gradient_descent import GradientDescent
-from neural_network.optimizers.gradient.gradient_descent_momentum import \
+from nnfs.activations.activation_functions import relu, sigmoid, softmax, tanh
+from nnfs.common.early_stopping import EarlyStopping
+from nnfs.common.plotting_functions import Plots
+from nnfs.data_sources.proben1 import Proben1
+from nnfs.errors.error_functions import mse, rms, squared_error
+from nnfs.neural_network.neural_network import Network
+from nnfs.neural_network.optimizers.gradient.delta_bar_delta import DeltaBarDelta
+from nnfs.neural_network.optimizers.gradient.gradient_descent import GradientDescent
+from nnfs.neural_network.optimizers.gradient.gradient_descent_momentum import \
     GradientDescentWithMomentum
-from neural_network.optimizers.gradient.rprop import Rprop
-from neural_network.optimizers.gradient.rms_prop import RMSProp
-from neural_network.optimizers.gradient.adam import Adam
+from nnfs.neural_network.optimizers.gradient.rprop import Rprop
+from nnfs.neural_network.optimizers.gradient.rms_prop import RMSProp
+from nnfs.neural_network.optimizers.gradient.adam import Adam
 
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 proben = Proben1()
-# proben.download_data()
+proben.download_data()
 proben.get_dataset_dirs()
 
-(x_train, y_train), (x_validate, y_validate), (x_test, y_test) = proben.load_data(data_set_name='cancer')[1]
-filename = proben.get_filenames(data_set_name='cancer')[1]
+(x_train, y_train), (x_validate, y_validate), (x_test, y_test) = proben.load_data(data_set_name='soybean')[1]
+filename = proben.get_filenames(data_set_name='soybean')[1]
+
 
 print('-'*10)
 print(filename)
@@ -65,9 +66,9 @@ nn_train = Network(
 
     layers=[
         (input_layer_size,tanh),
-        # (64,tanh),
-        (8,tanh),
-        (4,tanh),
+        (64,tanh),
+        # (8,tanh),
+        # (4,tanh),
         (output_layer_size,tanh)
     ],
 
@@ -87,14 +88,14 @@ nn_train = Network(
 
     # optimizer= Rprop(delta_max=50, delta_min=0, eta_plus=1.1, eta_minus=0.5, weights_initialization=optimizer_param),
 
-    # optimizer= RMSProp(learning_rate=0.01, beta=0.99, weights_initialization=optimizer_param),
+    optimizer= RMSProp(learning_rate=0.0075, beta=0.99, weights_initialization=optimizer_param),
 
     # optimizer= Adam(learning_rate=0.01, beta1=0.65, beta2=0.6, weights_initialization=optimizer_param),
 
-    training_params = EarlyStopping(alpha=5,
-                                    pkt_threshold=0.1,
-                                    k_epochs=5,
-                                    )
+    # training_params = EarlyStopping(alpha=15,
+    #                                 pkt_threshold=0.1,
+    #                                 k_epochs=5,
+    #                                 )
 )
 
 nn_train.fit(
@@ -105,7 +106,7 @@ nn_train.fit(
             x_validate=x_validate,
             y_validate=y_validate,
             epochs=100,
-            batch_size=8, # If batch size equals 1, we have online learning
+            batch_size=64, # If batch size equals 1, we have online learning
             shuffle_training_data=True,
             generate_plots=True
             )

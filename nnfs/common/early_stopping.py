@@ -1,7 +1,6 @@
 import numpy as np
-import logging
 
-from utils.logs import create_logger
+from nnfs.utils.logs import create_logger
 log = create_logger(__name__)
 
 class EarlyStopping:
