@@ -38,7 +38,6 @@ class Plots:
 
     def plot_epoch_error(self, ds_name, save_dir):
         if (self.optimizer.optimizer_type == 'gradient'):
-
             # Naming
             architecture = ''
             for i in range(0,len(self.weights)):
@@ -76,10 +75,7 @@ class Plots:
             self.st_err = st.pyplot(self.fig_error)
             self.ax_error.clear()
 
-
-    # @staticmethod
     def plot_epoch_accuracy(self, ds_name, save_dir):
-        self.fig_accuracy, self.ax_accuracy = plt.subplots(figsize=(16, 9))
         if (self.optimizer.optimizer_type == 'gradient'):
             # Naming
             architecture = ''
@@ -102,6 +98,7 @@ class Plots:
 
             if (val_set_len > 0) and (test_set_len == val_set_len):
                 self.ax_accuracy.plot(
+
                     epochs_idx,
                     self.epoch_validation_accuracy_plot,
                     'g',
@@ -173,3 +170,4 @@ class Plots:
         self.st_confusion.empty()
         self.st_confusion = st.pyplot(self.fig_confusion)
         self.ax_confusion.clear()
+        

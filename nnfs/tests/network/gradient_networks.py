@@ -23,6 +23,7 @@ proben.get_dataset_dirs()
 (x_train, y_train), (x_validate, y_validate), (x_test, y_test) = proben.load_data(data_set_name='soybean')[1]
 filename = proben.get_filenames(data_set_name='soybean')[1]
 
+
 print('-'*10)
 print(filename)
 print('-'*10)
@@ -79,7 +80,7 @@ nn_train = Network(
     #                             fitness_eval='accuracy',
     #                             weights_initialization=optimizer_param),
 
-    # optimizer= GradientDescent(learning_rate=0.5, weights_initialization=optimizer_param),
+    optimizer= GradientDescent(learning_rate=0.5, weights_initialization=optimizer_param),
 
     # optimizer= GradientDescentWithMomentum(learning_rate=0.09, beta=0.9, weights_initialization=optimizer_param),
 
