@@ -68,9 +68,6 @@ class BackProp:
                 delta_err = self.back_prop_per_layer(output_error=delta_err,
                                                     input_data=data_layer[data_layer_count],
                                                     activation_func=self.activation_functions[data_layer_count])
-                log.info(f"Data_layer_count : {data_layer_count}")
-                log.info(f"Data layer values {i}: {data_layer[data_layer_count]}")
-                log.info(f"Activation functions : {self.activation_functions[data_layer_count].__name__}")
 
                 if self.use_bias:
                     delta_bias_arr.append(delta_err)
@@ -84,8 +81,6 @@ class BackProp:
                                                                     input_data=data_layer[data_layer_count],
                                                                     weights=weights[count_layer])
 
-                log.critical(f"Data layer values {i}: {data_layer[data_layer_count]}")
-                log.critical(f"Count layer {i}: {count_layer}")
                 delta_weight_arr.append(delta_weight)
                 count_layer -= 1
 
