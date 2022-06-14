@@ -99,6 +99,7 @@ class Plots:
             with self.col1:
                 self.st_err = st.plotly_chart(fig)
 
+
     def plot_epoch_accuracy(self, ds_name, save_dir):
         if (self.optimizer.optimizer_type == 'gradient'):
             # Naming

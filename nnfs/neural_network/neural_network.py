@@ -9,6 +9,7 @@ from sklearn.metrics import confusion_matrix
 from nnfs.common.plotting_functions import Plots
 from nnfs.utils.utils import shuffle_arrays
 
+
 from nnfs.utils.logs import create_logger
 log = create_logger(__name__)
 class Network(Plots):
@@ -522,6 +523,7 @@ class Network(Plots):
 
         if self.generate_plots:
             self.plot_confusion_matrix(ds_name="Stream2", save_dir="Stream2")
+
 
         log.info("Done Training Model.")
 

@@ -1,5 +1,6 @@
 import numpy as np
 from nnfs.utils.logs import create_logger
+
 log = create_logger(__name__)
 class BackProp:
     def __init__(self, use_bias, activation_functions, error_function):
