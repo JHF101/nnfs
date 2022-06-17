@@ -3,6 +3,7 @@ import os
 import numpy as np
 import wget
 import re
+import zipfile
 
 class Proben1:
 
@@ -11,23 +12,22 @@ class Proben1:
         self.DATASET_DIR = self.WORKING_DIR+'proben1/'
 
     def download_data(self):
-        import glob
-        import zipfile
-        # Get the github link
-        wget.download('https://github.com/jeffheaton/proben1/archive/refs/heads/master.zip')
-        file_names = glob.glob('*.zip')
+
         try:
             os.mkdir(self.DATASET_DIR)
+            # Get the github link
+            wget.download('https://github.com/jeffheaton/proben1/archive/refs/heads/master.zip')
+            file_names = glob('*.zip')
+            # Downloading the data
+            for file in file_names:
+                with zipfile.ZipFile(file, 'r') as zip_ref:
+                    zip_ref.extractall(self.DATASET_DIR)
+            # Removing .zip file
+            files = glob(self.WORKING_DIR + '*.zip')
+            for f in files:
+                os.remove(f)
         except:
-            print("The file location already exists")
-
-        for file in file_names:
-            with zipfile.ZipFile(file, 'r') as zip_ref:
-                zip_ref.extractall(self.DATASET_DIR)
-        # Removing .zip file
-        files = glob.glob(self.WORKING_DIR + '*.zip')
-        for f in files:
-            os.remove(f)
+            print("The file location already exists, skipping download!")
 
     def get_dataset_dirs(self):
 
