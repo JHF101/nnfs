@@ -23,12 +23,12 @@ class Plots:
         self.col1, self.col2 = st.columns(2)
 
         with self.col1:
-            self.st_err = st.line_chart()
+            self.st_err = None#st.line_chart()
 
         with self.col2:
-            self.st_acc = st.line_chart()
+            self.st_acc = None#st.line_chart()
 
-        self.st_confusion = st.line_chart()
+        self.st_confusion = None #st.line_chart()
 
     def update_data(self, self_data):
         self.optimizer = self_data.optimizer
@@ -45,8 +45,6 @@ class Plots:
         self.epoch_validation_accuracy_plot = self_data.epoch_validation_accuracy_plot
 
         self.optimal_error_position = self_data.optimal_error_position
-
-        self.confusion_matrix = self.confusion_matrix
 
     def plot_epoch_error(self, ds_name, save_dir):
         if (self.optimizer.optimizer_type == 'gradient'):
@@ -95,9 +93,10 @@ class Plots:
 
             fig.update_layout(title=ds_name+' '+str.capitalize(self.optimizer.optimizer_name)+' '+architecture)
 
-            self.st_err.empty()
+            if self.st_err is not None:
+                self.st_err.empty()
             with self.col1:
-                self.st_err = st.plotly_chart(fig)
+                self.st_err = st.plotly_chart(fig, use_container_width=True)
 
 
     def plot_epoch_accuracy(self, ds_name, save_dir):
@@ -148,12 +147,13 @@ class Plots:
 
             fig.update_layout(title=ds_name+' '+str.capitalize(self.optimizer.optimizer_name)+' '+architecture)
 
-            self.st_acc.empty()
+            if self.st_acc is not None:
+                self.st_acc.empty()
             with self.col2:
-                self.st_acc = st.plotly_chart(fig)
+                self.st_acc = st.plotly_chart(fig, use_container_width=True)
 
-    def plot_confusion_matrix(self, ds_name, save_dir):
-        df = pd.DataFrame(self.confusion_matrix[-1])
+    def plot_confusion_matrix(self, confusion_matrix):
+        df = pd.DataFrame(confusion_matrix[-1])
         dfc = df#.corr()
         z = dfc.values.tolist()
         z_text = [[str(y) for y in x] for x in z]
@@ -163,4 +163,21 @@ class Plots:
                                             annotation_text=z_text, colorscale='agsunset')
         fig['data'][0]['showscale'] = True
 
-        self.st_confusion = st.plotly_chart(fig)
+        self.st_confusion = st.plotly_chart(fig, use_container_width=True)
+
+    def clear_plots(self):
+        if self.st_err is not None:
+            self.st_err.empty()
+        if self.st_acc is not None:
+            self.st_acc.empty()
+        if self.st_confusion is not None:
+            self.st_confusion.empty()
+
+        with self.col1:
+            self.st_err = None#st.line_chart()
+
+        with self.col2:
+            self.st_acc = None#st.line_chart()
+
+        self.st_confusion = None #st.line_chart()
+

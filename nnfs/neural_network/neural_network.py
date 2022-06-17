@@ -22,7 +22,8 @@ class Network(Plots):
                 use_bias=False,
                 error_function=None,
                 training_params=None,
-                load_model=False):
+                load_model=False,
+                generate_plots=False):
         """Initialization of Neural Network
 
         Parameters
@@ -38,6 +39,10 @@ class Network(Plots):
         plotting_func_bool : bool, optional
             Determines whether to plot, by default False
         """
+        # Whether to display graphs or not
+        self.generate_plots = generate_plots
+        if self.generate_plots:
+            self.plots_gen = Plots()
 
         if (load_model==False):
             self.use_bias = use_bias
@@ -118,8 +123,7 @@ class Network(Plots):
             epochs=1,
             validations_set_percent=0.0,
             batch_size=1,
-            shuffle_training_data=True,
-            generate_plots=False):
+            shuffle_training_data=True):
         """Fit the model to the dataset.
 
         x_validate and y_validate can be given by the user, however
@@ -155,11 +159,8 @@ class Network(Plots):
         Exception
             Validation set percentage must be [0,1]
         """
-        # Whether to display graphs or not
-        self.generate_plots = generate_plots
-
         if self.generate_plots:
-            Plots.__init__(self)
+            self.plots_gen.clear_plots()
 
         x_train_size = len(x_train)
 
@@ -517,12 +518,12 @@ class Network(Plots):
             #                        Live Plotting                           #
             # -------------------------------------------------------------- #
             if self.generate_plots:
-                self.update_data(self_data=self)
-                self.plot_epoch_error(ds_name="Stream", save_dir="Stream")
-                self.plot_epoch_accuracy(ds_name="Stream1", save_dir="Stream1")
+                self.plots_gen.update_data(self_data=self)
+                self.plots_gen.plot_epoch_error(ds_name="Stream", save_dir="Stream")
+                self.plots_gen.plot_epoch_accuracy(ds_name="Stream1", save_dir="Stream1")
 
         if self.generate_plots:
-            self.plot_confusion_matrix(ds_name="Stream2", save_dir="Stream2")
+            self.plots_gen.plot_confusion_matrix(self.confusion_matrix)
 
 
         log.info("Done Training Model.")
