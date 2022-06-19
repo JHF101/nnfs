@@ -1,2 +1,10 @@
 .git
 __pycache__
+.venv
+.env*
+docker-compose.yml
+README.md
+proben1
+mnist
+Dockerfile
+nnfs_research_docs

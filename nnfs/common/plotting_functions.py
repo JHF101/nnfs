@@ -1,3 +1,4 @@
+from distutils.command.config import config
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
 import pandas as pd
@@ -20,15 +21,51 @@ def random_color():
 class Plots:
     def __init__(self):
         # TODO: Sort out layout
-        self.col1, self.col2 = st.columns(2)
+        self.err_plot_space, self.acc_plot_space = st.empty(), st.empty()
 
-        with self.col1:
-            self.st_err = None#st.line_chart()
+        with self.err_plot_space:
+            self.st_err = None
 
-        with self.col2:
-            self.st_acc = None#st.line_chart()
+        with self.acc_plot_space:
+            self.st_acc = None
 
-        self.st_confusion = None #st.line_chart()
+        self.st_confusion = None
+
+        self.acc_layout = go.Layout(
+            plot_bgcolor="#FFF",
+            xaxis=dict(
+                title="epochs",
+                linecolor="#BCCCDC",
+                showgrid=False
+            ),
+            yaxis=dict(
+                title="accuracy",
+                linecolor="#BCCCDC",
+                showgrid=False,
+            ),
+            legend=dict(
+                itemclick="toggleothers",
+                itemdoubleclick="toggle",
+            )
+        )
+        self.err_layout = go.Layout(
+            plot_bgcolor="#FFF",
+            xaxis=dict(
+                title="epochs",
+                linecolor="#BCCCDC",
+                showgrid=False
+            ),
+            yaxis=dict(
+                title="error",
+                linecolor="#BCCCDC",
+                showgrid=False,
+            ),
+            legend=dict(
+                itemclick="toggleothers",
+                itemdoubleclick="toggle",
+            )
+        )
+        self.config = {"displayModeBar": False, "showTips": False}
 
     def update_data(self, self_data):
         self.optimizer = self_data.optimizer
@@ -62,7 +99,8 @@ class Plots:
             val_set_len = len(self.epoch_error_validation_plot)
             test_set_len = len(self.epoch_error_training_plot)
 
-            fig = go.Figure()
+            fig = go.Figure(layout=self.err_layout)
+
             fig.add_trace(
                 go.Scatter(
                     x=epochs_idx,
@@ -93,10 +131,8 @@ class Plots:
 
             fig.update_layout(title=ds_name+' '+str.capitalize(self.optimizer.optimizer_name)+' '+architecture)
 
-            if self.st_err is not None:
-                self.st_err.empty()
-            with self.col1:
-                self.st_err = st.plotly_chart(fig, use_container_width=True)
+            with self.err_plot_space:
+                self.st_err = st.plotly_chart(fig, use_container_width=True, config=self.config)
 
 
     def plot_epoch_accuracy(self, ds_name, save_dir):
@@ -116,7 +152,8 @@ class Plots:
             val_set_len = len(self.epoch_validation_accuracy_plot)
             test_set_len = len(self.epoch_testing_accuracy_plot)
 
-            fig = go.Figure()
+
+            fig = go.Figure(layout=self.acc_layout)
             fig.add_trace(
                 go.Scatter(
                     x=epochs_idx,
@@ -147,10 +184,8 @@ class Plots:
 
             fig.update_layout(title=ds_name+' '+str.capitalize(self.optimizer.optimizer_name)+' '+architecture)
 
-            if self.st_acc is not None:
-                self.st_acc.empty()
-            with self.col2:
-                self.st_acc = st.plotly_chart(fig, use_container_width=True)
+            with self.acc_plot_space:
+                self.st_acc = st.plotly_chart(fig, use_container_width=True, config=self.config)
 
     def plot_confusion_matrix(self, confusion_matrix):
         df = pd.DataFrame(confusion_matrix[-1])
@@ -165,19 +200,12 @@ class Plots:
 
         self.st_confusion = st.plotly_chart(fig, use_container_width=True)
 
-    def clear_plots(self):
-        if self.st_err is not None:
-            self.st_err.empty()
-        if self.st_acc is not None:
-            self.st_acc.empty()
-        if self.st_confusion is not None:
-            self.st_confusion.empty()
+    # def clear_plots(self):
+    #     with self.err_plot_space:
+    #         self.st_err = None
 
-        with self.col1:
-            self.st_err = None#st.line_chart()
+    #     with self.acc_plot_space:
+    #         self.st_acc = None
 
-        with self.col2:
-            self.st_acc = None#st.line_chart()
-
-        self.st_confusion = None #st.line_chart()
+    #     self.st_confusion = None
 
