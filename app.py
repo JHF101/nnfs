@@ -1,6 +1,10 @@
+from modulefinder import Module
 import streamlit as st
 
 import numpy as np
+from inspect import getmembers, isfunction, isclass
+import nnfs
+from nnfs.activations import activation_functions
 from nnfs.activations.activation_functions import relu, sigmoid, softmax, tanh
 # from nnfs.common.early_stopping import EarlyStopping
 # from nnfs.common.plotting_functions import Plots
@@ -14,8 +18,39 @@ from nnfs.neural_network.optimizers.gradient.gradient_descent_momentum import \
 from nnfs.neural_network.optimizers.gradient.rprop import Rprop
 from nnfs.neural_network.optimizers.gradient.rms_prop import RMSProp
 from nnfs.neural_network.optimizers.gradient.adam import Adam
+from nnfs.neural_network.optimizers import gradient, non_gradient
+from nnfs.neural_network.optimizers.non_gradient import genetic
+
+import sys
 
 st.set_page_config(layout="wide")
+
+# ---------------------------------- #
+#               SideBar              #
+# ---------------------------------- #
+
+with st.sidebar:
+
+    # Activation functions
+    activation_radio = st.radio(
+            "Choose a activation function",
+            ([act[0] for act in getmembers(activation_functions, isfunction)])
+        )
+
+    # Optimizers
+    optimizers = [cls_name for cls_name, cls_obj in getmembers(gradient) if '__' not in cls_name]
+    optimizers.extend([cls_name for cls_name, obj_type in getmembers(non_gradient )if '__' not in cls_name])
+    optimizers_radio = st.radio(
+        "Choose a optimizer function",
+        (optimizers)
+    )
+
+    # Initializers
+
+    # Dataset selection
+
+    # TODO: Import library based on it's name
+        # TODO: Get the input parameters that are required
 
 proben = Proben1()
 proben.download_data()
@@ -65,9 +100,9 @@ nn_train = Network(
 
     layers=[
         (input_layer_size,tanh),
+        (64,tanh),
         # (64,tanh),
-        (8,tanh),
-        (4,tanh),
+        # (4,tanh),
         (output_layer_size,tanh)
     ],
 

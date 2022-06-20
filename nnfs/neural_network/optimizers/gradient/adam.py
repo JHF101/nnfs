@@ -105,8 +105,6 @@ class Adam(GradientOptimizer):
             log.info(f"self.s_dW[w] {self.s_dB[w]}")
             log.info(f"self.v_dW[w] {self.v_dW[w]}")
             log.info(f"self.v_dB[w] {self.v_dB[w]}")
-            log.critical(f"Beta 1 dash t is {beta1_t}")
-            log.critical(f"Beta 2 dash t is {beta2_t}")
             log.info(f"The shape of the RMS prop weights are : {self.s_dW[w].shape}")
 
 

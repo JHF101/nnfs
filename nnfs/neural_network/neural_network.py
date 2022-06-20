@@ -52,7 +52,6 @@ class Network(Plots):
             self.optimizer = optimizer
             log.info(f"Using the {self.optimizer.optimizer_name} is used")
 
-            # Just init for now
             self.bias = []
 
             # Intialize layers
@@ -159,8 +158,9 @@ class Network(Plots):
         Exception
             Validation set percentage must be [0,1]
         """
-        if self.generate_plots:
-            self.plots_gen.clear_plots()
+        # Clear plots
+        # if self.generate_plots:
+        #     self.plots_gen.clear_plots()
 
         x_train_size = len(x_train)
 
