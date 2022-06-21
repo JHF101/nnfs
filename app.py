@@ -4,7 +4,7 @@ import streamlit as st
 import numpy as np
 from data_manager import data_manager
 
-from nn_manager import early_stop_manager, error_func_manager, initializer_manager, hidden_layer_manager, input_layer_manager, neural_network_manager, optimizer_manager, output_layer_manager
+from nn_manager import early_stop_manager, error_func_manager, initializer_manager, hidden_layer_manager, input_layer_manager, neural_network_manager, optimizer_manager, output_layer_manager, training_manager
 
 
 st.set_page_config(layout="wide")
@@ -48,7 +48,7 @@ with st.sidebar:
 
     generate_plots = st.checkbox("Generate plots")
 
-    neural_network_manager(
+    nn_train = neural_network_manager(
         layers=layers,
         error_func=error_func,
         bias=use_bias,
@@ -60,8 +60,11 @@ with st.sidebar:
     # TODO: Import library based on it's name
         # TODO: Get the input parameters that are required
 
-    if st.button('Train the model'):
-        training_manager()
+if st.button('Train the model'):
+    training_manager(
+        nn_train,
+        **datasets
+    )
 
 
 # TODO: Add button to save model

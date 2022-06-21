@@ -135,7 +135,7 @@ def optimizer_manager(initializer):
             beta2=init_params['beta2'],
             weights_initialization=initializer)
     return optimizer
-    
+
 @st.cache(suppress_st_warning=True)
 def initializer_optimizer(obj):
     name_params = []
@@ -151,7 +151,7 @@ def initializer_optimizer(obj):
     init_params = dict()
     for i in range(len(name_params)):
         init_params[name_params[i]] = st.text_input(f"Optimizer parameter: {name_params[i]}", 0)
-    
+
     st.write(init_params)
     return init_params
 # --------------------------------------- #
@@ -237,7 +237,19 @@ def neural_network_manager(**kwargs):
     )
     return nn_train
 
-def training_manager():
+def training_manager(nn_train,
+                    epochs=1000,
+                    batch_size=32,
+                    shuffle_training_data=True,
+                    **kwargs
+                    ):
+    x_train=kwargs['x_train']
+    y_train=kwargs['y_train']
+    x_validate=kwargs['x_validate']
+    y_validate=kwargs['y_validate']
+    x_test=kwargs['x_test']
+    y_test=kwargs['y_test']
+    # TODO: Add ability to change percentage of dataset which is validations set
     # Where graph is getting plotted
     nn_train.fit(
                 x_train=x_train,
@@ -246,7 +258,7 @@ def training_manager():
                 y_test=y_test,
                 x_validate=x_validate,
                 y_validate=y_validate,
-                epochs=1000,
-                batch_size=32, # If batch size equals 1, we have online learning
-                shuffle_training_data=True,
+                epochs=epochs,
+                batch_size=batch_size, # If batch size equals 1, we have online learning
+                shuffle_training_data=shuffle_training_data,
                 )
