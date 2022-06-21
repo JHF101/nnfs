@@ -2,26 +2,10 @@ from modulefinder import Module
 import streamlit as st
 
 import numpy as np
-from inspect import getmembers, isfunction, isclass
-import nnfs
-from nnfs.activations import activation_functions
-from nnfs.activations.activation_functions import relu, sigmoid, softmax, tanh
-# from nnfs.common.early_stopping import EarlyStopping
-# from nnfs.common.plotting_functions import Plots
-from nnfs.data_sources.proben1 import Proben1
-from nnfs.errors.error_functions import mse, rms, squared_error
-from nnfs.neural_network.neural_network import Network
-from nnfs.neural_network.optimizers.gradient.delta_bar_delta import DeltaBarDelta
-from nnfs.neural_network.optimizers.gradient.gradient_descent import GradientDescent
-from nnfs.neural_network.optimizers.gradient.gradient_descent_momentum import \
-    GradientDescentWithMomentum
-from nnfs.neural_network.optimizers.gradient.rprop import Rprop
-from nnfs.neural_network.optimizers.gradient.rms_prop import RMSProp
-from nnfs.neural_network.optimizers.gradient.adam import Adam
-from nnfs.neural_network.optimizers import gradient, non_gradient
-from nnfs.neural_network.optimizers.non_gradient import genetic
+from data_manager import data_manager
 
-import sys
+from nn_manager import early_stop_manager, error_func_manager, initializer_manager, hidden_layer_manager, input_layer_manager, neural_network_manager, optimizer_manager, output_layer_manager
+
 
 st.set_page_config(layout="wide")
 
@@ -30,131 +14,58 @@ st.set_page_config(layout="wide")
 # ---------------------------------- #
 
 with st.sidebar:
-
-    # Activation functions
-    activation_radio = st.radio(
-            "Choose a activation function",
-            ([act[0] for act in getmembers(activation_functions, isfunction)])
-        )
-
-    # Optimizers
-    optimizers = [cls_name for cls_name, cls_obj in getmembers(gradient) if '__' not in cls_name]
-    optimizers.extend([cls_name for cls_name, obj_type in getmembers(non_gradient )if '__' not in cls_name])
-    optimizers_radio = st.radio(
-        "Choose a optimizer function",
-        (optimizers)
-    )
-
-    # Initializers
+    # Data Sources
 
     # Dataset selection
+    datasets = data_manager()
+    # ----------------------------- #
+    #      Network Construction     #
+    # ----------------------------- #
+
+    error_func = error_func_manager()
+    initializer = initializer_manager()
+
+    optimizer = optimizer_manager(initializer)
+
+    training_params = early_stop_manager()
+
+    num_of_hidden_layers = int(st.number_input('Number of hidden layers', step=1))
+
+    col1, col2 = st.columns(2)
+    layers = []
+
+    # Input Layers
+    layers.append(input_layer_manager(datasets['input_layer_size'], col1, col2))
+
+    # Hidden Layers
+    for i in range(num_of_hidden_layers):
+        layers.append(hidden_layer_manager(i+1, col1, col2))
+
+    # Output Layer
+    layers.append(output_layer_manager(datasets['output_layer_size'], len(layers)+1, col1, col2))
+
+    use_bias = st.checkbox("Use bias")
+
+    generate_plots = st.checkbox("Generate plots")
+
+    neural_network_manager(
+        layers=layers,
+        error_func=error_func,
+        bias=use_bias,
+        training_params=training_params,
+        optimizer=optimizer,
+        generate_plots=generate_plots
+    )
 
     # TODO: Import library based on it's name
         # TODO: Get the input parameters that are required
 
-proben = Proben1()
-proben.download_data()
-proben.get_dataset_dirs()
-
-(x_train, y_train), (x_validate, y_validate), (x_test, y_test) = proben.load_data(data_set_name='soybean')[1]
-filename = proben.get_filenames(data_set_name='soybean')[1]
-
-print('-'*10)
-print(filename)
-print('-'*10)
-# -------------------------------------------------------------------- #
-#                         START DATASET PREP                           #
-# -------------------------------------------------------------------- #
-x_train = x_train.reshape(x_train.shape[0], 1, x_train.shape[1])
-y_train = y_train.reshape(y_train.shape[0], 1, y_train.shape[1])
-
-x_validate = x_validate.reshape(x_validate.shape[0], 1, x_validate.shape[1])
-y_validate = y_validate.reshape(y_validate.shape[0], 1, y_validate.shape[1])
-
-x_test = x_test.reshape(x_test.shape[0], 1, x_test.shape[1])
-y_test = y_test.reshape(y_test.shape[0], 1, y_test.shape[1])
-
-normalizing_factor_x = x_train.max()
-normalizing_factor_y = y_train.max()
-
-x_train /= normalizing_factor_x
-y_train /= normalizing_factor_y
-
-x_validate /= normalizing_factor_x
-y_validate /= normalizing_factor_y
-
-x_test /= normalizing_factor_x
-y_test /= normalizing_factor_y
-
-# --- Input and output layer size
-input_layer_size = x_train[0].shape[1]
-output_layer_size = y_train[0].shape[1]
-
-# optimizer_param=dict(name='heuristic', lower=-0.3, upper=0.3)
-# optimizer_param=dict(name='xavier')
-# optimizer_param=dict(name='he')
-optimizer_param=None
-
-# Normal Gradient Descent
-nn_train = Network(
-
-    layers=[
-        (input_layer_size,tanh),
-        (64,tanh),
-        # (64,tanh),
-        # (4,tanh),
-        (output_layer_size,tanh)
-    ],
-
-    error_function=squared_error,
-
-    use_bias=True,
-
-    # optimizer = GeneticOptimizer(number_of_parents=4,
-    #                             fitness_eval='accuracy',
-    #                             weights_initialization=optimizer_param),
-
-    # optimizer= GradientDescent(learning_rate=0.5, weights_initialization=optimizer_param),
-
-    # optimizer= GradientDescentWithMomentum(learning_rate=0.09, beta=0.9, weights_initialization=optimizer_param),
-
-    # optimizer= DeltaBarDelta(theta=0.1, mini_k=0.01, phi=0.1, weights_initialization=optimizer_param),
-
-    # optimizer= Rprop(delta_max=50, delta_min=0, eta_plus=1.1, eta_minus=0.5, weights_initialization=optimizer_param),
-
-    optimizer= RMSProp(learning_rate=0.001, beta=0.99, weights_initialization=optimizer_param),
-
-    # optimizer= Adam(learning_rate=0.01, beta1=0.65, beta2=0.6, weights_initialization=optimizer_param),
-
-    # training_params = EarlyStopping(alpha=15,
-    #                                 pkt_threshold=0.1,
-    #                                 k_epochs=5,
-    #                                 ),
-    generate_plots=True
-)
-
-if st.button('Execute Program'):
-    # Where graph is getting plotted
-    nn_train.fit(
-                x_train=x_train,
-                y_train=y_train,
-                x_test=x_test,
-                y_test=y_test,
-                x_validate=x_validate,
-                y_validate=y_validate,
-                epochs=1000,
-                batch_size=32, # If batch size equals 1, we have online learning
-                shuffle_training_data=True,
-                )
+    if st.button('Train the model'):
+        training_manager()
 
 
-    # plots = Plots(nn_train)
-    # plots.plot_epoch_error(ds_name="Cancer",save_dir="cancer")
-    # plots.plot_epoch_accuracy(ds_name="Cancer",save_dir="cancer1")
-    # plots.plot_confusion_matrix(save_dir="cancer2")
+# TODO: Add button to save model
 
-    # Make a prediction
-    print(nn_train.predict(x_test[1]))
-    print(y_test[1])
+# TODO: Add text input to load in model
 
-
+# TODO: Add table returning the result of the predictions of the models
