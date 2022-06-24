@@ -59,7 +59,6 @@ optimizer_func_select = {
 # optimizer= RMSProp(learning_rate=0.001, beta=0.99, weights_initialization=optimizer_param),
 
 # optimizer= Adam(learning_rate=0.01, beta1=0.65, beta2=0.6, weights_initialization=optimizer_param),
-# TODO: Add session state
 
 def activation_func_manager(layer_num, column):
     with column:
@@ -94,12 +93,11 @@ def optimizer_manager(initializer):
     # Initializer optimizer params
     init_params = initializer_optimizer(optimizer_func)
 
-    # TODO:Change the inputs
     # Initializer Optimizer over here
     if optimizers_select=='genetic':
         optimizer = GeneticOptimizer(
-            number_of_parents=init_params['number_of_parents'],
-            fitness_eval=init_params['number_of_parents'],
+            number_of_parents=float(init_params['number_of_parents']),
+            fitness_eval=str(init_params['fitness_eval']),
             weights_initialization=initializer)
     elif optimizers_select=='gradient_descent':
         optimizer= GradientDescent(
@@ -107,36 +105,35 @@ def optimizer_manager(initializer):
             weights_initialization=initializer)
     elif optimizers_select=='gradient_descent_momentum':
         optimizer= GradientDescentWithMomentum(
-            learning_rate=init_params['learning_rate'],
-            beta=init_params['beta'],
+            learning_rate=float(init_params['learning_rate']),
+            beta=float(init_params['beta']),
             weights_initialization=initializer)
     elif optimizers_select=='delta_bar_delta':
         optimizer= DeltaBarDelta(
-            theta=init_params['theta'],
-            mini_k=init_params['mini_k'],
-            phi=init_params['phi'],
+            theta=float(init_params['theta']),
+            mini_k=float(init_params['mini_k']),
+            phi=float(init_params['phi']),
             weights_initialization=initializer)
     elif optimizers_select=='rprop':
         optimizer= Rprop(
-            delta_max=init_params['delta_max'],
-            delta_min=init_params['delta_min'],
-            eta_plus=init_params['eta_plus'],
-            eta_minus=init_params['eta_minus'],
+            delta_max=float(init_params['delta_max']),
+            delta_min=float(init_params['delta_min']),
+            eta_plus=float(init_params['eta_plus']),
+            eta_minus=float(init_params['eta_minus']),
             weights_initialization=initializer)
     elif optimizers_select=='rms_prop':
         optimizer= RMSProp(
-            learning_rate=init_params['learning_rate'],
-            beta=init_params['beta'],
+            learning_rate=float(init_params['learning_rate']),
+            beta=float(init_params['beta']),
             weights_initialization=initializer)
     elif optimizers_select=='adam':
         optimizer= Adam(
-            learning_rate=init_params['learning_rate'],
-            beta1=init_params['beta1'],
-            beta2=init_params['beta2'],
+            learning_rate=float(init_params['learning_rate']),
+            beta1=float(init_params['beta1']),
+            beta2=float(init_params['beta2']),
             weights_initialization=initializer)
     return optimizer
 
-@st.cache(suppress_st_warning=True)
 def initializer_optimizer(obj):
     name_params = []
     all_name_params = getargspec(obj).args
@@ -190,7 +187,6 @@ def initializer_manager():
     else:
         optimizer_param=None
     return optimizer_param
-
 # -------------------------- #
 #        Architecture        #
 # -------------------------- #
