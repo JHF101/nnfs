@@ -8,43 +8,58 @@ class BackProp:
         self.error_function = error_function
         self.use_bias = use_bias
 
-    def back_prop_per_layer(self,
-                            output_error,
-                            input_data,
-                            weights=None,
-                            activation_func=None):
+    def back_prop_weights(self, output_error, forward_prop_input_data, weights=None, activation_func=None):
         """
-        input_data:
-            This must be the same as the data entering from the left to the right
+        Calculating the gradient of the layer
         """
-        output_error = np.array(output_error)
-        input_data = np.array(input_data)
 
-        if (weights is not None):
-            """
-            Calculating the gradient
-            Calculating the deltas of the layer
-            """
-            weights = np.array(weights)
+        weights = np.array(weights)
 
-            input_err = np.matmul(output_error, weights.T)
+        delta_err = np.matmul(output_error, weights.T)
 
-            #The output of the node before activation wrt the weights: d_E_total/d_w
-            weights_delta = np.matmul(input_data.T, output_error)
+        #The output of the node before activation wrt the weights: d_E_total/d_w
+        delta_weight = np.matmul(forward_prop_input_data.T, output_error)
 
-            return input_err, weights_delta
-        else:
-            """
-            Getting the gradient of the activated layer units by taking the derivative of the activation
-            function.
-            """
-            input_err = activation_func(input_data, derivative=1)
-            #The output of the node wrt the output of the node before activation: d_out/d_net
-            input_err *= output_error
-            return input_err
+        return delta_err, delta_weight
+
+    def back_prop_activations(self, output_error, forward_prop_input_data, activation_func=None):
+        """
+        Getting the gradient of layer by taking the derivative of the activation
+        function.
+        """
+        """
+        forward_prop_input_data:
+            Expects the same data entering from the left to the right propagating
+            through the network as in the forward pass.
+        """
+        # Essentially performing the chain rule
+        delta_err = activation_func(forward_prop_input_data, derivative=1)
+        #The output of the node wrt the output of the node before activation: d_out/d_net
+        delta_err *= output_error
+        return delta_err
 
     def backprop(self, y_true, y_predicted, weights, data_layer):
-        # --- Calculating the total error --- #
+        """Back propagates through the entire network.
+
+        Parameters
+        ----------
+        y_true : numpy.ndarray
+            The labelled output vector
+        y_predicted : numpy.ndarray
+            The predicted output vector
+        weights : list[numpy.ndarray]
+            The weights of the entire network
+        data_layer : list[numpy.ndarray]
+            Memory component keeping track of the neuron activations
+
+        Returns
+        -------
+        delta_weight_arr : list[numpy.ndarray]
+            The weight gradients resulting from back propagation
+        delta_bias_arr : list[numpy.ndarray]
+            The bias gradients resulting from back propagation.
+            (If the use of bias is specified)
+        """
 
         # Saved in reverse order
         delta_weight_arr = []
@@ -59,15 +74,15 @@ class BackProp:
         count_layer = -1
         data_layer_count = -1
 
-        # --- Full back propagation
-        for i in range(0, int(2*len(weights))): # TODO: Check this
+        # Full back propagation
+        for i in range(0, int(2*len(weights))):
             # Even layer
             if (i%2 == 0):
                 log.info(f"Iteration number {i}")
                 # Derivative of the activation function: dout_y/dnet_y
-                delta_err = self.back_prop_per_layer(output_error=delta_err,
-                                                    input_data=data_layer[data_layer_count],
-                                                    activation_func=self.activation_functions[data_layer_count])
+                delta_err = self.back_prop_activations(output_error=delta_err,
+                                                       forward_prop_input_data=data_layer[data_layer_count],
+                                                       activation_func=self.activation_functions[data_layer_count])
 
                 if self.use_bias:
                     delta_bias_arr.append(delta_err)
@@ -77,14 +92,13 @@ class BackProp:
             # Odd layer
             else:
                 # Derivatives of dE/dnet_y and dnet_y/dw_ij
-                delta_err, delta_weight = self.back_prop_per_layer( output_error=delta_err,
-                                                                    input_data=data_layer[data_layer_count],
-                                                                    weights=weights[count_layer])
+                delta_err, delta_weight = self.back_prop_weights(output_error=delta_err,
+                                                                forward_prop_input_data=data_layer[data_layer_count],
+                                                                weights=weights[count_layer])
 
                 delta_weight_arr.append(delta_weight)
                 count_layer -= 1
 
-        log.info("Done!")
         if self.use_bias:
             return delta_weight_arr, delta_bias_arr
         else:

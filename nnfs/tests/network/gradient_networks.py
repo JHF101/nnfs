@@ -80,7 +80,7 @@ nn_train = Network(
     #                             fitness_eval='accuracy',
     #                             weights_initialization=optimizer_param),
 
-    optimizer= GradientDescent(learning_rate=0.5, weights_initialization=optimizer_param),
+    # optimizer= GradientDescent(learning_rate=0.5, weights_initialization=optimizer_param),
 
     # optimizer= GradientDescentWithMomentum(learning_rate=0.09, beta=0.9, weights_initialization=optimizer_param),
 
@@ -107,8 +107,7 @@ nn_train.fit(
             y_validate=y_validate,
             epochs=100,
             batch_size=64, # If batch size equals 1, we have online learning
-            shuffle_training_data=True,
-            generate_plots=True
+            shuffle_training_data=True
             )
 
 

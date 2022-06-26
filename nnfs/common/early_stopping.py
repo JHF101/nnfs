@@ -13,7 +13,7 @@ class EarlyStopping:
         self.alpha = alpha
         self.early_stopper = "Early stopping activated"
 
-        # With the genetic algorithm we have to take in only the first weight
+        # With the genetic algorithm we have to take in only the first set of weight
 
     def training_progress(self, epoch_error_training_plot, pkt_threshold):
         # TODO: Make sure that the optimal weight is saved at the minimum

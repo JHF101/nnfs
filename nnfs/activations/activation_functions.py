@@ -1,23 +1,12 @@
 import numpy as np
 
-#TODO: allow for other types of activation functions, that are not products of themselves
-# def rprop_sigmoid(x, derivative=0):
-
-#     x = np.array(x)
-#     if derivative==0:
-#         # return x/(1+np.abs(x))
-#         return np.exp(-x)/(1+np.exp(-x))
-#     else:
-#         sig = x # 1/(1+np.exp(-x))
-#         return -sig*(1-sig)
-
 def sigmoid(x, derivative=0):
 
     x = np.array(x)
     if derivative==0:
         return 1/(1+np.exp(-x))
     else:
-        sig = 1/(1+np.exp(-x)) # x
+        sig = 1/(1+np.exp(-x))
         return sig*(1-sig)
 
 def tanh(x, derivative=0):
@@ -25,7 +14,7 @@ def tanh(x, derivative=0):
     if derivative==0:
         return np.tanh(x)
     else:
-        return 1-np.tanh(x)**2 #1 - x**2 #
+        return 1-np.tanh(x)**2
 
 def relu(x, derivative=0):
     """
