@@ -4,9 +4,9 @@ Neural Network Logic
 from inspect import getmembers, isfunction, isclass, getargspec
 import nnfs
 from nnfs.activations import activation_functions
-from nnfs.activations.activation_functions import linear, relu, sigmoid, softmax, tanh
+from nnfs.activations.activation_functions import linear, relu, sigmoid, softmax, tanh, elu, leaky_relu
 from nnfs.common.early_stopping import EarlyStopping
-from nnfs.errors.error_functions import mse, rms, squared_error
+from nnfs.errors.error_functions import mse, rms, squared_error, cross_entropy
 from nnfs.errors import error_functions
 
 from nnfs.neural_network.neural_network import Network
@@ -25,14 +25,17 @@ activation_func_select = {
     'tanh':tanh,
     'sigmoid':sigmoid,
     'relu':relu,
+    'elu':elu,
+    'leaky_relu':leaky_relu,
     'softmax':softmax,
-    'linear':linear
+    'linear':linear,
 }
 
 error_func_select = {
     'mse':mse,
     'rms':rms,
-    'squared_error':squared_error
+    'squared_error':squared_error,
+    'cross_entropy':cross_entropy
 }
 
 optimizer_func_select = {
