@@ -1,7 +1,9 @@
-import inspect
 # Initialize the terminal for color
 import logging
 import os
+
+LOG_LEVEL=logging.DEBUG
+print(LOG_LEVEL)
 
 class ColourAndCustomFormatter(logging.Formatter):
     """Adds colours to the log files.
@@ -49,7 +51,7 @@ def create_logger(logger_name):
     except FileExistsError:
         pass
     logger_name = os.getcwd() + '/program_logs/'+logger_name+'.log'
-    logger.setLevel(logging.CRITICAL)
+    logger.setLevel(LOG_LEVEL)
     shandler = logging.FileHandler(logger_name)
     shandler.setFormatter(ColourAndCustomFormatter())
     logger.addHandler(shandler)

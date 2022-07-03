@@ -525,7 +525,6 @@ class Network(Plots):
         if self.generate_plots:
             self.plots_gen.plot_confusion_matrix(self.confusion_matrix)
 
-
         log.info("Done Training Model.")
 
     def predict(self, X):
