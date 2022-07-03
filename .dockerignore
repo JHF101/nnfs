@@ -1,7 +1,8 @@
 .git
 __pycache__
 .venv
-.env*
+*.env
+*.log
 docker-compose.yml
 README.md
 proben1

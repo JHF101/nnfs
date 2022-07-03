@@ -190,12 +190,13 @@ def initializer_manager():
     else:
         optimizer_param=None
     return optimizer_param
+
 # -------------------------- #
 #        Architecture        #
 # -------------------------- #
 def input_layer_manager(layer_size, colum1, colum2):
     with colum1:
-        layer_size = st.number_input(f"Neurons for input layer", value=layer_size, disabled=True)
+        layer_size = st.number_input(f"Input layer", value=layer_size, disabled=True)
     activation_function = activation_func_manager(0, colum2)
     act_function = activation_func_select[activation_function]
     return (layer_size, act_function)
@@ -203,7 +204,7 @@ def input_layer_manager(layer_size, colum1, colum2):
 def hidden_layer_manager(layer_num, colum1, colum2):
     # TODO: Add check to see if it is the first or last layer
     with colum1:
-        layer_size = st.number_input(f"Neurons for layer {layer_num}", 0, 1024, step=1)
+        layer_size = st.number_input(f"Hidden layer {layer_num}", 0, 1024, step=1)
     activation_function = activation_func_manager(layer_num, colum2)
 
     act_function = activation_func_select[activation_function]
@@ -212,7 +213,7 @@ def hidden_layer_manager(layer_num, colum1, colum2):
 
 def output_layer_manager(layer_size, layer_num, colum1, colum2):
     with colum1:
-        layer_size = st.number_input(f"Neurons for input layer", value=layer_size, disabled=True)
+        layer_size = st.number_input(f"Output layer", value=layer_size, disabled=True)
     activation_function = activation_func_manager(layer_num, colum2)
     act_function = activation_func_select[activation_function]
     return (layer_size, act_function)
@@ -237,11 +238,12 @@ def neural_network_manager(**kwargs):
     return nn_train
 
 def training_manager(nn_train,
-                    epochs=1000,
-                    batch_size=32,
-                    shuffle_training_data=True,
-                    **kwargs
-                    ):
+                    **kwargs):
+
+    epochs=kwargs['epochs']
+    batch_size=kwargs['batch_size']
+    shuffle_training_data=kwargs['shuffle_training_data']
+
     x_train=kwargs['x_train']
     y_train=kwargs['y_train']
     x_validate=kwargs['x_validate']
@@ -251,13 +253,13 @@ def training_manager(nn_train,
     # TODO: Add ability to change percentage of dataset which is validations set
     # Where graph is getting plotted
     nn_train.fit(
-                x_train=x_train,
-                y_train=y_train,
-                x_test=x_test,
-                y_test=y_test,
-                x_validate=x_validate,
-                y_validate=y_validate,
-                epochs=epochs,
-                batch_size=batch_size, # If batch size equals 1, we have online learning
-                shuffle_training_data=shuffle_training_data,
-                )
+        x_train=x_train,
+        y_train=y_train,
+        x_test=x_test,
+        y_test=y_test,
+        x_validate=x_validate,
+        y_validate=y_validate,
+        epochs=epochs,
+        batch_size=batch_size, # If batch size equals 1, we have online learning
+        shuffle_training_data=shuffle_training_data,
+    )

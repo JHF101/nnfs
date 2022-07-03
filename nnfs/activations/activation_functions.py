@@ -31,7 +31,7 @@ def sigmoid(x, derivative=0):
         - Sigmoid output
         - Derivative of output
     """
-    x = np.array(x)
+    # x = np.array(x)
     if derivative==0:
         return 1/(1+np.exp(-x))
     else:
@@ -57,7 +57,7 @@ def tanh(x, derivative=0):
         - Tanh output
         - Derivative of tanh
     """
-    x = np.array(x)
+    # x = np.array(x)
     if derivative==0:
         return np.tanh(x)
     else:
@@ -81,12 +81,11 @@ def relu(x, derivative=0):
         - ReLu output
         - Derivative of output
     """
-    x = np.array(x)
+    # x = np.array(x)
     if derivative==0:
         return x * (x > 0)
     else:
-        x[x<=0] = 0
-        x[x>0] = 1
+        x = np.where(x<=0, 0, 1)
         return x
 
 def softmax(x, derivative=0):
@@ -110,7 +109,7 @@ def softmax(x, derivative=0):
         - Derivative of output
     """
     if derivative == 0:
-        # Not stable
+        # -- Not stable -- #
         # e_i = np.exp(x)
         # return e_i / e_i.sum()
         # Numerically stable
@@ -144,7 +143,7 @@ def linear(x, derivative=0):
         - Derivative of output
     """
     if derivative==0:
-        return 1
+        return np.ones(x.shape)
     else:
         return np.array(x)
 
@@ -169,13 +168,12 @@ def leaky_relu(x, derivative=0):
         - Leaky relu output
         - Derivative of output
     """
-    x = np.array(x)
+    # x = np.array(x)
     alpha = 0.1
     if derivative==0:
         return np.maximum(alpha* x, x)
     else:
-        x[x<=0] = alpha
-        x[x>0] = 1
+        x = np.where(x<=0, alpha, 1)
         return x
 
 def elu(x, derivative=0):
@@ -196,15 +194,13 @@ def elu(x, derivative=0):
         - elu output
         - Derivative of output
     """
-    x = np.array(x)
+    # x = np.array(x)
     alpha = 0.1
     if derivative==0:
-        x[x>=0] = x
-        x[x<0] = alpha*(np.exp(x)-1)
+        x = np.where(x>=0, x, alpha*(np.exp(x)-1))
         return x
     else:
-        x[x<=0] = alpha*np.exp(x)
-        x[x>0] = 1
+        x = np.where(x>=0, alpha*(np.exp(x)), 1)
         return x
 
 # Cross Entropy

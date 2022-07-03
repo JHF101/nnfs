@@ -2,7 +2,12 @@ import os
 import numpy as np
 import codecs
 import wget
+import gzip
+import glob
+import shutil
 
+from nnfs.utils.logs import create_logger
+log = create_logger(__name__)
 
 class MNIST:
 
@@ -10,31 +15,22 @@ class MNIST:
     def __init__(self):
         self.WORKING_DIR = os.getcwd() + '/'
         self.DATASET_DIR = self.WORKING_DIR+'mnist/'
+        print(self.DATASET_DIR)
 
     def byte_to_int(self, byte):
-        """
-        Converts 4 Bytes to an int32
-
-        Parameters
-        ----------
-
-        """
         return int(codecs.encode(byte, 'hex'), 16)
 
     def download_data(self):
-        import gzip
-        import glob
-        import shutil
-        wget.download('http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz')
-        wget.download('http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz')
-        wget.download('http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz')
-        wget.download('http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz')
-        file_names = glob.glob('*.gz')
         try:
             os.mkdir(self.DATASET_DIR)
+            wget.download('http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz', out=self.DATASET_DIR)
+            wget.download('http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz', out=self.DATASET_DIR)
+            wget.download('http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz', out=self.DATASET_DIR)
+            wget.download('http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz', out=self.DATASET_DIR)
         except:
             print("The file location already exists")
 
+        file_names = glob.glob('*.gz')
         for file in file_names:
             with gzip.open(file, 'rb') as f_in:
                 file = self.DATASET_DIR + file
@@ -43,9 +39,10 @@ class MNIST:
         # Removing .gz file
         files = glob.glob(self.WORKING_DIR + '*.gz')
         for f in files:
+            print(f"Delete {f}")
             os.remove(f)
 
-    def load_data(self, directory):
+    def load_data(self):
         """
         Loads the MNIST Data into the directory specified
 
@@ -67,14 +64,14 @@ class MNIST:
         test_set_size = 10000
 
         # Determine way to get this
-        files = os.listdir(self.WORKING_DIR+directory)
+        files = os.listdir(self.DATASET_DIR)
 
         # Create a dictionary to store train images, train labels, test images and test labels
         dataset_dict = {}
         for file in files:
             if file.endswith('ubyte'):
                 print(file)
-                with open(directory+file, 'rb') as f:
+                with open(self.DATASET_DIR+file, 'rb') as f:
                     data = f.read()
                     magic_number = self.byte_to_int(data[0:4]) # Image/Label
                     length_of_arr = self.byte_to_int(data[4:8]) # Length of array
