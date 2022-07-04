@@ -2,7 +2,7 @@
 import logging
 import os
 
-LOG_LEVEL=logging.DEBUG
+LOG_LEVEL=logging.CRITICAL
 print(LOG_LEVEL)
 
 class ColourAndCustomFormatter(logging.Formatter):
