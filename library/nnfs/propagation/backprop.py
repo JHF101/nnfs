@@ -8,7 +8,7 @@ class BackProp:
         self.error_function = error_function
         self.use_bias = use_bias
 
-    def back_prop_weights(self, output_error, forward_prop_input_data, weights=None, activation_func=None):
+    def back_prop_weights(self, output_error, forward_prop_input_data, weights=None):
         """
         Calculating the gradient of the layer
         """

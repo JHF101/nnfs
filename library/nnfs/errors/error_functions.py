@@ -18,21 +18,16 @@ def squared_error(y_actual, y_out, derivative=0):
         dE_total_wrt_dy = 2*(y_out- y_actual)
         return dE_total_wrt_dy
 
-
 def rms(y_actual, y_out, derivative=0):
     if derivative==0:
         return NotImplementedError
     else:
         return NotImplementedError
 
+# TODO: Test cross entropy
 def cross_entropy(y_actual, y_out, derivative=0):
-    if derivative==0:
-        return NotImplementedError
-    else:
-        return NotImplementedError
-    """
-    # y_actual = np.array(y_actual)
-    # y_out = np.array(y_out)
+    y_actual = np.array(y_actual)
+    y_out = np.array(y_out)
 
     if derivative==0:
         network_out = y_out.shape[0]
@@ -52,4 +47,4 @@ def cross_entropy(y_actual, y_out, derivative=0):
 
         dE_total_wrt_dy[range(network_out), y_out] -= 1
         dE_total_wrt_dy = dE_total_wrt_dy/network_out
-        return dE_total_wrt_dy"""
+        return dE_total_wrt_dy

@@ -75,7 +75,7 @@ class Network(Plots):
             # Initialize propagation methods
             self.optimizer.init_propagations()
 
-            # TODO: Save these plots
+            # Plots that are saved
             self.epoch_error_training_plot = []
             self.epoch_error_validation_plot = []
             self.epoch_error_testing_plot = []
@@ -85,7 +85,7 @@ class Network(Plots):
 
             self.confusion_matrix = []
 
-            # TODO: Save all weights into a super mega array
+            # Save all weights into a super mega array
             self.mega_weights_array=[]
             self.mega_bias_array = []
 
@@ -411,16 +411,19 @@ class Network(Plots):
             #                    Confusion Matrix                            #
             # -------------------------------------------------------------- #
 
-            actual_values = np.array(actual_values)
-            all_predictions = np.array(all_predictions)
 
-            # Get the columns of the predictions
+            # Original idea was to stream the confusion matrix, but it only 
+            # needs to be show once at the end.
+
+            # actual_values = np.array(actual_values)
+            # all_predictions = np.array(all_predictions)
+            ## Get the columns of the predictions
             # TODO: This is causing big errors
             # for cm in range(all_predictions.shape[0]):
             #     self.confusion_matrix.append(
             #         confusion_matrix(actual_values[cm,:], all_predictions[cm,:]) # This is wrong
             #     )
-            self.confusion_matrix.append(confusion_matrix(actual_values, all_predictions))
+            # self.confusion_matrix.append(confusion_matrix(actual_values, all_predictions))
 
             # Non-Gradient (Genetic)
             if (type(validation_accuracy)==list): # Means that we have more
@@ -523,6 +526,7 @@ class Network(Plots):
                 self.plots_gen.plot_epoch_accuracy(ds_name="Stream1", save_dir="Stream1")
 
         if self.generate_plots:
+            self.confusion_matrix = confusion_matrix(temp_actual_values, temp_all_predictions)
             self.plots_gen.plot_confusion_matrix(self.confusion_matrix)
 
         log.info("Done Training Model.")

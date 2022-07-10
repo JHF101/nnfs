@@ -27,14 +27,11 @@ def counter(_count=count(1)):
 # ---------------------------------- #
 #               SideBar              #
 # ---------------------------------- #
-
 with st.sidebar:
     # Data Sources
-    # with st.form(key='data_set_form'):
     st.write(f'Step {counter()}: Select a data source.')
     # Dataset selection
     datasets = data_manager()
-    # submit_button = st.form_submit_button(label='Submit')
 
     # ----------------------------- #
     #      Network Construction     #

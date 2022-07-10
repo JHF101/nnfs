@@ -188,7 +188,7 @@ class Plots:
                 self.st_acc = st.plotly_chart(fig, use_container_width=True, config=self.config)
 
     def plot_confusion_matrix(self, confusion_matrix):
-        df = pd.DataFrame(confusion_matrix[-1])
+        df = pd.DataFrame(confusion_matrix)
         dfc = df#.corr()
         z = dfc.values.tolist()
         z_text = [[str(y) for y in x] for x in z]

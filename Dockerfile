@@ -12,7 +12,7 @@ RUN apt-get update && \
 #         musl-dev \
 #         linux-headers
 
-COPY ./requirements.txt /
+COPY ./library/requirements.txt .
 RUN python -m pip install --upgrade pip setuptools
 RUN pip wheel --wheel-dir /wheels -r requirements.txt
 
@@ -23,11 +23,13 @@ RUN apt-get update && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN python -m pip install --upgrade pip setuptools
-COPY ./requirements.txt /
+COPY ./library/requirements.txt requirements.txt
+
 COPY --from=base_libs /wheels /wheels
 RUN pip install --no-index --find-links=/wheels -r requirements.txt
-COPY nnfs/ nnfs/
-COPY setup.py setup.py
+
+COPY ./library/nnfs/ nnfs/
+COPY ./library/setup.py setup.py
 RUN python setup.py sdist bdist_wheel
 RUN cp dist/nnfs-0.4.0-py3-none-any.whl /wheels
 
@@ -44,7 +46,10 @@ COPY --from=custom_libs /wheels/nnfs-0.4.0-py3-none-any.whl /wheels/nnfs-0.4.0-p
 RUN pip install wheels/nnfs-0.4.0-py3-none-any.whl
 
 WORKDIR /app
-COPY . .
+COPY ./program/*.py .
+RUN echo ls
+
 EXPOSE 8501
+
 ENTRYPOINT ["streamlit", "run"]
 CMD ["app.py"]
