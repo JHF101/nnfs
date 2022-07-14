@@ -4,7 +4,30 @@ import numpy as np
 from nnfs.utils.logs import create_logger
 log = create_logger(__name__)
 class Rprop(GradientOptimizer):
-    def __init__(self, eta_plus, eta_minus, delta_max, delta_min, weights_initialization=None):
+    """
+
+    Parameters
+    ----------
+    GradientOptimizer : _type_
+        _description_
+    """
+    def __init__(self, eta_plus=1.1, eta_minus=0.5, delta_max=50, delta_min=0, weights_initialization=None):
+        """ 
+        # TODO: Finish the commenting
+
+        Parameters
+        ----------
+        eta_plus : float, optional
+            _description_, by default 1.1
+        eta_minus : float, optional
+            _description_, by default 0.5
+        delta_max : int, optional
+            _description_, by default 50
+        delta_min : int, optional
+            _description_, by default 0
+        weights_initialization : _type_, optional
+            _description_, by default None
+        """
         super().__init__()
         self.initialization_method = weights_initialization
 

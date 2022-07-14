@@ -268,14 +268,14 @@ class Network(Plots):
                         # Keeping ttrack of gradients
                         if (delta_weight_counter==0):
                             # Initializing for summations
-                            average_gradients = self.delta_weight
+                            average_weights = self.delta_weight
                             if self.use_bias:
                                 average_bias = self.delta_bias
 
                         if (delta_weight_counter>0):
                             # Summing the gradients for batch
                             for b in range(len(self.delta_weight)):
-                                average_gradients[b] += self.delta_weight[b]
+                                average_weights[b] += self.delta_weight[b]
                                 if self.use_bias:
                                     average_bias[b] += self.delta_bias[b]
 
@@ -285,7 +285,7 @@ class Network(Plots):
 
                     elif (self.optimizer.optimizer_type == 'non-gradient'):
 
-                        # --- Forward Propagation
+                        # Forward Propagation
                         total_training_error, train_accuracy, _ = \
                             self.optimizer.forward_prop_fit(
                                 x_train[j],
@@ -306,13 +306,13 @@ class Network(Plots):
             if (self.optimizer.optimizer_type == 'gradient'):
 
                 # Averaging gradients
-                average_gradients = [average_gradients[i]/num_of_summations_per_batch for i in range(len(average_gradients))]
+                average_weights = [average_weights[i]/num_of_summations_per_batch for i in range(len(average_weights))]
                 if self.use_bias:
                     average_bias = [average_bias[i]/num_of_summations_per_batch for i in range(len(average_bias))]
 
                 # Reversing the order of gradients to make optimizations easier
-                dE_dwij_t, dE_dbij_t = self.optimizer.flip_weights(
-                    average_gradients=average_gradients,
+                dE_dwij_t, dE_dbij_t = self.optimizer.flip_gradient_arr(
+                    average_gradients=average_weights,
                     average_bias=average_bias)
 
                 # Mega Delta Array

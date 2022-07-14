@@ -136,7 +136,7 @@ class GeneticOptimizer(FeedForward, Optimizer):
 
         Parameters
         ----------
-        weights: list[list[np.array]]
+        weights: list[list[numpy.ndarray]]
         """
         weight_length = len(weights)
 
@@ -146,21 +146,21 @@ class GeneticOptimizer(FeedForward, Optimizer):
         # Catches the first iteration, when the number of children are
         # twice that of the parents
         if (self.number_of_parents == weight_length):
-            verification_accuarcy_results = np.zeros(2*weight_length)
-            total_verification_error = np.zeros(2*weight_length)
+            validation_accuarcy_results = np.zeros(2*weight_length)
+            total_validation_error = np.zeros(2*weight_length)
 
             test_accuarcy_results = np.zeros(2*weight_length)
             total_test_error = np.zeros(2*weight_length)
 
         else:
-            verification_accuarcy_results = np.zeros(weight_length)
-            total_verification_error = np.zeros(weight_length)
+            validation_accuarcy_results = np.zeros(weight_length)
+            total_validation_error = np.zeros(weight_length)
 
             test_accuarcy_results = np.zeros(weight_length)
             total_test_error = np.zeros(weight_length)
 
         return train_accuracy_results, total_training_error, \
-                verification_accuarcy_results, total_verification_error, \
+                validation_accuarcy_results, total_validation_error, \
                     test_accuarcy_results, total_test_error
 
     def arith_crossover(self, lambda_val, parent_arr):

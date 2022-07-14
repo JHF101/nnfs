@@ -10,7 +10,7 @@ class BackProp:
 
     def back_prop_weights(self, output_error, forward_prop_input_data, weights=None):
         """
-        Calculating the gradient of the layer
+        Calculating the gradient of the layer.
         """
 
         weights = np.array(weights)
@@ -27,19 +27,15 @@ class BackProp:
         Getting the gradient of layer by taking the derivative of the activation
         function.
         """
-        """
-        forward_prop_input_data:
-            Expects the same data entering from the left to the right propagating
-            through the network as in the forward pass.
-        """
         # Essentially performing the chain rule
         delta_err = activation_func(forward_prop_input_data, derivative=1)
-        #The output of the node wrt the output of the node before activation: d_out/d_net
+        # The output of the node wrt the output of the node before activation: d_out/d_net
         delta_err *= output_error
         return delta_err
 
     def backprop(self, y_true, y_predicted, weights, data_layer):
-        """Back propagates through the entire network.
+        """Back propagates through the entire network by using
+        chain rule (in matrix form)
 
         Parameters
         ----------

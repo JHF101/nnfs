@@ -109,6 +109,6 @@ class Optimizer(Initializers):
         NotImplementedError
         """
         log.exception("optimize() not implemented")
-        return NotImplementedError("Please make sure the optimization is being used.")
+        return NotImplementedError("Please make sure the optimizer is being used.")
 
 

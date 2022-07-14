@@ -5,6 +5,19 @@ from nnfs.utils.logs import create_logger
 log = create_logger(__name__)
 
 class RMSProp(GradientOptimizer):
+    """RMS(Root Mean Square) Propagation
+    Uses a decaying average of partial gradients to adjust the step size for
+    each parameter. It is an extension on the AdaGrad algorithm.
+
+    (Geoffrey Hinton)
+
+    Goal:
+    - Reduce number of function evaluations
+    - Improve on accuracy of final result
+
+    Pros:
+    - Forgets effects of early descent due to decaying moving average
+    """
     def __init__(self, learning_rate, beta=0.9, weights_initialization=None):
         super().__init__()
         self.initialization_method = weights_initialization
@@ -29,12 +42,14 @@ class RMSProp(GradientOptimizer):
             bias = kwargs["bias"]
 
         # Initializing the shape of the weights
+        # Only gets initialized once
         if self.s_dW is None:
             self.s_dW = []
             for i in dE_dwij_t:
                 self.s_dW.append(np.zeros(shape=i.shape))
 
         if self.use_bias:
+            # Only gets initialized once
             if self.s_dB is None:
                 self.s_dB = []
                 for b in dE_dbij_t:

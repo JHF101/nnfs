@@ -6,13 +6,40 @@ import re
 import zipfile
 
 class Proben1:
+    """
+    Proben1 consists of a number of classification and regression
+    problems that can be used as a benchmark for machine learning
+    algorithms. It contains 15 datasets from 12 different domains:
 
+    - Cancer
+    - Card
+    - Diabetes
+    - Glass
+    - Heart
+    - Horse
+    - Soybean
+    - Thyroid
+    - Building
+    - Flare
+
+    References
+    ----------
+    Proben1 - A Set of Neural Network Benchmark Problems and Benchmarking
+    Rules
+    """
     def __init__(self):
+        """Initializing the possible location that the dataset will
+        be saved in when the user is busy working with the library.
+        """
         self.WORKING_DIR = os.getcwd() + '/'
         self.DATASET_DIR = self.WORKING_DIR+'proben1/'
 
     def download_data(self):
-
+        """Downloads the data in the correct format from the Github
+        repo. In general it is assumed that when the user deletes the
+        data from the Proben1 folder because that is what is checked for
+        to determine if a user has already.
+        """
         try:
             os.mkdir(self.DATASET_DIR)
             # Get the github link
@@ -30,6 +57,9 @@ class Proben1:
             print("The file location already exists, skipping download!")
 
     def get_dataset_dirs(self):
+        """Runs through the files that have been downloaded and returns a
+        dictionary of the full directory, which dataset
+        """
 
         # Find all of the directories in here
         directories = [x[0] for x in os.walk(self.WORKING_DIR)]
@@ -45,7 +75,7 @@ class Proben1:
                         {
                             "directory":file_names,
                             "dataset": os.path.split(dir)[1],
-                            "path": dir,
+                            "path": dir, # TODO: Check if you even need this anymore
                         }
                     )
 

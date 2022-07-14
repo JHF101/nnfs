@@ -8,6 +8,11 @@ from nnfs.utils.logs import create_logger
 log = create_logger(__name__)
 
 class GradientOptimizer(FeedForward, BackProp, Optimizer):
+    """Basis of all gradient based optimizations. This class
+    contains initialization and propagation methods that are
+    common amongst the different gradient based optimization
+    methods.
+    """
     def __init__(self):
         self.optimizer_type = 'gradient'
         log.info(f"Type of optimizer: {self.optimizer_type}")
@@ -27,7 +32,7 @@ class GradientOptimizer(FeedForward, BackProp, Optimizer):
         Returns
         -------
         weights, biases
-            The initialized weights of the network.
+            The initialized weights and biases of the network.
         """
         log.info("Initializing Gradient Descent Algorithm Structure")
         self.layers = layers
@@ -91,29 +96,54 @@ class GradientOptimizer(FeedForward, BackProp, Optimizer):
 
     def init_measures(self, weights):
         """
-        Initialize the measures for epoch
+        Initialize the measures for each epoch.
+        Training Loss/Acc, Validations Loss/Acc, Test Loss/Acc
         """
 
         train_accuracy_results = 0
         total_training_error = 0
 
-        verification_accuarcy_results = 0
-        total_verification_error = 0
+        validation_accuarcy_results = 0
+        total_validation_error = 0
 
         test_accuarcy_results = 0
         total_test_error = 0
 
         return train_accuracy_results, total_training_error, \
-                verification_accuarcy_results, total_verification_error, \
+                validation_accuarcy_results, total_validation_error, \
                     test_accuarcy_results, total_test_error
 
     def forward_prop_fit(self,
-                        X,
-                        Y,
+                        X, Y,
                         accuracy_results, # TODO: Make into kwargs
                         total_training_error, # TODO
                         weights, bias):
+        """Function used for training the gradient based network.
 
+        Parameters
+        ----------
+        X : numpy.ndarray
+            Features
+        Y : numpy.ndarray
+            Labels
+        accuracy_results : int
+            State variable to keep track of model accuracy during training
+        total_training_error : float
+            State variable to keep track of loss during training
+        weights : list
+            Weights of the network
+        bias : list
+            Biases of the network
+
+        Returns
+        -------
+        total_training_error
+            State variable to keep track of model accuracy during training
+        accuracy_results
+            State variable to keep track of loss during training
+        ff_results
+            Output of the final layer of the network
+        """
         weights_val = weights # Make a copy of the array
         # y_predicted = data_layer[-1]
         if self.use_bias:
@@ -128,12 +158,29 @@ class GradientOptimizer(FeedForward, BackProp, Optimizer):
 
         # --- Training Accuracy
         if (np.argmax(final_layer) == np.argmax(Y)):
-            accuracy_results += 1 # Used for genetic algorithm
+            # Keeping the total correct predictions of classification task
+            accuracy_results += 1
 
         return total_training_error, accuracy_results, ff_results
 
     def predict(self, X, weights, bias):
+        """Predict function uses the feedforward function and only
+        returns the final layer output of the network.
 
+        Parameters
+        ----------
+        X : numpy.ndarray
+            Features
+        weights : list[numpy.ndarray]
+            Weights of the network
+        bias : list[numpy.ndarray]
+            Bias of the network
+
+        Returns
+        -------
+        output_layer : numpy.ndarray
+            The final layer activations of the network
+        """
         if self.use_bias:
             ff_results = self.feedforward(X, weights=weights, bias=bias)
         else:
@@ -146,19 +193,35 @@ class GradientOptimizer(FeedForward, BackProp, Optimizer):
     def backpropagation(self, Y, ff_results, weights, data_layer):
         # Getting loss according to error function
         # Error of all parents?
-        delta_weight_arr, delta_bias_arr = self.backprop(Y, ff_results, weights, data_layer=data_layer)
+        delta_weight_arr, delta_bias_arr = self.backprop(Y, ff_results, weights, data_layer)
 
         return delta_weight_arr, delta_bias_arr
 
-    def flip_weights(self, average_gradients, average_bias):
-        # --------------------------------------------------------------------------- #
-        #                   Saving weights and bias gradients                         #
-        # --------------------------------------------------------------------------- #
-        # --- Reversing the gradients
-        dE_dwij_t = average_gradients[::-1] # Weight Gradient
+    def flip_gradient_arr(self, weights_arr, bias_arr):
+        """Reverses the order of the weights and bias arrays
+        to make backpropagation indexing easier.
 
+        Parameters
+        ----------
+        weights_arr : list[numpy.ndarray]
+            Non-reversed weight array
+        bias_arr : list[numpy.ndarray]
+            Non-reversed bias array
+
+        Returns
+        -------
+        dE_dwij_t : list[numpy.ndarray]
+            Reversed weight array
+        dE_dbij_t : list[numpy.ndarray]
+            Reversed bias array
+
+        """
+        # Weight Gradient
+        dE_dwij_t = weights_arr[::-1]
+
+        # Bias Gradient
         if self.use_bias:
-            dE_dbij_t = average_bias[::-1] # Bias Gradient
+            dE_dbij_t = bias_arr[::-1]
         else:
             dE_dbij_t = 0
 
