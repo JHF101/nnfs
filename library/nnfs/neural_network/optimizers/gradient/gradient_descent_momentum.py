@@ -24,9 +24,6 @@ class GradientDescentWithMomentum(GradientOptimizer):
             bias = kwargs["bias"]
             mega_delta_bias_array = kwargs["mega_delta_bias_array"]
 
-        # --------------------------------------------------------------------------------- #
-        #                       Back propagation + Momentum                                 #
-        # --------------------------------------------------------------------------------- #
         for w in range(0,len(weights)):
             if (len(mega_delta_weights_array)>1):
                 # --- Weights

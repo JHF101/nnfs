@@ -4,11 +4,19 @@ services:
     container_name: streamlit-app
     image: "streamlit:${TAG}"
     build:
-      dockerfile: ./Dockerfile
+      dockerfile: ./program/Dockerfile
       context: .
       cache_from:
         - "streamlit:${TAG}"
     ports:
       - 8501:8501
     # volumes:
-    #   - ./:/app 
+    #   - ./:/app
+
+  documenter:
+    container_name: container
+    build:
+      dockerfile: ./library/docs/Dockerfile
+    tty: true
+    stdin_open: true
+    # TODO: Add a container just for running tests

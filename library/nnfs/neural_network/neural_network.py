@@ -312,8 +312,8 @@ class Network(Plots):
 
                 # Reversing the order of gradients to make optimizations easier
                 dE_dwij_t, dE_dbij_t = self.optimizer.flip_gradient_arr(
-                    average_gradients=average_weights,
-                    average_bias=average_bias)
+                    weights_arr=average_weights,
+                    bias_arr=average_bias)
 
                 # Mega Delta Array
                 # NOTE: The order in which the gradients are saved are reversed

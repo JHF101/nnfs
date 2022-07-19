@@ -10,8 +10,6 @@ from nnfs.utils.logs import create_logger
 log = create_logger(__name__)
 
 class MNIST:
-
-
     def __init__(self):
         self.WORKING_DIR = os.getcwd() + '/'
         self.DATASET_DIR = self.WORKING_DIR+'mnist/'
@@ -28,7 +26,7 @@ class MNIST:
             wget.download('http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz', out=self.DATASET_DIR)
             wget.download('http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz', out=self.DATASET_DIR)
         except:
-            print("The file location already exists")
+            log.warning("The file location already exists")
 
         file_names = glob.glob('*.gz')
         for file in file_names:

@@ -5,7 +5,24 @@ from nnfs.utils.logs import create_logger
 log = create_logger(__name__)
 
 class Adam(GradientOptimizer):
-    def __init__(self, learning_rate, beta1=0.9, beta2=0.999, weights_initialization=None):
+    """Computes individual adaptive learning rates for different parameters
+    from estimates of first and second moments of the gradients.
+    Combines advantages of AdaGrad and RMSProp.
+    """
+    def __init__(self, learning_rate=0.001, beta1=0.9, beta2=0.999, weights_initialization=None):
+        """
+        Parameters
+        ----------
+        learning_rate : float
+            The stepsize, by default = 0.001
+        beta1 : float, optional
+            Exponential decay rates for the moment estimate, by default 0.9
+        beta2 : float, optional
+            Exponential decay rates for the moment estimate, by default 0.999
+        weights_initialization : object, optional
+            Type of weights initialization to be used by the network, by default None
+        """
+
         super().__init__()
         self.initialization_method = weights_initialization
         self.beta1 = beta1
@@ -26,6 +43,7 @@ class Adam(GradientOptimizer):
         self.t = 0
 
     def optimize(self, **kwargs):
+
         # --- Weights
         dE_dwij_t = kwargs["dE_dwij_t"]
         weights = kwargs["weights"]
@@ -54,7 +72,7 @@ class Adam(GradientOptimizer):
                 for b in dE_dbij_t:
                     self.v_dB.append(np.zeros(shape=b.shape))
 
-        self.t += 1 # TODO: See what can be done about overflow errors
+        self.t += 1 # TODO: Handle overflow errors
         # Number of iteration of optimizations
         for w in range(0, len(weights)):
             # --- Weights
@@ -100,13 +118,10 @@ class Adam(GradientOptimizer):
                 denom = np.sqrt(self.s_dB[w])+self.eps
                 bias[w] -= self.learning_rate * np.divide(self.v_dB[w], denom)
 
-            log.warn(f"Current index is {w}")
             log.info(f"self.s_dW[w] {self.s_dW[w]}")
             log.info(f"self.s_dW[w] {self.s_dB[w]}")
             log.info(f"self.v_dW[w] {self.v_dW[w]}")
             log.info(f"self.v_dB[w] {self.v_dB[w]}")
-            log.info(f"The shape of the RMS prop weights are : {self.s_dW[w].shape}")
-
 
         if self.use_bias:
             return weights, bias

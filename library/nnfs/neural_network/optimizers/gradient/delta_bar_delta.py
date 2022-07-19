@@ -5,6 +5,15 @@ from nnfs.utils.logs import create_logger
 log = create_logger(__name__)
 
 class DeltaBarDelta(GradientOptimizer):
+    """DBD learns the learning-rate parameters of the underlying system.
+    DBD performs better in than standard LMS and finds optimal learning
+    rates.
+
+    References
+    ----------
+    Adapting Bias by Gradient Descent: An Incremental Version Delta-Bar-Delta
+    by Richard S Sutton.
+    """
     def __init__(self, theta, mini_k, phi, weights_initialization=None):
         super().__init__()
         self.initialization_method = weights_initialization
@@ -13,7 +22,7 @@ class DeltaBarDelta(GradientOptimizer):
         log.info(f"Optimizer Name: {self.optimizer_name}")
 
         self.theta = theta #0.1 #[0,1]
-        self.mini_k = mini_k #0.01 # Constant coefficient increment factor
+        self.mini_k = mini_k # 0.01 # Constant coefficient increment factor
         self.phi = phi #0.1 # [0,1]- Constant learning coefficient decrement factor
         self.dbd_init_process = True
 

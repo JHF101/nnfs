@@ -60,6 +60,7 @@ def data_manager():
             dataset = proben1_manager()
         elif datasets_selector=='mnist':
             dataset, dataset_concat = mnist_manager()
+
         submit_button = st.form_submit_button(label='Submit')
 
     (x_train, y_train, x_validate, y_validate, x_test, y_test) = dataset
@@ -78,7 +79,7 @@ def data_manager():
         input_layer_size = 28*28#x_train[0].shape[0]
         output_layer_size = 10 #y_train[0].shape[0]
 
-    if datasets_selector == 'proben1':
+    elif datasets_selector == 'proben1':
         x_train = x_train.reshape(x_train.shape[0], 1, x_train.shape[1])
         y_train = y_train.reshape(y_train.shape[0], 1, y_train.shape[1])
 

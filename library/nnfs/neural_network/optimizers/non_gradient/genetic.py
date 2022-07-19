@@ -60,7 +60,7 @@ class GeneticOptimizer(FeedForward, Optimizer):
         # Assigning the layers to be used by the optimizers
         self.layers = layers
 
-        log.info("Initiliazing Genetic Algorithm Structure")
+        log.info("Initializing Genetic Algorithm Structure")
 
         # Genetic Algorithm has multiple parents(so multiple instantiations of weights)
         weights = []
@@ -137,6 +137,22 @@ class GeneticOptimizer(FeedForward, Optimizer):
         Parameters
         ----------
         weights: list[list[numpy.ndarray]]
+            Weights of the network
+
+        Returns
+        -------
+        train_accuracy_results : numpy.ndarray
+            Initialized arrays of (number of parents,1)
+        total_training_error : numpy.ndarray
+            Initialized arrays of (number of parents,1)
+        validation_accuracy_results : numpy.ndarray
+            Initialized arrays of (number of parents,1)
+        total_validation_error : numpy.ndarray
+            Initialized arrays of (number of parents,1)
+        test_accuracy_results : numpy.ndarray
+            Initialized arrays of (number of parents,1)
+        total_test_error : numpy.ndarray
+            Initialized arrays of (number of parents,1)
         """
         weight_length = len(weights)
 
@@ -146,22 +162,22 @@ class GeneticOptimizer(FeedForward, Optimizer):
         # Catches the first iteration, when the number of children are
         # twice that of the parents
         if (self.number_of_parents == weight_length):
-            validation_accuarcy_results = np.zeros(2*weight_length)
+            validation_accuracy_results = np.zeros(2*weight_length)
             total_validation_error = np.zeros(2*weight_length)
 
-            test_accuarcy_results = np.zeros(2*weight_length)
+            test_accuracy_results = np.zeros(2*weight_length)
             total_test_error = np.zeros(2*weight_length)
 
         else:
-            validation_accuarcy_results = np.zeros(weight_length)
+            validation_accuracy_results = np.zeros(weight_length)
             total_validation_error = np.zeros(weight_length)
 
-            test_accuarcy_results = np.zeros(weight_length)
+            test_accuracy_results = np.zeros(weight_length)
             total_test_error = np.zeros(weight_length)
 
         return train_accuracy_results, total_training_error, \
-                validation_accuarcy_results, total_validation_error, \
-                    test_accuarcy_results, total_test_error
+                validation_accuracy_results, total_validation_error, \
+                    test_accuracy_results, total_test_error
 
     def arith_crossover(self, lambda_val, parent_arr):
         """Arithmetic crossover.
@@ -178,16 +194,16 @@ class GeneticOptimizer(FeedForward, Optimizer):
         Returns
         -------
         children
-            Children array occuring after crossover.
+            Children array occurring after crossover.
         """
         # Each pair of parents create two children
         children = []
-        for q in range(0,len(parent_arr),2):
+        for q in range(0, len(parent_arr), 2):
             # First child
-            k_ij = lambda_val*parent_arr[q] + (1 - lambda_val)*parent_arr[q+1]
+            k_ij = lambda_val*parent_arr[q]+(1-lambda_val)*parent_arr[q+1]
             children.append(k_ij)
             # Second child
-            k_ij = lambda_val*parent_arr[q+1] + (1 - lambda_val)*parent_arr[q]
+            k_ij = lambda_val*parent_arr[q+1]+(1-lambda_val)*parent_arr[q]
             children.append(k_ij)
 
         return children
@@ -204,9 +220,11 @@ class GeneticOptimizer(FeedForward, Optimizer):
 
         Returns
         -------
-        parents
-            Flattened weights/bias arrays, where each parent is
-            one instance of the weights.
+        parents : list[list[numpy.ndarray]]
+            Flattened weights/bias arrays, where each parent is one instance
+            of the weights.
+        parents_structure : list[list]
+            Contains the original shape of the parents to be used for reshaping
         """
         parents = []
         parents_structure = []
@@ -256,12 +274,12 @@ class GeneticOptimizer(FeedForward, Optimizer):
 
         Parameters
         ----------
-        param : list[list[np.array]]
+        param : list[list[numpy.ndarray]]
             Weights/bias array
         children : list[list]
             Children array that results from evolution process
-        parents_structure : _type_
-            Lengths determined by the flattening process during selection
+        parents_structure : list[list]
+            Contains the original shape of the parents to be used for reshaping
 
         Returns
         -------
