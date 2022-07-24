@@ -41,5 +41,5 @@ def to_categorical(array):
         result[i][array[i]] = 1
     return result
 
-if __name__=="__main__":
-    print(to_categorical(np.array([7,7,6,7])))
+# if __name__=="__main__":
+#     print(to_categorical(np.array([7,7,6,7])))

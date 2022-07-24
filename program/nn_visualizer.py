@@ -106,6 +106,6 @@ class DrawNN():
             network.add_layer(l)
         network.draw()
 
-if __name__=="__main__":
-    network = DrawNN( [2,8,8,1] )
-    network.draw()
+# if __name__=="__main__":
+#     network = DrawNN( [2,8,8,1] )
+#     network.draw()

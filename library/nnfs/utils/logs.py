@@ -78,11 +78,11 @@ def log_IO(name):
         return _fn
     return _decor
 
-if __name__=="__main__":
-    # Example usage
-    @log_IO('test')
-    def test_func(key):
-        return key
+# if __name__=="__main__":
+#     # Example usage
+#     @log_IO('test')
+#     def test_func(key):
+#         return key
 
-    log=create_logger('test')
-    test_func('Input')
+#     log=create_logger('test')
+#     test_func('Input')
