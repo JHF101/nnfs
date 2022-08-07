@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   app:
-    container_name: streamlit-app
+    container_name: demo_app
     image: "streamlit:${TAG}"
     build:
       dockerfile: ./program/Dockerfile

@@ -14,7 +14,7 @@ from nnfs.utils.logs import create_logger
 log = create_logger(__name__)
 
 # TODO: Add genetic algorithm plotter
-# TODO: Add standard plotly support
+# TODO: Add standard plotly support without need for streamlit
 
 def random_color():
     rgbl=[255,0,0]
@@ -73,7 +73,7 @@ class Plots:
     def update_data(self, self_data):
         """Receives the data from neural network which can then be used by the
         rest of the class.
-        
+
         Parameters
         ----------
         self_data : any
@@ -165,55 +165,79 @@ class Plots:
             Directory to save image
         """
 
-        if (self.optimizer.optimizer_type == 'gradient'):
-            # Naming
-            architecture = ''
-            for i in range(0, len(self.weights)):
-                                                                    # Activation function
-                architecture += str(self.weights[i].shape[1]) + "-" + str(self.activation_functions[i+1].__name__)[0] + "+"
-            architecture = architecture[:-1] # Remove to the last plus
-            architecture += " "+self.error_function.__name__
+        # if (self.optimizer.optimizer_type == 'gradient'):
+        # Naming
+        architecture = ''
+        for i in range(0, len(self.weights)):
+                                                                # Activation function
+            architecture += str(self.weights[i].shape[1]) + "-" + str(self.activation_functions[i+1].__name__)[0] + "+"
+        architecture = architecture[:-1] # Remove to the last plus
+        architecture += " "+self.error_function.__name__
 
-            # if (self.learning_rate>0):
-            #     architecture += " " + "lr: " + str(self.learning_rate)
-            epochs_idx = [i+1 for i in range(len(self.epoch_testing_accuracy_plot))]
+        # if (self.learning_rate>0):
+        #     architecture += " " + "lr: " + str(self.learning_rate)
+        epochs_idx = [i+1 for i in range(len(self.epoch_testing_accuracy_plot))]
 
-            val_set_len = len(self.epoch_validation_accuracy_plot)
-            test_set_len = len(self.epoch_testing_accuracy_plot)
+        val_set_len = len(self.epoch_validation_accuracy_plot)
+        test_set_len = len(self.epoch_testing_accuracy_plot)
 
-            fig = go.Figure(layout=self.acc_layout)
-            fig.add_trace(
-                go.Scatter(
-                    x=epochs_idx,
-                    y=self.epoch_training_accuracy_plot,
-                    mode='lines',
-                    name='Training'
-                )
+        fig = go.Figure(layout=self.acc_layout)
+
+        fig = self.add_traces_to_figure(
+            fig=fig,
+            x_data=epochs_idx,
+            y_data=self.epoch_error_training_plot,
+            label='Training'
+        )
+
+        fig = self.add_traces_to_figure(
+            fig=fig,
+            x_data=epochs_idx,
+            y_data=self.epoch_testing_accuracy_plot,
+            label='Testing'
+        )
+
+        # Check if there actually is a validation set
+        if (val_set_len > 0) and (test_set_len==val_set_len):
+            fig = self.add_traces_to_figure(
+                fig = fig,
+                x_data=epochs_idx,
+                y_data=self.epoch_validation_accuracy_plot,
+                label='Validation'
             )
 
-            fig.add_trace(
-                go.Scatter(
-                    x=epochs_idx,
-                    y=self.epoch_testing_accuracy_plot,
-                    mode='lines',
-                    name='Testing'
-                )
-            )
+        fig.update_layout(title=ds_name+' '+str.capitalize(self.optimizer.optimizer_name)+' '+architecture)
 
-            if (val_set_len > 0) and (test_set_len==val_set_len):
+        with self.acc_plot_space:
+            self.st_acc = st.plotly_chart(fig, use_container_width=True, config=self.config)
+
+    def add_traces_to_figure(self, fig, x_data, y_data, label):
+        # Check whether it's a list
+        non_gradient_bool=isinstance(y_data[0], list)
+        if non_gradient_bool:
+            y_data = np.array(y_data)
+            for dim in range(0, len(y_data[0])):
                 fig.add_trace(
                     go.Scatter(
-                        x=epochs_idx,
-                        y=self.epoch_validation_accuracy_plot,
+                        x=x_data,
+                        y=y_data[:,dim], # Plot all of the children
                         mode='lines',
-                        name='Validation'
+                        name=f'{label} {dim}'
                     )
                 )
+        else:
+            fig.add_trace(
+                go.Scatter(
+                    x=x_data,
+                    y=y_data,
+                    mode='lines',
+                    name=f'{label}'
+                )
+            )
 
-            fig.update_layout(title=ds_name+' '+str.capitalize(self.optimizer.optimizer_name)+' '+architecture)
 
-            with self.acc_plot_space:
-                self.st_acc = st.plotly_chart(fig, use_container_width=True, config=self.config)
+        return fig
+
 
     def plot_confusion_matrix(self, confusion_matrix):
         """Plots the confusion matrix of predicted outputs versus
