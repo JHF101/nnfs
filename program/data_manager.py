@@ -21,7 +21,6 @@ def proben1_manager():
 def mnist_manager():
 
     mnist = MNIST()
-    mnist.download_data()
 
     train_size = st.number_input('Select the number of samples you want to train on out of the 60000', 1, 60000)
     test_size = st.number_input('Select the number of samples you want to train on out of the 10000', 1, 10000)

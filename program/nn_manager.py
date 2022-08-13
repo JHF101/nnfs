@@ -47,6 +47,41 @@ optimizer_func_select = {
     'rprop':Rprop,
     'genetic': GeneticOptimizer
 }
+
+optimizer_func_defaults = {
+    'adam': {
+        'learning_rate':0.01,
+        'beta1':0.65,
+        'beta2':0.6
+    },
+    'delta_bar_delta':{
+        'theta':0.1,
+        'mini_k':0.01,
+        'phi':0.1
+    },
+    'gradient_descent':{
+        'learning_rate':0.5
+    },
+    'gradient_descent_momentum':{
+        'learning_rate':0.09,
+        'beta':0.9
+    },
+    'rms_prop':{
+        'learning_rate':0.001,
+        'beta':0.99
+    },
+    'rprop':{
+        'delta_max':50,
+        'delta_min':0,
+        'eta_plus':1.1,
+        'eta_minus':0.5
+    },
+    'genetic': {
+        'number_of_parents':4,
+        'fitness_eval':'accuracy'
+        }
+}
+
 # optimizer = GeneticOptimizer(number_of_parents=4,
 #                             fitness_eval='accuracy',
 #                             weights_initialization=optimizer_param),
@@ -84,6 +119,7 @@ def error_func_manager():
 #            Start Optimizer              #
 # --------------------------------------- #
 def optimizer_manager(initializer):
+    """Creates the optimizer for the model"""
     # ----- Optimizers ----- #
     optimizers = [cls_name for cls_name, cls_obj in getmembers(gradient) if '__' not in cls_name and cls_name!='gradient_optimizer']
     optimizers.extend([cls_name for cls_name, obj_type in getmembers(non_gradient )if '__' not in cls_name])
@@ -93,13 +129,13 @@ def optimizer_manager(initializer):
     )
 
     optimizer_func = optimizer_func_select[optimizers_select]
-    # Initializer optimizer params
-    init_params = initializer_optimizer(optimizer_func)
+    # Initializer optimizer params and the default optimizer params
+    init_params = initializer_optimizer(optimizer_func, **optimizer_func_defaults[optimizers_select])
 
     # Initializer Optimizer over here
     if optimizers_select=='genetic':
         optimizer = GeneticOptimizer(
-            number_of_parents=float(init_params['number_of_parents']),
+            number_of_parents=int(init_params['number_of_parents']),
             fitness_eval=str(init_params['fitness_eval']),
             weights_initialization=initializer)
     elif optimizers_select=='gradient_descent':
@@ -137,7 +173,11 @@ def optimizer_manager(initializer):
             weights_initialization=initializer)
     return optimizer
 
-def initializer_optimizer(obj):
+def initializer_optimizer(obj, **kwargs):
+    """Generates all of the initial parameters to the model
+    **kwargs : dict
+        Contains all of default parameters
+    """
     name_params = []
     all_name_params = getargspec(obj).args
     for p in range(len(all_name_params)):
@@ -149,10 +189,10 @@ def initializer_optimizer(obj):
             name_params.append(all_name_params[p])
 
     init_params = dict()
-    for i in range(len(name_params)):
-        init_params[name_params[i]] = st.text_input(f"Optimizer parameter: {name_params[i]}", 0)
+    for i in name_params:
+        # If default parameters are not passed in for the optimizer it is set to 0
+        init_params[i] = st.text_input(f"Optimizer parameter: {i}", kwargs[i] if i in kwargs.keys() else 0)
 
-    st.write(init_params)
     return init_params
 # --------------------------------------- #
 #              End Optimizer              #
@@ -250,6 +290,7 @@ def training_manager(nn_train,
     y_validate=kwargs['y_validate']
     x_test=kwargs['x_test']
     y_test=kwargs['y_test']
+
     # TODO: Add ability to change percentage of dataset which is validations set
     # Where graph is getting plotted
     nn_train.fit(
@@ -263,3 +304,6 @@ def training_manager(nn_train,
         batch_size=batch_size, # If batch size equals 1, we have online learning
         shuffle_training_data=shuffle_training_data,
     )
+    # nn_train.fit(**kwargs)
+
+    # TODO : Return the model

@@ -13,7 +13,6 @@ class MNIST:
     def __init__(self):
         self.WORKING_DIR = os.getcwd() + '/'
         self.DATASET_DIR = self.WORKING_DIR+'mnist/'
-        print(self.DATASET_DIR)
 
     def byte_to_int(self, byte):
         return int(codecs.encode(byte, 'hex'), 16)
@@ -25,19 +24,19 @@ class MNIST:
             wget.download('http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz', out=self.DATASET_DIR)
             wget.download('http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz', out=self.DATASET_DIR)
             wget.download('http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz', out=self.DATASET_DIR)
+            log.info("Making directory")
         except:
             log.warning("The file location already exists")
 
-        file_names = glob.glob('*.gz')
+        file_names = glob.glob(self.DATASET_DIR+'*.gz')
         for file in file_names:
             with gzip.open(file, 'rb') as f_in:
-                file = self.DATASET_DIR + file
                 with open(file[:-3], 'wb') as f_out:
                     shutil.copyfileobj(f_in, f_out)
         # Removing .gz file
         files = glob.glob(self.WORKING_DIR + '*.gz')
         for f in files:
-            print(f"Delete {f}")
+            log.info(f"Deleting {f}")
             os.remove(f)
 
     def load_data(self):
@@ -61,6 +60,11 @@ class MNIST:
         training_set_size = 60000
         test_set_size = 10000
 
+        # If file does not exist then download the data
+        if not (os.path.exists(self.DATASET_DIR)):
+            log.info("Downloading the dataset")
+            self.download_data()
+
         # Determine way to get this
         files = os.listdir(self.DATASET_DIR)
 
@@ -68,7 +72,6 @@ class MNIST:
         dataset_dict = {}
         for file in files:
             if file.endswith('ubyte'):
-                print(file)
                 with open(self.DATASET_DIR+file, 'rb') as f:
                     data = f.read()
                     magic_number = self.byte_to_int(data[0:4]) # Image/Label

@@ -10,7 +10,7 @@ class GeneticOptimizer(FeedForward, Optimizer):
     - An Empirical Study of Non-binary Genetic Algorithm based
         Neural Approaches for Classification.
     """
-    def __init__(self, number_of_parents, fitness_eval='error', weights_initialization=None):
+    def __init__(self, number_of_parents=6, fitness_eval='error', weights_initialization=None):
         """
         Parameters
         ----------

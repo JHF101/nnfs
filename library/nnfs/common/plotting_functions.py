@@ -107,11 +107,11 @@ class Plots:
         if (self.optimizer.optimizer_type == 'gradient'):
             # Naming
             architecture = ''
-            for i in range(0,len(self.weights)):
-                                                                    # Activation function
-                architecture += str(self.weights[i].shape[1]) + "-" + str(self.activation_functions[i+1].__name__)[0] + "+"
-            architecture = architecture[:-1] # Remove to the last plus
-            architecture += " " + self.error_function.__name__
+            # for i in range(0,len(self.weights)):
+            #                                                         # Activation function
+            #     architecture += str(self.weights[i].shape[1]) + "-" + str(self.activation_functions[i+1].__name__)[0] + "+"
+            # architecture = architecture[:-1] # Remove to the last plus
+            # architecture += " " + self.error_function.__name__
 
             # Creating indeces
             epochs_idx = [i+1 for i in range(len(self.epoch_error_testing_plot))]
@@ -121,32 +121,27 @@ class Plots:
 
             fig = go.Figure(layout=self.err_layout)
 
-            fig.add_trace(
-                go.Scatter(
-                    x=epochs_idx,
-                    y=self.epoch_error_training_plot,
-                    mode='lines',
-                    name='Training'
-                )
+            fig = self.add_traces_to_figure(
+                fig=fig,
+                x_data=epochs_idx,
+                y_data=self.epoch_error_training_plot,
+                label='Training'
             )
 
-            fig.add_trace(
-                go.Scatter(
-                    x=epochs_idx,
-                    y=self.epoch_error_testing_plot,
-                    mode='lines',
-                    name='Testing'
-                )
+            fig = self.add_traces_to_figure(
+                fig=fig,
+                x_data=epochs_idx,
+                y_data=self.epoch_error_testing_plot,
+                label='Testing'
             )
 
+            # Check if there actually is a validation set
             if (val_set_len > 0) and (test_set_len==val_set_len):
-                fig.add_trace(
-                    go.Scatter(
-                        x=epochs_idx,
-                        y=self.epoch_error_validation_plot,
-                        mode='lines',
-                        name='Validation'
-                    )
+                fig = self.add_traces_to_figure(
+                    fig = fig,
+                    x_data=epochs_idx,
+                    y_data=self.epoch_error_validation_plot,
+                    label='Validation'
                 )
 
             fig.update_layout(title=ds_name+' '+str.capitalize(self.optimizer.optimizer_name)+' '+architecture)
@@ -168,11 +163,11 @@ class Plots:
         # if (self.optimizer.optimizer_type == 'gradient'):
         # Naming
         architecture = ''
-        for i in range(0, len(self.weights)):
-                                                                # Activation function
-            architecture += str(self.weights[i].shape[1]) + "-" + str(self.activation_functions[i+1].__name__)[0] + "+"
-        architecture = architecture[:-1] # Remove to the last plus
-        architecture += " "+self.error_function.__name__
+        # for i in range(0, len(self.weights)):
+        #                                                         # Activation function
+        #     architecture += str(self.weights[i].shape[1]) + "-" + str(self.activation_functions[i+1].__name__)[0] + "+"
+        # architecture = architecture[:-1] # Remove to the last plus
+        # architecture += " "+self.error_function.__name__
 
         # if (self.learning_rate>0):
         #     architecture += " " + "lr: " + str(self.learning_rate)
@@ -181,12 +176,13 @@ class Plots:
         val_set_len = len(self.epoch_validation_accuracy_plot)
         test_set_len = len(self.epoch_testing_accuracy_plot)
 
+        # Creating the figures
         fig = go.Figure(layout=self.acc_layout)
 
         fig = self.add_traces_to_figure(
             fig=fig,
             x_data=epochs_idx,
-            y_data=self.epoch_error_training_plot,
+            y_data=self.epoch_training_accuracy_plot,
             label='Training'
         )
 
