@@ -118,10 +118,10 @@ class Adam(GradientOptimizer):
                 denom = np.sqrt(self.s_dB[w])+self.eps
                 bias[w] -= self.learning_rate * np.divide(self.v_dB[w], denom)
 
-            log.info(f"self.s_dW[w] {self.s_dW[w]}")
-            log.info(f"self.s_dW[w] {self.s_dB[w]}")
-            log.info(f"self.v_dW[w] {self.v_dW[w]}")
-            log.info(f"self.v_dB[w] {self.v_dB[w]}")
+                log.info(f"self.s_dW[w] {self.s_dW[w]}")
+                log.info(f"self.s_dW[w] {self.s_dB[w]}")
+                log.info(f"self.v_dW[w] {self.v_dW[w]}")
+                log.info(f"self.v_dB[w] {self.v_dB[w]}")
 
         if self.use_bias:
             return weights, bias

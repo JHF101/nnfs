@@ -112,8 +112,8 @@ nn_train.fit(
 
 
 # plots = Plots(nn_train)
-# plots.plot_epoch_error(ds_name="Cancer",save_dir="cancer")
-# plots.plot_epoch_accuracy(ds_name="Cancer",save_dir="cancer1")
+# plots.plot_epoch_error(save_dir="cancer")
+# plots.plot_epoch_accuracy(save_dir="cancer1")
 # plots.plot_confusion_matrix(save_dir="cancer2")
 
 # Make a prediction

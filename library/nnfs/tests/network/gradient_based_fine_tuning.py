@@ -104,8 +104,8 @@ if __name__=='__main__':
                 )
 
     plots = Plots(nn_train)
-    plots.plot_epoch_error(ds_name="Cancer",save_dir="cancer")
-    plots.plot_epoch_accuracy(ds_name="Cancer",save_dir="cancer1")
+    plots.plot_epoch_error(save_dir="cancer")
+    plots.plot_epoch_accuracy(save_dir="cancer1")
 
     # Make a prediction
     print(nn_train.predict(x_test[1]))
@@ -140,6 +140,6 @@ if __name__=='__main__':
     print(y_test[1])
 
     plots1 = Plots(new_nn)
-    plots1.plot_epoch_error(ds_name="Cancer",save_dir="cancer2")
-    plots1.plot_epoch_accuracy(ds_name="Cancer",save_dir="cancer3")
+    plots1.plot_epoch_error(save_dir="cancer2")
+    plots1.plot_epoch_accuracy(save_dir="cancer3")
 

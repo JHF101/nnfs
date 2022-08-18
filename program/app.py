@@ -56,7 +56,6 @@ with st.sidebar:
     initializer = initializer_manager()
 
     st.write(f'Step {counter()}: Select an optimizer for the network.')
-    # with st.form(key='optimizer_form'):
     optimizer = optimizer_manager(initializer)
 
     st.write(f'Step {counter()}: Select if early stopping should be used.')

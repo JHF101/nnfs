@@ -390,13 +390,10 @@ class Network(Plots):
                 temp_all_predictions = []
                 temp_actual_values=[]
 
-                # for cp in range(len(ff_test_result)):
                 # Testing accuracy
                 categorical_prediction = np.argmax(ff_test_result[-1])
-                log.warning(f"Categorical prediction of : {categorical_prediction}")
                 temp_all_predictions.append(categorical_prediction)
                 actual_output= np.argmax(y_test[t])
-                log.warning(f"Actual output prediction of : {actual_output}")
                 temp_actual_values.append(actual_output)
 
                 # Arrays used for confusion matrix
@@ -522,8 +519,8 @@ class Network(Plots):
             # -------------------------------------------------------------- #
             if self.generate_plots:
                 self.plots_gen.update_data(self_data=self)
-                self.plots_gen.plot_epoch_error(ds_name="Stream", save_dir="Stream")
-                self.plots_gen.plot_epoch_accuracy(ds_name="Stream1", save_dir="Stream1")
+                self.plots_gen.plot_epoch_error(save_dir="Stream")
+                self.plots_gen.plot_epoch_accuracy(save_dir="Stream1")
 
         if self.generate_plots:
             self.confusion_matrix = confusion_matrix(temp_actual_values, temp_all_predictions)

@@ -1,19 +1,14 @@
-from distutils.command.config import config
 import matplotlib.pyplot as plt
-from matplotlib.pyplot import figure
 import pandas as pd
 import seaborn as sn
 import numpy as np
 import streamlit as st
-import re
 import plotly.graph_objects as go
-import plotly.express as px
 import plotly.figure_factory as ff
 
 from nnfs.utils.logs import create_logger
 log = create_logger(__name__)
 
-# TODO: Add genetic algorithm plotter
 # TODO: Add standard plotly support without need for streamlit
 
 def random_color():
@@ -94,88 +89,77 @@ class Plots:
 
         self.optimal_error_position = self_data.optimal_error_position
 
-    def plot_epoch_error(self, ds_name, save_dir):
+        if (self.optimizer.optimizer_type == 'non-gradient'):
+            self.number_of_parents = self.optimizer.number_of_parents
+
+        if (self.optimizer.optimizer_type == 'gradient'):
+            if hasattr(self, 'learning_rate'):
+                self.optimizer.learning_rate = self.optimizer.learning_rate
+            else:
+                self.optimizer.learning_rate = 0
+
+        self.generate_fig_title()
+
+    def plot_epoch_error(self, save_dir):
         """Plots the loss during training of the network.
 
         Parameters
         ----------
-        ds_name : str
-            Dataset name and variable
         save_dir : str
             Directory to save image
         """
-        if (self.optimizer.optimizer_type == 'gradient'):
-            # Naming
-            architecture = ''
-            # for i in range(0,len(self.weights)):
-            #                                                         # Activation function
-            #     architecture += str(self.weights[i].shape[1]) + "-" + str(self.activation_functions[i+1].__name__)[0] + "+"
-            # architecture = architecture[:-1] # Remove to the last plus
-            # architecture += " " + self.error_function.__name__
 
-            # Creating indeces
-            epochs_idx = [i+1 for i in range(len(self.epoch_error_testing_plot))]
+        # Creating indeces
+        epochs_idx = [i+1 for i in range(len(self.epoch_error_testing_plot))]
 
-            val_set_len = len(self.epoch_error_validation_plot)
-            test_set_len = len(self.epoch_error_training_plot)
+        val_set_len = len(self.epoch_error_validation_plot)
+        test_set_len = len(self.epoch_error_training_plot)
 
-            fig = go.Figure(layout=self.err_layout)
+        fig = go.Figure(layout=self.err_layout)
 
+        fig = self.add_traces_to_figure(
+            fig=fig,
+            x_data=epochs_idx,
+            y_data=self.epoch_error_training_plot,
+            legend='Training'
+        )
+
+        fig = self.add_traces_to_figure(
+            fig=fig,
+            x_data=epochs_idx,
+            y_data=self.epoch_error_testing_plot,
+            legend='Testing'
+        )
+
+        # Check if there actually is a validation set
+        if (val_set_len > 0) and (test_set_len==val_set_len):
             fig = self.add_traces_to_figure(
-                fig=fig,
+                fig = fig,
                 x_data=epochs_idx,
-                y_data=self.epoch_error_training_plot,
-                label='Training'
+                y_data=self.epoch_error_validation_plot,
+                legend='Validation'
             )
 
-            fig = self.add_traces_to_figure(
-                fig=fig,
-                x_data=epochs_idx,
-                y_data=self.epoch_error_testing_plot,
-                label='Testing'
-            )
+        fig.update_layout(title=self.architecture)
 
-            # Check if there actually is a validation set
-            if (val_set_len > 0) and (test_set_len==val_set_len):
-                fig = self.add_traces_to_figure(
-                    fig = fig,
-                    x_data=epochs_idx,
-                    y_data=self.epoch_error_validation_plot,
-                    label='Validation'
-                )
+        with self.err_plot_space:
+            # Plot the streamlit graph
+            self.st_err = st.plotly_chart(fig, use_container_width=True, config=self.config)
 
-            fig.update_layout(title=ds_name+' '+str.capitalize(self.optimizer.optimizer_name)+' '+architecture)
-
-            with self.err_plot_space:
-                self.st_err = st.plotly_chart(fig, use_container_width=True, config=self.config)
-
-    def plot_epoch_accuracy(self, ds_name, save_dir):
+    def plot_epoch_accuracy(self, save_dir):
         """Plots the accuracy of the predictions of the model during training.
 
         Parameters
         ----------
-        ds_name : str
-            Dataset name and variable
         save_dir : str
             Directory to save image
         """
 
-        # if (self.optimizer.optimizer_type == 'gradient'):
-        # Naming
-        architecture = ''
-        # for i in range(0, len(self.weights)):
-        #                                                         # Activation function
-        #     architecture += str(self.weights[i].shape[1]) + "-" + str(self.activation_functions[i+1].__name__)[0] + "+"
-        # architecture = architecture[:-1] # Remove to the last plus
-        # architecture += " "+self.error_function.__name__
-
-        # if (self.learning_rate>0):
-        #     architecture += " " + "lr: " + str(self.learning_rate)
         epochs_idx = [i+1 for i in range(len(self.epoch_testing_accuracy_plot))]
 
         val_set_len = len(self.epoch_validation_accuracy_plot)
         test_set_len = len(self.epoch_testing_accuracy_plot)
-
+        # st.write(self.epoch_training_accuracy_plot)
         # Creating the figures
         fig = go.Figure(layout=self.acc_layout)
 
@@ -183,14 +167,14 @@ class Plots:
             fig=fig,
             x_data=epochs_idx,
             y_data=self.epoch_training_accuracy_plot,
-            label='Training'
+            legend='Training'
         )
 
         fig = self.add_traces_to_figure(
             fig=fig,
             x_data=epochs_idx,
             y_data=self.epoch_testing_accuracy_plot,
-            label='Testing'
+            legend='Testing'
         )
 
         # Check if there actually is a validation set
@@ -199,26 +183,49 @@ class Plots:
                 fig = fig,
                 x_data=epochs_idx,
                 y_data=self.epoch_validation_accuracy_plot,
-                label='Validation'
+                legend='Validation'
             )
 
-        fig.update_layout(title=ds_name+' '+str.capitalize(self.optimizer.optimizer_name)+' '+architecture)
+        fig.update_layout(title=self.architecture)
 
         with self.acc_plot_space:
+            # Plot the streamlit graph
             self.st_acc = st.plotly_chart(fig, use_container_width=True, config=self.config)
 
-    def add_traces_to_figure(self, fig, x_data, y_data, label):
+    def add_traces_to_figure(self, fig, x_data, y_data, legend):
+        """Add plotly traces to the figure
+
+        - Can take in single dimensional data for x and y (gradient)
+        - Can take in multidimensional data for x and y (genetic)
+        Parameters
+        ----------
+        fig : go.Figure
+            The figure that the traces will be plotted n
+        x_data : np.ndarray
+            x-axis data
+        y_data : np.ndarray
+            y-axis data
+        legend : str
+            The legend of the trace
+
+        Returns
+        -------
+        fig : go.Figure
+            The graph with additional traces plotted on it.
+        """
         # Check whether it's a list
-        non_gradient_bool=isinstance(y_data[0], list)
+        non_gradient_bool=isinstance(y_data[0], np.ndarray)
         if non_gradient_bool:
-            y_data = np.array(y_data)
-            for dim in range(0, len(y_data[0])):
+            y_data = pd.DataFrame(y_data)
+            for dim in range(0, self.number_of_parents):
+                # Plotting the cols
+                col_data = y_data[dim]
                 fig.add_trace(
                     go.Scatter(
                         x=x_data,
-                        y=y_data[:,dim], # Plot all of the children
+                        y= col_data,
                         mode='lines',
-                        name=f'{label} {dim}'
+                        name=f'{legend} {dim}'
                     )
                 )
         else:
@@ -227,13 +234,39 @@ class Plots:
                     x=x_data,
                     y=y_data,
                     mode='lines',
-                    name=f'{label}'
+                    name=f'{legend}'
                 )
             )
 
-
         return fig
 
+    def generate_fig_title(self):
+        """Generates the figure title describing the architecture
+        of the network
+        """
+        # Naming
+        architecture = ''
+        if (self.optimizer.optimizer_type == 'non-gradient'):
+            loop_value = self.number_of_parents
+        else:
+            loop_value = len(self.weights)
+
+        for i in range(0, loop_value):
+            if (self.optimizer.optimizer_type == 'non-gradient'):
+                weight_dim = self.weights[0][i].shape[1]
+            else:
+                weight_dim = self.weights[i].shape[1]
+                                                        # Activation function
+            architecture += str(weight_dim) + "-" + str(self.activation_functions[i+1].__name__)[0] + "+"
+
+        # Remove to the last plus
+        architecture = architecture[:-1]
+        architecture += " " + self.error_function.__name__
+        if (self.optimizer.optimizer_type == "gradient"):
+            if (self.optimizer.learning_rate > 0):
+                architecture += " " + "lr: " + str(self.learning_rate)
+
+        self.architecture = str.capitalize(self.optimizer.optimizer_name) + ' ' + architecture
 
     def plot_confusion_matrix(self, confusion_matrix):
         """Plots the confusion matrix of predicted outputs versus

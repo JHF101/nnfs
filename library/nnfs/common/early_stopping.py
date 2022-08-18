@@ -4,7 +4,7 @@ from nnfs.utils.logs import create_logger
 log = create_logger(__name__)
 
 class EarlyStopping:
-    """A method that works well to prevent overfitting of the network.
+    """A method that works well to prevent over fitting of the network.
 
         - E is the error function
         - E_va(t) is teh error on validation set at epoch t
