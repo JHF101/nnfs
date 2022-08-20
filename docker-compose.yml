@@ -1,14 +1,32 @@
 version: "3.9"
+
 services:
   app:
-    container_name: streamlit-app
+    container_name: demo_app
     image: "streamlit:${TAG}"
     build:
-      dockerfile: ./Dockerfile
+      dockerfile: ./program/Dockerfile
       context: .
       cache_from:
         - "streamlit:${TAG}"
     ports:
-      - 8501:8501
+      - 8080:8501
+    # volumes:
+    #   - ./:/app
+
+  documenter:
+    container_name: documentor
+    build:
+      dockerfile: ./library/docs/Dockerfile
+      args:
+        - AUTHOR_NAME=JHF
+        - VERSION=0.3
+        - CODEBASE_NAME=nnfs
+    # env_file:
+    #   - ./library/docs/.env
+    tty: true
+    stdin_open: true
+
     volumes:
-      - ./:/app
+      - ./library/docs/build:/library/docs/build
+    # TODO: Add a container just for running tests
