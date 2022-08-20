@@ -264,7 +264,7 @@ def neural_network_manager(**kwargs):
     bias_val = kwargs['bias']
     training_params = kwargs['training_params']
     optimizer = kwargs['optimizer']
-    generate_plots = kwargs['generate_plots']
+    plot_config = kwargs['plot_config']
 
     # Normal Gradient Descent
     nn_train = Network(
@@ -273,7 +273,7 @@ def neural_network_manager(**kwargs):
         use_bias=bias_val,
         optimizer=optimizer,
         training_params = training_params,
-        generate_plots=generate_plots
+        plots_config=plot_config
     )
     return nn_train
 

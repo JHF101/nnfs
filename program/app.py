@@ -121,7 +121,7 @@ with st.form(key='confirm_nn_form'):
         bias=use_bias,
         training_params=training_params,
         optimizer=optimizer,
-        generate_plots=generate_plots
+        plot_config={'type':'streamlit'}
     )
 
     submit_button = st.form_submit_button(label='Submit')

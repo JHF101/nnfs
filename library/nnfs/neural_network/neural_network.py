@@ -1,7 +1,5 @@
 import pickle
-
-import matplotlib.pyplot as plt
-from matplotlib.pyplot import figure
+import os
 
 import numpy as np
 
@@ -23,7 +21,7 @@ class Network(Plots):
                 error_function=None,
                 training_params=None,
                 load_model=False,
-                generate_plots=False):
+                plots_config={}):
         """Initialization of Neural Network
 
         Parameters
@@ -33,28 +31,53 @@ class Network(Plots):
             >>> (6, activation_function)
         learning_rate : float
             Learning rate used in the model
-        use_bias : bool, optional
-            Determines whether to add bias nodes on each layer, except the
-            output layer, by default True
-        plotting_func_bool : bool, optional
-            Determines whether to plot, by default False
+        error_functions : functions
+            The error function to be used by the network
+        training_params : dict
+            Dictionary used for additional parameters (i.e. Early Stopping)
+        load_model : bool
+            Whether a model will be loaded from a pickle file
+        plots_config : dict
+            Dictionary containing the directories of different graphs
+            >>> {
+                    'type':'plotly'/'streamlit',
+                    'error':<dir>,
+                    'accuracy':<dir>,
+                    'confusion_matrix':<dir>,
+                }
         """
-        # Whether to display graphs or not
-        self.generate_plots = generate_plots
-        if self.generate_plots:
-            self.plots_gen = Plots()
+        # Graphing
+        self.plots_config = plots_config
+        if self.plots_config != {}:
+            plotting_type = self.plots_config.get("type", None)
+            if plotting_type is None:
+                raise Exception("Please make sure you specify a plotting type as part of `type`.")
 
+            # Setting default values
+            error_dir = self.plots_config.get("error", os.getcwd()+'error.png')
+            accuracy_dir = self.plots_config.get("accuracy", os.getcwd()+'accuracy.png')
+            confusion_matrix_dir = self.plots_config.get("confusion_matrix", os.getcwd()+'confusion_matrix.png')
+
+            # Generating the plot configuration
+            self.plots_gen = Plots(plots_config={
+                'type':plotting_type,
+                'error':error_dir,
+                'accuracy':accuracy_dir,
+                'confusion_matrix':confusion_matrix_dir
+            })
+
+        # Model Reload and Fine-tuning
         if (load_model==False):
             self.use_bias = use_bias
             log.info(f"Is bias being used? {self.use_bias}")
 
             # Number of weights is number of layers - 1
             self.optimizer = optimizer
-            log.info(f"Using the {self.optimizer.optimizer_name} is used")
+            log.info(f"Using the {self.optimizer.optimizer_name}")
 
             self.bias = []
 
-            # Intialize layers
+            # Initialize layers
             self.layers = layers
 
             # Initialize error function
@@ -158,10 +181,6 @@ class Network(Plots):
         Exception
             Validation set percentage must be [0,1]
         """
-        # Clear plots
-        # if self.generate_plots:
-        #     self.plots_gen.clear_plots()
-
         x_train_size = len(x_train)
 
         # Init
@@ -517,14 +536,20 @@ class Network(Plots):
             # -------------------------------------------------------------- #
             #                        Live Plotting                           #
             # -------------------------------------------------------------- #
-            if self.generate_plots:
+            if self.plots_config['type'] == "streamlit":
+                # Assuming only live plotting will be used in streamlit UI
                 self.plots_gen.update_data(self_data=self)
-                self.plots_gen.plot_epoch_error(save_dir="Stream")
-                self.plots_gen.plot_epoch_accuracy(save_dir="Stream1")
+                self.plots_gen.plot_epoch_error()
+                self.plots_gen.plot_epoch_accuracy()
 
-        if self.generate_plots:
+        if self.plots_config!={}:
             self.confusion_matrix = confusion_matrix(temp_actual_values, temp_all_predictions)
             self.plots_gen.plot_confusion_matrix(self.confusion_matrix)
+
+            if self.plots_config['type'] == "plotly":
+                self.plots_gen.update_data(self_data=self)
+                self.plots_gen.plot_epoch_error()
+                self.plots_gen.plot_epoch_accuracy()
 
         log.info("Done Training Model.")
 

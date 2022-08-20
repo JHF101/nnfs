@@ -17,17 +17,19 @@ def random_color():
     return tuple(rgbl)
 
 class Plots:
-    def __init__(self):
-        # TODO: Sort out layout
-        self.err_plot_space, self.acc_plot_space = st.empty(), st.empty()
+    def __init__(self, plots_config="streamlit"):
+        self.plot_config = plots_config
+        if self.plot_config['type'] == "streamlit":
+            # TODO: Sort out layout
+            self.err_plot_space, self.acc_plot_space = st.empty(), st.empty()
 
-        with self.err_plot_space:
-            self.st_err = None
+            with self.err_plot_space:
+                self.st_err = None
 
-        with self.acc_plot_space:
-            self.st_acc = None
+            with self.acc_plot_space:
+                self.st_acc = None
 
-        self.st_confusion = None
+            self.st_confusion = None
 
         self.acc_layout = go.Layout(
             plot_bgcolor="#FFF",
@@ -100,13 +102,8 @@ class Plots:
 
         self.generate_fig_title()
 
-    def plot_epoch_error(self, save_dir):
+    def plot_epoch_error(self):
         """Plots the loss during training of the network.
-
-        Parameters
-        ----------
-        save_dir : str
-            Directory to save image
         """
 
         # Creating indeces
@@ -142,24 +139,22 @@ class Plots:
 
         fig.update_layout(title=self.architecture)
 
-        with self.err_plot_space:
-            # Plot the streamlit graph
-            self.st_err = st.plotly_chart(fig, use_container_width=True, config=self.config)
+        if self.plot_config['type'] == "streamlit":
+            with self.err_plot_space:
+                # Plot the streamlit graph
+                self.st_err = st.plotly_chart(fig, use_container_width=True, config=self.config)
+        elif self.plot_config['type'] == "plotly":
+            fig.write_image(self.plot_config['error'])
 
-    def plot_epoch_accuracy(self, save_dir):
+    def plot_epoch_accuracy(self):
         """Plots the accuracy of the predictions of the model during training.
-
-        Parameters
-        ----------
-        save_dir : str
-            Directory to save image
         """
 
         epochs_idx = [i+1 for i in range(len(self.epoch_testing_accuracy_plot))]
 
         val_set_len = len(self.epoch_validation_accuracy_plot)
         test_set_len = len(self.epoch_testing_accuracy_plot)
-        # st.write(self.epoch_training_accuracy_plot)
+
         # Creating the figures
         fig = go.Figure(layout=self.acc_layout)
 
@@ -188,9 +183,12 @@ class Plots:
 
         fig.update_layout(title=self.architecture)
 
-        with self.acc_plot_space:
-            # Plot the streamlit graph
-            self.st_acc = st.plotly_chart(fig, use_container_width=True, config=self.config)
+        if self.plot_config['type'] == "streamlit":
+            with self.acc_plot_space:
+                # Plot the streamlit graph
+                self.st_acc = st.plotly_chart(fig, use_container_width=True, config=self.config)
+        elif self.plot_config['type'] == "plotly":
+            fig.write_image(self.plot_config['accuracy'])
 
     def add_traces_to_figure(self, fig, x_data, y_data, legend):
         """Add plotly traces to the figure
@@ -253,11 +251,13 @@ class Plots:
 
         for i in range(0, loop_value):
             if (self.optimizer.optimizer_type == 'non-gradient'):
-                weight_dim = self.weights[0][i].shape[1]
+                pass # XXX: For now
+                # weight_dim = self.weights[0][i].shape[1]
+                # architecture += str(weight_dim) + "-" + str(self.activation_functions[0][i+1].__name__)[0] + "+"
             else:
                 weight_dim = self.weights[i].shape[1]
                                                         # Activation function
-            architecture += str(weight_dim) + "-" + str(self.activation_functions[i+1].__name__)[0] + "+"
+                architecture += str(weight_dim) + "-" + str(self.activation_functions[i+1].__name__)[0] + "+"
 
         # Remove to the last plus
         architecture = architecture[:-1]
@@ -288,4 +288,8 @@ class Plots:
             annotation_text=z_text, colorscale='agsunset')
         fig['data'][0]['showscale'] = True
 
-        self.st_confusion = st.plotly_chart(fig, use_container_width=True)
+        if self.plot_config['type'] == "streamlit":
+            # Plot the streamlit graph
+            self.st_confusion = st.plotly_chart(fig, use_container_width=True)
+        elif self.plot_config['type'] == "plotly":
+            fig.write_image(self.plot_config['confusion_matrix'])
