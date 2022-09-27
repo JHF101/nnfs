@@ -1,4 +1,6 @@
-from modulefinder import Module
+from datetime import datetime
+import os
+import nnfs
 import streamlit as st
 from itertools import count
 
@@ -19,7 +21,23 @@ from nn_manager import (
     error_func_select
 )
 
+import tkinter as tk
+from tkinter import filedialog
+
+# import mlflow
+# from mlflow import log_metric, log_param, log_artifacts, MlflowClient
+# mlflow.set_tracking_uri(os.getcwd()+"/program_logs")
+
 # st.set_page_config(layout="wide")
+
+# def print_auto_logged_info(r):
+#     tags = {k: v for k, v in r.data.tags.items() if not k.startswith("mlflow.")}
+#     artifacts = [f.path for f in MlflowClient().list_artifacts(r.info.run_id, "model")]
+#     print("run_id: {}".format(r.info.run_id))
+#     print("artifacts: {}".format(artifacts))
+#     print("params: {}".format(r.data.params))
+#     print("metrics: {}".format(r.data.metrics))
+#     print("tags: {}".format(tags))
 
 def counter(_count=count(1)):
     return next(_count)
@@ -101,7 +119,9 @@ if st.button("Show Neural Network Architecture"):
     network=DrawNN([i[0] for i in layers])
     network.draw()
 
-
+# ---------------------------------- #
+#        Confirmation Form           #
+# ---------------------------------- #
 with st.form(key='confirm_nn_form'):
 
     st.write("Please make sure that the following is correct before submitting:")
@@ -114,7 +134,6 @@ with st.form(key='confirm_nn_form'):
     st.write(f"Generate Plots = {generate_plots}")
     st.write(f"Shuffle Training Data = {shuffle_training_data}")
 
-
     nn_train = neural_network_manager(
         layers=layers,
         error_func=actual_error_func,
@@ -126,10 +145,25 @@ with st.form(key='confirm_nn_form'):
 
     submit_button = st.form_submit_button(label='Submit')
 
+
 if st.button('Train the model'):
     st.write(f'Step {counter()}: Start training the model when all of the parameters have been set')
 
-    training_manager(
+    # ---------------------- ML FLOW ----------------------- #
+    # mlflow.start_run()
+    # run = mlflow.active_run()
+    # print("Active run_id: {}".format(run.info.run_id))
+    # # Logging the parameter
+    # log_param("error_func", error_func)
+    # log_param("use_bias", use_bias)
+    # # log_param("optimizer", optimizer)
+    # log_param("shuffle_training_data", shuffle_training_data)
+    # log_param("batch_size", batch_size)
+    # log_param("epochs", epochs)
+    # ---------------------- ML FLOW ----------------------- #
+
+    # Logging the run
+    nn_output = training_manager(
         nn_train,
         batch_size=batch_size,
         shuffle_training_data=shuffle_training_data,
@@ -137,6 +171,55 @@ if st.button('Train the model'):
         **datasets
     )
 
+    model_name = str(datetime.now().isoformat('T','minutes'))
+    model_dir = os.getcwd()+"/models"
+    if not os.path.exists(model_dir):
+        os.makedirs(model_dir)
+
+    import pickle
+    del_params = []
+    model_params={key:value for key, value in vars(nn_output).items() }
+    for k,v in model_params.items():
+        print(type(v))
+        if type(v) == nnfs.common.plotting_functions.Plots:
+            del_params.append(k)
+
+    for i in del_params:
+        model_params.pop(i)
+    print(model_params)
+
+    # Cannot save streamlit objects
+    with open(f'{model_dir}-{model_name}.pkl', 'wb') as f:
+        pickle.dump(model_params, f) # not saving correctly
+
+    # nn_output.save_model(file_dir=model_dir+"/"+model_name+'.pkl')
+    print("Saved model successfully")
+
+    # if dir_name!='':
+    # nn_output.save_model(dir_name)
+
+    # ---------------------- ML FLOW ----------------------- #
+    # log_metric("nn_output", nn_output.final_train_accuracy)
+    # # log_metric("nn_output", nn_output.final_validation_accuracy)
+    # log_metric("nn_output", nn_output.final_test_accuracy)
+
+    # print_auto_logged_info(mlflow.get_run(run_id=run.info.run_id))
+    # mlflow.end_run()
+    # ---------------------- ML FLOW ----------------------- #
+
+    # Logging a metric
+    # st.write(nn_output.final_train_accuracy)
+    # st.write(nn_output.final_validation_accuracy)
+    # st.write(nn_output.final_test_accuracy)
+
+    # # Logging artifact
+    # if not os.path.exists("models"):
+    #     os.makedirs("models")
+    # with open("models/test.txt","w") as f:
+    #     f.write(str(nn_output.final_train_accuracy))
+    #     # f.write(str(nn_output.final_validation_accuracy))
+    #     f.write(str(nn_output.final_test_accuracy))
+    # log_artifacts("models")
 
 # TODO: Add button to save model
 

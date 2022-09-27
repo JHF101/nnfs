@@ -138,6 +138,10 @@ class Network(Plots):
             # Expecting model
             self.optimizer = optimizer
 
+        self.final_train_accuracy = None
+        self.final_validation_accuracy = None
+        self.final_test_accuracy = None
+
     def fit(self,
             x_train, y_train,
             x_test, y_test,
@@ -551,6 +555,11 @@ class Network(Plots):
                 self.plots_gen.plot_epoch_error()
                 self.plots_gen.plot_epoch_accuracy()
 
+        # Final Accuracies
+        self.final_train_accuracy = train_accuracy
+        if (type(validation_accuracy)==list):
+            self.final_validation_accuracy = validation_accuracy
+        self.final_test_accuracy = test_accuracy
         log.info("Done Training Model.")
 
     def predict(self, X):
@@ -581,6 +590,7 @@ class Network(Plots):
             The directory to which the model will be saved
         """
         model_params={ key:value for key, value in vars(self).items() }
+        print(model_params)
         with open(f'{file_dir}', 'wb') as f:
             pickle.dump(model_params, f)
 

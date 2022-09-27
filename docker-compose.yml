@@ -11,6 +11,7 @@ services:
         - "streamlit:${TAG}"
     ports:
       - 8080:8501
+      # - 5000:5000
     # volumes:
     #   - ./:/app
 
@@ -30,3 +31,10 @@ services:
     volumes:
       - ./library/docs/build:/library/docs/build
     # TODO: Add a container just for running tests
+
+  # tests:
+  #   container_name: tester
+  #   build:
+
+  #   tty: true
+  #   stdin_open: true

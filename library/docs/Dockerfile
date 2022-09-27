@@ -32,7 +32,6 @@ COPY ./library/docs/remove-modules.sh remove-modules.sh
 RUN chmod +x remove-modules.sh
 RUN ./remove-modules.sh
 
-
 WORKDIR /library/docs
 # Remove the files to make folder empty
 RUN rm -rf *

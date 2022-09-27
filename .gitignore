@@ -4,7 +4,7 @@ weights
 proben1-master
 .dt
 mnist
-setup.py
+# setup.py
 *.pdf
 *.pickle
 plotting_functions_dynamic.py

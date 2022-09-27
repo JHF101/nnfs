@@ -122,7 +122,7 @@ def optimizer_manager(initializer):
     """Creates the optimizer for the model"""
     # ----- Optimizers ----- #
     optimizers = [cls_name for cls_name, cls_obj in getmembers(gradient) if '__' not in cls_name and cls_name!='gradient_optimizer']
-    optimizers.extend([cls_name for cls_name, obj_type in getmembers(non_gradient )if '__' not in cls_name])
+    optimizers.extend([cls_name for cls_name, obj_type in getmembers(non_gradient) if '__' not in cls_name])
     optimizers_select = st.selectbox(
         "Choose a optimizer function",
         (optimizers)
@@ -306,4 +306,31 @@ def training_manager(nn_train,
     )
     # nn_train.fit(**kwargs)
 
-    # TODO : Return the model
+    return nn_train
+
+# -------------------------- #
+#        Model Saving        #
+# -------------------------- #
+
+def save_nn_model(nn_result):
+    """Save the trained neural network model in a user specified directory
+
+    Parameters
+    ----------
+    nn_train :
+        Trained Neural Network Model
+    """
+
+    # Set up tkinter
+    root = tk.Tk()
+    root.withdraw()
+
+    # Make folder picker dialog appear on top of other windows
+    root.wm_attributes('-topmost', 1)
+
+    st.write('Please select a folder:')
+    if st.button('Folder Picker'):
+        dir_name = st.text_input('Selected folder:', filedialog.askdirectory(master=root))
+
+    # if dir_name is not None:
+    #     nn_result.save_model(file_dir=dir_name)
