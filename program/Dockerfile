@@ -29,6 +29,7 @@ COPY --from=base_libs /wheels /wheels
 RUN pip install --no-cache /wheels/*.whl
 
 # Copying only custom lib to build
+COPY ./library /library
 RUN pip install -e library
 
 WORKDIR /app

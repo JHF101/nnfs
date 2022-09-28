@@ -10,8 +10,8 @@ services:
       cache_from:
         - "streamlit:${TAG}"
     ports:
-      - 8080:8501
-      # - 5000:5000
+      - 8501:8501
+      # - 5000:5000 # Mlfow port
     # volumes:
     #   - ./:/app
 
@@ -21,10 +21,9 @@ services:
       dockerfile: ./library/docs/Dockerfile
       args:
         - AUTHOR_NAME=JHF
-        - VERSION=0.3
+        - VERSION=0.4
         - CODEBASE_NAME=nnfs
-    # env_file:
-    #   - ./library/docs/.env
+
     tty: true
     stdin_open: true
 
