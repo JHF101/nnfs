@@ -125,10 +125,10 @@ class GeneticOptimizer(FeedForward, Optimizer):
         """
         # Initializing FeedForward
         FeedForward.__init__(
-                        self,
-                        use_bias=self.use_bias,
-                        activation_functions=self.activation_functions
-                        )
+            self,
+            use_bias=self.use_bias,
+            activation_functions=self.activation_functions
+        )
 
     def init_measures(self, weights):
         """

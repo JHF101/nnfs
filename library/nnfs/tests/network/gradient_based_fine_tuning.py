@@ -1,20 +1,20 @@
 import numpy as np
-from activations.activation_functions import relu, sigmoid, softmax, tanh
-from common.early_stopping import EarlyStopping
-from common.plotting_functions import Plots
-from data_sources.proben1 import Proben1
-from errors.error_functions import mse, rms, squared_error
-from neural_network.neural_network import Network
-from neural_network.optimizers.gradient.delta_bar_delta import DeltaBarDelta
-from neural_network.optimizers.gradient.gradient_descent import GradientDescent
-from neural_network.optimizers.gradient.gradient_descent_momentum import \
+from nnfs.activations.activation_functions import relu, sigmoid, softmax, tanh
+from nnfs.common.early_stopping import EarlyStopping
+from nnfs.common.plotting_functions import Plots
+from nnfs.data_sources.proben1 import Proben1
+from nnfs.errors.error_functions import mse, rms, squared_error
+from nnfs.neural_network.neural_network import Network
+from nnfs.neural_network.optimizers.gradient.delta_bar_delta import DeltaBarDelta
+from nnfs.neural_network.optimizers.gradient.gradient_descent import GradientDescent
+from nnfs.neural_network.optimizers.gradient.gradient_descent_momentum import \
     GradientDescentWithMomentum
-from neural_network.optimizers.gradient.rprop import Rprop
+from nnfs.neural_network.optimizers.gradient.rprop import Rprop
 
 if __name__=='__main__':
 
     proben = Proben1()
-    # proben1.download_data()
+    proben.download_data()
     proben.get_dataset_dirs()
 
     (x_train, y_train), (x_validate, y_validate), (x_test, y_test) = proben.load_data(data_set_name='cancer')[2]
@@ -57,8 +57,6 @@ if __name__=='__main__':
     # optimizer_param=dict(name='he')
     optimizer_param=None
 
-
-
     # Normal Gradient Descent
     nn_train = Network(
 
@@ -85,43 +83,53 @@ if __name__=='__main__':
 
         optimizer= Rprop(delta_max=50, delta_min=0, eta_plus=1.1, eta_minus=0.5, weights_initialization=optimizer_param),
 
-        training_params = EarlyStopping(alpha=10,
-                                        pkt_threshold=0.1,
-                                        k_epochs=5,
-                                        )
+        training_params = EarlyStopping(
+            alpha=10,
+            pkt_threshold=0.1,
+            k_epochs=5,
+            ),
+        plots_config={
+            'type':'plotly',
+            }
     )
 
     nn_train.fit(
-                x_train=x_train,
-                y_train=y_train,
-                x_test=x_test,
-                y_test=y_test,
-                x_validate=x_validate,
-                y_validate=y_validate,
-                epochs=50,
-                batch_size=16, # If batch size equals 1, we have online learning
-                shuffle_training_data=True,
-                )
+        x_train=x_train,
+        y_train=y_train,
+        x_test=x_test,
+        y_test=y_test,
+        x_validate=x_validate,
+        y_validate=y_validate,
+        epochs=50,
+        batch_size=16, # If batch size equals 1, we have online learning
+        shuffle_training_data=True,
+    )
 
-    plots = Plots(nn_train)
-    plots.plot_epoch_error(save_dir="cancer")
-    plots.plot_epoch_accuracy(save_dir="cancer1")
+    # plots = Plots(nn_train)
+    # nn_train.plot_epoch_error()
+    # plots.plot_epoch_accuracy(save_dir="cancer1")
 
     # Make a prediction
     print(nn_train.predict(x_test[1]))
     print(y_test[1])
-
     print(nn_train.save_model('test.pickle'))
 
     new_nn = Network(
-                    optimizer = GradientDescent(learning_rate=0.1),
-                    # optimizer= Rprop(delta_max=50, delta_min=0, eta_plus=1.1, eta_minus=0.5),
-                    load_model=True
-                    )
+        optimizer = GradientDescent(learning_rate=0.1),
+        # optimizer= Rprop(delta_max=50, delta_min=0, eta_plus=1.1, eta_minus=0.5),
+        load_model=True
+    )
 
-    new_nn.load_model('test.pickle', use_bias=True,
-                        #activation_functions=[sigmoid,sigmoid,tanh,softmax]
-                    )
+    new_nn.load_model(
+        'test.pickle',
+        use_bias=True,
+        activation_functions=[
+            sigmoid,
+            sigmoid,
+            # tanh,
+            softmax
+        ]
+    )
 
     new_nn.fit(
                 x_train=x_train,
@@ -131,15 +139,10 @@ if __name__=='__main__':
                 # x_validate=x_validate,
                 # y_validate=y_validate,
                 epochs=100,
-                batch_size=8, # If batch size equals 1, we have online learning
+                batch_size=8,
                 shuffle_training_data=True,
                 )
 
     # Make a prediction
     print(new_nn.predict(x_test[1]))
     print(y_test[1])
-
-    plots1 = Plots(new_nn)
-    plots1.plot_epoch_error(save_dir="cancer2")
-    plots1.plot_epoch_accuracy(save_dir="cancer3")
-

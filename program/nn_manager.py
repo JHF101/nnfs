@@ -277,8 +277,7 @@ def neural_network_manager(**kwargs):
     )
     return nn_train
 
-def training_manager(nn_train,
-                    **kwargs):
+def training_manager(nn_train, **kwargs):
 
     epochs=kwargs['epochs']
     batch_size=kwargs['batch_size']
@@ -301,36 +300,9 @@ def training_manager(nn_train,
         x_validate=x_validate,
         y_validate=y_validate,
         epochs=epochs,
-        batch_size=batch_size, # If batch size equals 1, we have online learning
+        batch_size=batch_size,
         shuffle_training_data=shuffle_training_data,
     )
     # nn_train.fit(**kwargs)
 
     return nn_train
-
-# -------------------------- #
-#        Model Saving        #
-# -------------------------- #
-
-def save_nn_model(nn_result):
-    """Save the trained neural network model in a user specified directory
-
-    Parameters
-    ----------
-    nn_train :
-        Trained Neural Network Model
-    """
-
-    # Set up tkinter
-    root = tk.Tk()
-    root.withdraw()
-
-    # Make folder picker dialog appear on top of other windows
-    root.wm_attributes('-topmost', 1)
-
-    st.write('Please select a folder:')
-    if st.button('Folder Picker'):
-        dir_name = st.text_input('Selected folder:', filedialog.askdirectory(master=root))
-
-    # if dir_name is not None:
-    #     nn_result.save_model(file_dir=dir_name)

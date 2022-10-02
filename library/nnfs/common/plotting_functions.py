@@ -5,6 +5,7 @@ import numpy as np
 import streamlit as st
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
+import plotly.io as pio
 
 from nnfs.utils.logs import create_logger
 log = create_logger(__name__)
@@ -17,9 +18,9 @@ def random_color():
     return tuple(rgbl)
 
 class Plots:
-    def __init__(self, plots_config="streamlit"):
+    def __init__(self, plots_config={"type":"plotly"}):
         self.plot_config = plots_config
-        if self.plot_config['type'] == "streamlit":
+        if self.plot_config.get('type') == "streamlit":
             # TODO: Sort out layout
             self.err_plot_space, self.acc_plot_space = st.empty(), st.empty()
 
@@ -31,41 +32,44 @@ class Plots:
 
             self.st_confusion = None
 
-        self.acc_layout = go.Layout(
-            plot_bgcolor="#FFF",
-            xaxis=dict(
-                title="epochs",
-                linecolor="#BCCCDC",
-                showgrid=False
-            ),
-            yaxis=dict(
-                title="accuracy",
-                linecolor="#BCCCDC",
-                showgrid=False,
-            ),
-            legend=dict(
-                itemclick="toggleothers",
-                itemdoubleclick="toggle",
+        if self.plot_config.get('accuracy'):
+            self.acc_layout = go.Layout(
+                plot_bgcolor="#FFF",
+                xaxis=dict(
+                    title="epochs",
+                    linecolor="#BCCCDC",
+                    showgrid=False
+                ),
+                yaxis=dict(
+                    title="accuracy",
+                    linecolor="#BCCCDC",
+                    showgrid=False,
+                ),
+                legend=dict(
+                    itemclick="toggleothers",
+                    itemdoubleclick="toggle",
+                )
             )
-        )
-        self.err_layout = go.Layout(
-            plot_bgcolor="#FFF",
-            xaxis=dict(
-                title="epochs",
-                linecolor="#BCCCDC",
-                showgrid=False
-            ),
-            yaxis=dict(
-                title="error",
-                linecolor="#BCCCDC",
-                showgrid=False,
-            ),
-            legend=dict(
-                itemclick="toggleothers",
-                itemdoubleclick="toggle",
+        if self.plot_config.get('error'):
+            self.err_layout = go.Layout(
+                plot_bgcolor="#FFF",
+                xaxis=dict(
+                    title="epochs",
+                    linecolor="#BCCCDC",
+                    showgrid=False
+                ),
+                yaxis=dict(
+                    title="error",
+                    linecolor="#BCCCDC",
+                    showgrid=False,
+                ),
+                legend=dict(
+                    itemclick="toggleothers",
+                    itemdoubleclick="toggle",
+                )
             )
-        )
         self.config = {"displayModeBar": False, "showTips": False}
+        self.architecture = ""
 
     def update_data(self, self_data):
         """Receives the data from neural network which can then be used by the
@@ -139,12 +143,18 @@ class Plots:
 
         fig.update_layout(title=self.architecture)
 
-        if self.plot_config['type'] == "streamlit":
+        if self.plot_config.get('type') == "streamlit":
             with self.err_plot_space:
                 # Plot the streamlit graph
                 self.st_err = st.plotly_chart(fig, use_container_width=True, config=self.config)
-        elif self.plot_config['type'] == "plotly":
-            fig.write_image(self.plot_config['error'])
+        elif self.plot_config.get('type') == "plotly":
+            pio.write_image(
+                fig,
+                file=self.plot_config.get('error'),
+                format='png'
+            )
+            print(f"saved image in {self.plot_config.get('error')}")
+
 
     def plot_epoch_accuracy(self):
         """Plots the accuracy of the predictions of the model during training.
@@ -188,7 +198,11 @@ class Plots:
                 # Plot the streamlit graph
                 self.st_acc = st.plotly_chart(fig, use_container_width=True, config=self.config)
         elif self.plot_config['type'] == "plotly":
-            fig.write_image(self.plot_config['accuracy'])
+            pio.write_image(
+                fig,
+                file=self.plot_config.get('accuracy'),
+                format='png'
+            )
 
     def add_traces_to_figure(self, fig, x_data, y_data, legend):
         """Add plotly traces to the figure
