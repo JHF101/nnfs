@@ -24,11 +24,11 @@ services:
         - VERSION=0.4
         - CODEBASE_NAME=nnfs
 
-    tty: true
-    stdin_open: true
+    # tty: true
+    # stdin_open: true
 
     volumes:
-      - ./library/docs/build:/library/docs/build
+      - ./library/docs/documents:/library/docs/documents
     # TODO: Add a container just for running tests
 
   # tests:
@@ -37,3 +37,6 @@ services:
 
   #   tty: true
   #   stdin_open: true
+
+volumes:
+  documents:

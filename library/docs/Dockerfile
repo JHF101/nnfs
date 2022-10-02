@@ -10,6 +10,7 @@ ARG CODEBASE_NAME=CODEBASE_NAME
 RUN apt-get update && \
     apt-get install --no-install-recommends -y build-essential && \
     apt-get install -y texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended latexmk && \
+    apt-get install -y rsync && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip wheel setuptools
@@ -52,9 +53,9 @@ COPY ./library/docs/index.rst ./index.rst
 # Make pdf document
 RUN make latexpdf
 
-VOLUME ./library/docs/build
-RUN mkdir build
-RUN cp -r ./_build/* ./build/
+RUN mkdir documents
+RUN rsync -av _build/ documents/
 
+VOLUME ./library/docs/documents
 
 CMD [ "/bin/bash" ]

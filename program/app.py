@@ -21,9 +21,6 @@ from nn_manager import (
     error_func_select
 )
 
-import tkinter as tk
-from tkinter import filedialog
-
 # import mlflow
 # from mlflow import log_metric, log_param, log_artifacts, MlflowClient
 # mlflow.set_tracking_uri(os.getcwd()+"/program_logs")
