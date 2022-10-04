@@ -18,7 +18,7 @@ Note:
 
 [app.py](app.py) is the entry point for demo program.
 
-[data_manager.py](data_manger.py) manages the datasets that are consumed by the nnfs library. Currently it consists of:
+[data_manager.py](data_manager.py) manages the datasets that are consumed by the nnfs library. Currently it consists of:
 
 - MNIST Manager
 - Proben1 Manager
