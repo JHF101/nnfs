@@ -46,26 +46,6 @@ class Network(Plots):
                     'confusion_matrix':<dir>,
                 }
         """
-        # Graphing
-        self.plots_config = plots_config
-        if self.plots_config != {}:
-            plotting_type = self.plots_config.get("type", None)
-            if plotting_type is None:
-                raise Exception("Please make sure you specify a plotting type as part of `type`.")
-
-            # Setting default values
-            error_dir = self.plots_config.get("error", os.getcwd()+'error.png')
-            accuracy_dir = self.plots_config.get("accuracy", os.getcwd()+'accuracy.png')
-            confusion_matrix_dir = self.plots_config.get("confusion_matrix", os.getcwd()+'confusion_matrix.png')
-
-            # Generating the plot configuration
-            self.plots_gen = Plots(plots_config={
-                'type':plotting_type,
-                'error':error_dir,
-                'accuracy':accuracy_dir,
-                'confusion_matrix':confusion_matrix_dir
-            })
-
         # Model Reload and Fine-tuning
         if (load_model==False):
             self.use_bias = use_bias
@@ -137,6 +117,32 @@ class Network(Plots):
         else:
             # Expecting model
             self.optimizer = optimizer
+
+        self.final_train_accuracy = None
+        self.final_validation_accuracy = None
+        self.final_test_accuracy = None
+
+        # Graphing
+        self.plots_config = plots_config
+        if self.plots_config != {}:
+            plotting_type = self.plots_config.get("type", None)
+            if plotting_type is None:
+                raise Exception("Please make sure you specify a plotting type as part of `type`.")
+
+            # Setting default values
+            error_dir = self.plots_config.get("error", os.getcwd()+'error.png')
+            accuracy_dir = self.plots_config.get("accuracy", os.getcwd()+'accuracy.png')
+            confusion_matrix_dir = self.plots_config.get("confusion_matrix", os.getcwd()+'confusion_matrix.png')
+
+            # Generating the plot configuration
+            self.plots_gen = Plots(
+                plots_config={
+                    'type':plotting_type,
+                    'error':error_dir,
+                    'accuracy':accuracy_dir,
+                    'confusion_matrix':confusion_matrix_dir
+                }
+            )
 
     def fit(self,
             x_train, y_train,
@@ -428,7 +434,7 @@ class Network(Plots):
             # -------------------------------------------------------------- #
 
 
-            # Original idea was to stream the confusion matrix, but it only 
+            # Original idea was to stream the confusion matrix, but it only
             # needs to be show once at the end.
 
             # actual_values = np.array(actual_values)
@@ -536,7 +542,7 @@ class Network(Plots):
             # -------------------------------------------------------------- #
             #                        Live Plotting                           #
             # -------------------------------------------------------------- #
-            if self.plots_config['type'] == "streamlit":
+            if self.plots_config.get('type') == "streamlit":
                 # Assuming only live plotting will be used in streamlit UI
                 self.plots_gen.update_data(self_data=self)
                 self.plots_gen.plot_epoch_error()
@@ -546,11 +552,16 @@ class Network(Plots):
             self.confusion_matrix = confusion_matrix(temp_actual_values, temp_all_predictions)
             self.plots_gen.plot_confusion_matrix(self.confusion_matrix)
 
-            if self.plots_config['type'] == "plotly":
+            if self.plots_config.get('type') == "plotly":
                 self.plots_gen.update_data(self_data=self)
                 self.plots_gen.plot_epoch_error()
                 self.plots_gen.plot_epoch_accuracy()
 
+        # Final Accuracies
+        self.final_train_accuracy = train_accuracy
+        if (type(validation_accuracy)==list):
+            self.final_validation_accuracy = validation_accuracy
+        self.final_test_accuracy = test_accuracy
         log.info("Done Training Model.")
 
     def predict(self, X):
@@ -580,11 +591,11 @@ class Network(Plots):
         file_dir : str
             The directory to which the model will be saved
         """
-        model_params={ key:value for key, value in vars(self).items() }
+        model_params={key:value for key, value in vars(self).items()}
         with open(f'{file_dir}', 'wb') as f:
             pickle.dump(model_params, f)
 
-        log.info(f'The following class variables were saved: {[key for key, value in vars(self).items()]}')
+        log.info(f'The following class variables were saved: {[(key, value) for key, value in vars(self).items()]}')
         log.info(f"Saved model successfully to {file_dir}")
 
     def load_model(self, file_dir, **kwargs):
@@ -615,7 +626,7 @@ class Network(Plots):
 
         # Determine if bias is being used
         if ('use_bias' in kwargs.keys()):
-            self.use_bias = kwargs['use_bias']
+            self.use_bias = kwargs.get('use_bias')
 
         # Initialize Bias Usage
         self.optimizer.init_bias_usage(self.use_bias)
@@ -644,7 +655,7 @@ class Network(Plots):
 
         # Ability to change activation functions
         if ('activation_functions' in kwargs.keys()):
-            self.optimizer.init_activation_functions(activation_functions=kwargs['activation_functions'])
+            self.optimizer.init_activation_functions(activation_functions=kwargs.get('activation_functions'))
             log.info('Using new activation functions.')
         else:
             self.optimizer.init_activation_functions()
@@ -652,7 +663,7 @@ class Network(Plots):
 
         # Ability to change error function
         if ('error_function' in kwargs.keys()):
-            self.optimizer.init_error_func(kwargs['error_function'])
+            self.optimizer.init_error_func(kwargs.get('error_function'))
             log.info('Using new error_function functions.')
         else:
             self.optimizer.init_error_func(self.error_function)

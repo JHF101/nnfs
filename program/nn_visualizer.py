@@ -69,7 +69,7 @@ class Layer():
         elif layerType == -1:
             pyplot.text(x_text, self.y, 'Output Layer', fontsize = 12)
         else:
-            pyplot.text(x_text, self.y, 'Hidden Layer '+str(layerType), fontsize = 12)
+            pyplot.text(x_text, self.y, 'Hidden Layer ' + str(layerType), fontsize = 12)
 
 class NeuralNetwork():
     def __init__(self, number_of_neurons_in_widest_layer):
@@ -91,7 +91,7 @@ class NeuralNetwork():
             layer.draw( i )
         pyplot.axis('scaled')
         pyplot.axis('off')
-        pyplot.title( 'Neural Network architecture', fontsize=15 )
+        pyplot.title('Neural Network architecture', fontsize=15)
         # pyplot.show()
         st.pyplot(fig)
 

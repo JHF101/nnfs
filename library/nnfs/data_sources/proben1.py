@@ -4,6 +4,8 @@ import numpy as np
 import wget
 import re
 import zipfile
+from nnfs.utils.logs import create_logger
+log = create_logger(__name__)
 
 class Proben1:
     """
@@ -54,7 +56,7 @@ class Proben1:
             for f in files:
                 os.remove(f)
         except:
-            print("The file location already exists, skipping download!")
+            log.info("The file location already exists, skipping download!")
 
     def get_dataset_dirs(self):
         """Runs through the files that have been downloaded and returns a
@@ -130,25 +132,25 @@ class Proben1:
                     structure_value = int(read_line[t].split('=')[-1])
                     if idx_counter == 0:
                         bool_in = structure_value
-                        print("Bool_in",bool_in)
+                        log.info("Bool_in",bool_in)
                     elif idx_counter == 1:
                         real_in = structure_value
-                        print("Real_in",real_in)
+                        log.info("Real_in",real_in)
                     elif idx_counter == 2:
                         bool_out = structure_value
-                        print("Bool_out",bool_out)
+                        log.info("Bool_out",bool_out)
                     elif idx_counter == 3:
                         real_out = structure_value
-                        print("Real_out",real_out)
+                        log.info("Real_out",real_out)
                     elif idx_counter == 4:
                         training_examples = structure_value
-                        print("Training Examples",training_examples)
+                        log.info("Training Examples",training_examples)
                     elif idx_counter == 5:
                         validation_examples = structure_value
-                        print("Validation Examples",validation_examples)
+                        log.info("Validation Examples",validation_examples)
                     elif idx_counter == 6:
                         test_examples = structure_value
-                        print("Test Examples",test_examples)
+                        log.info("Test Examples",test_examples)
 
                 # --------------------------------------------------- #
                 #           Structure the Dataset                     #
@@ -158,20 +160,20 @@ class Proben1:
                         # Inputs
                         data_set_input_length = 0
                         if (bool_in != 0):
-                            print("It has boolean inputs")
+                            log.info(f"{__name__} has boolean inputs")
                             data_set_input_length = bool_in
                         elif (real_in != 0):
-                            print("It has Real valued inputs")
+                            log.info(f"{__name__} has Real valued inputs")
                             data_set_input_length = real_in
                         else:
                             raise Exception("There is no input data length")
 
                         data_set_output_length = 0
                         if (bool_out != 0):
-                            print("It has boolean outputs")
+                            log.info("It has boolean outputs")
                             data_set_output_length = bool_out
                         elif (real_out != 0):
-                            print("It has Real valued outputs")
+                            log.info("It has Real valued outputs")
                             data_set_output_length = real_out
                         else:
                             raise Exception("There is no output data length")
@@ -185,8 +187,7 @@ class Proben1:
 
                     for check in data:
                         if (check=='') or (check==' '):
-                            print(data)
-                            raise Exception(f"Space found in {data_set_counter} of dt file")
+                            raise Exception(f"Space found in {data_set_counter} of dt file. Check {data}")
 
                     data = [float(i) for i in data]
 
@@ -216,13 +217,18 @@ class Proben1:
 
             # Dataset returned in same format keras datasets
             data_set_output_array.append(
-                    [(
-                        np.array(x_train_temp), np.array(y_train_temp)),
+                [
                     (
-                        np.array(x_validate_temp), np.array(y_validate_temp)),
+                        np.array(x_train_temp), np.array(y_train_temp)
+                    ),
                     (
-                        np.array(x_test_temp), np.array(y_test_temp))]
-                )
+                        np.array(x_validate_temp), np.array(y_validate_temp)
+                    ),
+                    (
+                        np.array(x_test_temp), np.array(y_test_temp)
+                    )
+                ]
+            )
 
         return data_set_output_array
 

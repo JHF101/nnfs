@@ -1,6 +1,7 @@
 .git
 __pycache__
 .venv
+venv
 *.env
 *.log
 docker-compose.yml

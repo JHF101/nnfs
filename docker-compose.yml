@@ -10,7 +10,8 @@ services:
       cache_from:
         - "streamlit:${TAG}"
     ports:
-      - 8080:8501
+      - 8501:8501
+      # - 5000:5000 # Mlfow port
     # volumes:
     #   - ./:/app
 
@@ -20,13 +21,22 @@ services:
       dockerfile: ./library/docs/Dockerfile
       args:
         - AUTHOR_NAME=JHF
-        - VERSION=0.3
+        - VERSION=0.4
         - CODEBASE_NAME=nnfs
-    # env_file:
-    #   - ./library/docs/.env
-    tty: true
-    stdin_open: true
+
+    # tty: true
+    # stdin_open: true
 
     volumes:
-      - ./library/docs/build:/library/docs/build
+      - ./library/docs/documents:/library/docs/documents
     # TODO: Add a container just for running tests
+
+  # tests:
+  #   container_name: tester
+  #   build:
+
+  #   tty: true
+  #   stdin_open: true
+
+volumes:
+  documents:

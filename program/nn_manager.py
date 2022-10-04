@@ -122,7 +122,7 @@ def optimizer_manager(initializer):
     """Creates the optimizer for the model"""
     # ----- Optimizers ----- #
     optimizers = [cls_name for cls_name, cls_obj in getmembers(gradient) if '__' not in cls_name and cls_name!='gradient_optimizer']
-    optimizers.extend([cls_name for cls_name, obj_type in getmembers(non_gradient )if '__' not in cls_name])
+    optimizers.extend([cls_name for cls_name, obj_type in getmembers(non_gradient) if '__' not in cls_name])
     optimizers_select = st.selectbox(
         "Choose a optimizer function",
         (optimizers)
@@ -277,8 +277,7 @@ def neural_network_manager(**kwargs):
     )
     return nn_train
 
-def training_manager(nn_train,
-                    **kwargs):
+def training_manager(nn_train, **kwargs):
 
     epochs=kwargs['epochs']
     batch_size=kwargs['batch_size']
@@ -301,9 +300,9 @@ def training_manager(nn_train,
         x_validate=x_validate,
         y_validate=y_validate,
         epochs=epochs,
-        batch_size=batch_size, # If batch size equals 1, we have online learning
+        batch_size=batch_size,
         shuffle_training_data=shuffle_training_data,
     )
     # nn_train.fit(**kwargs)
 
-    # TODO : Return the model
+    return nn_train
