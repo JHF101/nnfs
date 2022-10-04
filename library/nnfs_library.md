@@ -137,6 +137,10 @@ Where `x_train`, `x_test` and `x_validate` is a 1 by x numpy vector of the featu
 ### Prediction
 
 Prediction can be done by using the Network object and passing in the an unlabeled feature:
+<<<<<<< HEAD
+=======
+
+>>>>>>> v0.4
 ```python
     prediction=nn_train.predict(
         x_test[1]
@@ -170,17 +174,28 @@ This will use the model as it was saved. There are however some other parameters
 ### Model Fine Tuning
 
 When loading a model from a pre-trained model(loaded from a .pickle file), the optimizer can be replaced by another optimizer.
+<<<<<<< HEAD
     ```python
+=======
+```python
+>>>>>>> v0.4
     new_nn = Network(
         load_model=True
         optimizer = GradientDescent(learning_rate=0.1),
     )
+<<<<<<< HEAD
     ```
 
 Further fine-tuning can be performed by adding a removing bias for further training and also modifying the training functions for each layer in the network when loading the network model:
 
     ```python
 
+=======
+```
+
+Further fine-tuning can be performed by adding a removing bias for further training and also modifying the training functions for each layer in the network when loading the network model:
+```python
+>>>>>>> v0.4
         new_nn.load_model(
         'test.pickle',
         use_bias=True,
@@ -191,7 +206,11 @@ Further fine-tuning can be performed by adding a removing bias for further train
             softmax
         ]
     )
+<<<<<<< HEAD
     ```
+=======
+```
+>>>>>>> v0.4
 
 Note: Only gradient based optimizers can fine-tune other gradient based models.
 
