@@ -29,14 +29,7 @@ services:
 
     volumes:
       - ./library/docs/documents:/library/docs/documents
-    # TODO: Add a container just for running tests
 
-  # tests:
-  #   container_name: tester
-  #   build:
-
-  #   tty: true
-  #   stdin_open: true
 
 volumes:
   documents:

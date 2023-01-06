@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  documenter:
+    container_name: documentor
+    build:
+      dockerfile: ./library/docs/Dockerfile
+      args:
+        - AUTHOR_NAME=JHF
+        - VERSION=0.4
+        - CODEBASE_NAME=nnfs
+    volumes:
+      - ./library/docs/documents:/library/docs/documents
+
+volumes:
+  documents:
