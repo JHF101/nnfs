@@ -4,6 +4,7 @@ from nnfs.utils.logs import create_logger
 
 log = create_logger(__name__)
 
+
 class RMSProp(GradientOptimizer):
     """RMS(Root Mean Square) Propagation
     Uses a decaying average of partial gradients to adjust the step size for
@@ -18,18 +19,19 @@ class RMSProp(GradientOptimizer):
     Pros:
     - Forgets effects of early descent due to decaying moving average
     """
+
     def __init__(self, learning_rate, beta=0.9, weights_initialization=None):
         super().__init__()
         self.initialization_method = weights_initialization
         self.beta = beta
         self.learning_rate = learning_rate
-        self.optimizer_name = 'rms prop'
+        self.optimizer_name = "rms prop"
         log.info(f"Optimizer Name: {self.optimizer_name}")
 
         # Requires a moving average
         self.s_dW = None
         self.s_dB = None
-        self.eps = 10**(-8)
+        self.eps = 10 ** (-8)
 
     def optimize(self, **kwargs):
         # --- Weights
@@ -58,14 +60,22 @@ class RMSProp(GradientOptimizer):
         for w in range(0, len(weights)):
             # --- Weights
             dW = dE_dwij_t[w]
-            self.s_dW[w] = (self.beta* self.s_dW[w]) + (1-self.beta)*(np.power(dW, 2)) # Element wise squaring
-            weights[w] -= self.learning_rate * (np.divide(dW, np.sqrt(self.s_dW[w])+self.eps))
+            self.s_dW[w] = (self.beta * self.s_dW[w]) + (1 - self.beta) * (
+                np.power(dW, 2)
+            )  # Element wise squaring
+            weights[w] -= self.learning_rate * (
+                np.divide(dW, np.sqrt(self.s_dW[w]) + self.eps)
+            )
 
             # --- Bias
             if self.use_bias:
                 dB = dE_dbij_t[w]
-                self.s_dB[w] = (self.beta* self.s_dB[w]) + (1-self.beta)*(np.power(dB, 2)) # Element wise squaring
-                bias[w] -= self.learning_rate * (np.divide(dB, (np.sqrt(self.s_dB[w])+self.eps)))
+                self.s_dB[w] = (self.beta * self.s_dB[w]) + (1 - self.beta) * (
+                    np.power(dB, 2)
+                )  # Element wise squaring
+                bias[w] -= self.learning_rate * (
+                    np.divide(dB, (np.sqrt(self.s_dB[w]) + self.eps))
+                )
 
         if self.use_bias:
             return weights, bias

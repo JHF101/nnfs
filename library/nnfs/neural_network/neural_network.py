@@ -1,4 +1,5 @@
 import pickle
+import hmac
 import os
 
 import numpy as np
@@ -9,19 +10,25 @@ from nnfs.utils.utils import shuffle_arrays
 
 
 from nnfs.utils.logs import create_logger
+
 log = create_logger(__name__)
+
+
 class Network(Plots):
     """
     Neural Network class that uses fully connected layers
     """
-    def __init__(self,
-                optimizer=None,
-                layers=[],
-                use_bias=False,
-                error_function=None,
-                training_params=None,
-                load_model=False,
-                plots_config={}):
+
+    def __init__(
+        self,
+        optimizer=None,
+        layers=[],
+        use_bias=False,
+        error_function=None,
+        training_params=None,
+        load_model=False,
+        plots_config={},
+    ):
         """Initialization of Neural Network
 
         Parameters
@@ -47,7 +54,7 @@ class Network(Plots):
                 }
         """
         # Model Reload and Fine-tuning
-        if (load_model==False):
+        if load_model is not False:
             self.use_bias = use_bias
             log.info(f"Is bias being used? {self.use_bias}")
 
@@ -69,8 +76,8 @@ class Network(Plots):
 
             # Initialize weight structures
             self.weights, self.bias = self.optimizer.init_network_structures(
-                                                                layers=self.layers,
-                                                                )
+                layers=self.layers,
+            )
 
             # Initialize activation functions
             self.activation_functions = self.optimizer.init_activation_functions()
@@ -89,7 +96,7 @@ class Network(Plots):
             self.confusion_matrix = []
 
             # Save all weights into a super mega array
-            self.mega_weights_array=[]
+            self.mega_weights_array = []
             self.mega_bias_array = []
 
             self.mega_delta_weights_array = []
@@ -105,7 +112,7 @@ class Network(Plots):
                 self.k_epochs = self.early_stopping.k_epochs
                 self.pkt_threshold = self.early_stopping.pkt_threshold
                 self.alpha = self.early_stopping.alpha
-            else :
+            else:
                 self.early_stopping = None
                 log.info("No early stopping is used")
 
@@ -127,31 +134,42 @@ class Network(Plots):
         if self.plots_config != {}:
             plotting_type = self.plots_config.get("type", None)
             if plotting_type is None:
-                raise Exception("Please make sure you specify a plotting type as part of `type`.")
+                raise Exception(
+                    "Please make sure you specify a plotting type as part of `type`."
+                )
 
             # Setting default values
-            error_dir = self.plots_config.get("error", os.getcwd()+'error.png')
-            accuracy_dir = self.plots_config.get("accuracy", os.getcwd()+'accuracy.png')
-            confusion_matrix_dir = self.plots_config.get("confusion_matrix", os.getcwd()+'confusion_matrix.png')
+            error_dir = self.plots_config.get("error", os.getcwd() + "error.png")
+            accuracy_dir = self.plots_config.get(
+                "accuracy", os.getcwd() + "accuracy.png"
+            )
+            confusion_matrix_dir = self.plots_config.get(
+                "confusion_matrix", os.getcwd() + "confusion_matrix.png"
+            )
 
             # Generating the plot configuration
             self.plots_gen = Plots(
                 plots_config={
-                    'type':plotting_type,
-                    'error':error_dir,
-                    'accuracy':accuracy_dir,
-                    'confusion_matrix':confusion_matrix_dir
+                    "type": plotting_type,
+                    "error": error_dir,
+                    "accuracy": accuracy_dir,
+                    "confusion_matrix": confusion_matrix_dir,
                 }
             )
 
-    def fit(self,
-            x_train, y_train,
-            x_test, y_test,
-            x_validate=None, y_validate=None,
-            epochs=1,
-            validations_set_percent=0.0,
-            batch_size=1,
-            shuffle_training_data=True):
+    def fit(
+        self,
+        x_train,
+        y_train,
+        x_test,
+        y_test,
+        x_validate=None,
+        y_validate=None,
+        epochs=1,
+        validations_set_percent=0.0,
+        batch_size=1,
+        shuffle_training_data=True,
+    ):
         """Fit the model to the dataset.
 
         x_validate and y_validate can be given by the user, however
@@ -202,14 +220,18 @@ class Network(Plots):
             validations_set_size = len(x_validate)
 
         else:
-            if (1.0 > validations_set_percent > 0.0):
+            if 1.0 > validations_set_percent > 0.0:
                 # If the validation sets are not given, we can make our own
-                training_set_size = int(x_train_size*(1-validations_set_percent))
+                training_set_size = int(x_train_size * (1 - validations_set_percent))
                 validations_set_size = x_train_size - training_set_size
-                x_validation_set = x_train[training_set_size:training_set_size+validations_set_size]
-                y_validation_set = y_train[training_set_size:training_set_size+validations_set_size]
+                x_validation_set = x_train[
+                    training_set_size : training_set_size + validations_set_size
+                ]
+                y_validation_set = y_train[
+                    training_set_size : training_set_size + validations_set_size
+                ]
 
-            elif (validations_set_percent == 0.0):
+            elif validations_set_percent == 0.0:
                 # No validation set will be used
                 training_set_size = x_train_size
                 validations_set_size = 0
@@ -235,69 +257,77 @@ class Network(Plots):
         for i in range(epochs):
 
             # Initializing accuracy measures
-            train_accuracy, total_training_error, \
-                validation_accuracy, total_validation_error, \
-                    test_accuracy, total_test_error = \
-                        self.optimizer.init_measures(self.weights)
+            (
+                train_accuracy,
+                total_training_error,
+                validation_accuracy,
+                total_validation_error,
+                test_accuracy,
+                total_test_error,
+            ) = self.optimizer.init_measures(self.weights)
 
             # -------------------------------------------------------------- #
             #                          Training                              #
             # -------------------------------------------------------------- #
             # Randomizing the data order
-            if (shuffle_training_data==True):
+            if shuffle_training_data:
                 x_train, y_train = shuffle_arrays(x_train, y_train)
 
             # Total number of iterations
-            batches = int(np.ceil(example_size/batch_size))
+            batches = int(np.ceil(example_size / batch_size))
             log.debug(f"Number of batches {batches}")
 
             for outer in range(0, batches):
 
-                if (self.optimizer.optimizer_type == 'gradient'):
+                if self.optimizer.optimizer_type == "gradient":
                     # Used as a state control variable
                     delta_weight_counter = 0
                     # Keeps track of the number of gradients
                     num_of_summations_per_batch = 0
 
                 # Setting lower and upper bounds for batch
-                lower_batch = int(outer*batch_size)
-                upper_batch = int((outer+1)*batch_size)
+                lower_batch = int(outer * batch_size)
+                upper_batch = int((outer + 1) * batch_size)
 
                 for j in range(lower_batch, upper_batch):
 
                     # Condition to break out of the training loop
-                    if (j >= example_size):
+                    if j >= example_size:
                         break
 
                     # Average Weights
-                    if (self.optimizer.optimizer_type == 'gradient'):
+                    if self.optimizer.optimizer_type == "gradient":
 
                         # Forward Propagation
-                        total_training_error, train_accuracy, ff_results = \
-                            self.optimizer.forward_prop_fit(
-                                x_train[j],
-                                y_train[j],
-                                train_accuracy,
-                                total_training_error,
-                                self.weights,
-                                self.bias)
+                        (
+                            total_training_error,
+                            train_accuracy,
+                            ff_results,
+                        ) = self.optimizer.forward_prop_fit(
+                            x_train[j],
+                            y_train[j],
+                            train_accuracy,
+                            total_training_error,
+                            self.weights,
+                            self.bias,
+                        )
 
                         # Backward Propagation
-                        self.delta_weight, self.delta_bias = \
-                            self.optimizer.backpropagation(
-                                y_train[j],
-                                ff_results[-1],
-                                self.weights,
-                                ff_results)
+                        (
+                            self.delta_weight,
+                            self.delta_bias,
+                        ) = self.optimizer.backpropagation(
+                            y_train[j], ff_results[-1], self.weights, ff_results
+                        )
 
                         # Keeping ttrack of gradients
-                        if (delta_weight_counter==0):
+                        if delta_weight_counter == 0:
                             # Initializing for summations
                             average_weights = self.delta_weight
                             if self.use_bias:
                                 average_bias = self.delta_bias
 
-                        if (delta_weight_counter>0):
+                        if delta_weight_counter > 0:
                             # Summing the gradients for batch
                             for b in range(len(self.delta_weight)):
                                 average_weights[b] += self.delta_weight[b]
@@ -306,39 +336,48 @@ class Network(Plots):
 
                         # Incrementing the counters
                         delta_weight_counter += 1
-                        num_of_summations_per_batch +=1
+                        num_of_summations_per_batch += 1
 
-                    elif (self.optimizer.optimizer_type == 'non-gradient'):
+                    elif self.optimizer.optimizer_type == "non-gradient":
 
                         # Forward Propagation
-                        total_training_error, train_accuracy, _ = \
-                            self.optimizer.forward_prop_fit(
-                                x_train[j],
-                                y_train[j],
-                                train_accuracy,
-                                total_training_error,
-                                self.weights,
-                                self.bias)
+                        (
+                            total_training_error,
+                            train_accuracy,
+                            _,
+                        ) = self.optimizer.forward_prop_fit(
+                            x_train[j],
+                            y_train[j],
+                            train_accuracy,
+                            total_training_error,
+                            self.weights,
+                            self.bias,
+                        )
 
                     else:
                         log.exception("Something went wrong!")
 
-
             # Averaging over all samples
-            total_training_error /= example_size # TODO: Consider PROBEN1 error
+            total_training_error /= example_size  # TODO: Consider PROBEN1 error
             train_accuracy /= example_size
 
-            if (self.optimizer.optimizer_type == 'gradient'):
+            if self.optimizer.optimizer_type == "gradient":
 
                 # Averaging gradients
-                average_weights = [average_weights[i]/num_of_summations_per_batch for i in range(len(average_weights))]
+                average_weights = [
+                    average_weights[i] / num_of_summations_per_batch
+                    for i in range(len(average_weights))
+                ]
                 if self.use_bias:
-                    average_bias = [average_bias[i]/num_of_summations_per_batch for i in range(len(average_bias))]
+                    average_bias = [
+                        average_bias[i] / num_of_summations_per_batch
+                        for i in range(len(average_bias))
+                    ]
 
                 # Reversing the order of gradients to make optimizations easier
                 dE_dwij_t, dE_dbij_t = self.optimizer.flip_gradient_arr(
-                    weights_arr=average_weights,
-                    bias_arr=average_bias)
+                    weights_arr=average_weights, bias_arr=average_bias
+                )
 
                 # Mega Delta Array
                 # NOTE: The order in which the gradients are saved are reversed
@@ -347,10 +386,10 @@ class Network(Plots):
                     self.mega_delta_bias_array.append(dE_dbij_t)
 
                 # Removing old entries to improve efficiency
-                if len(self.mega_delta_weights_array)>5:
+                if len(self.mega_delta_weights_array) > 5:
                     self.mega_delta_weights_array.pop(0)
                 if self.use_bias:
-                    if len(self.mega_delta_bias_array)>5:
+                    if len(self.mega_delta_bias_array) > 5:
                         self.mega_delta_bias_array.pop(0)
 
                 # Optimizing the weights
@@ -360,35 +399,46 @@ class Network(Plots):
                     weights=self.weights,
                     bias=self.bias,
                     mega_delta_weights_array=self.mega_delta_weights_array,
-                    mega_delta_bias_array=self.mega_delta_bias_array if self.use_bias else 0)
+                    mega_delta_bias_array=self.mega_delta_bias_array
+                    if self.use_bias
+                    else 0,
+                )
 
-            elif ((self.optimizer.optimizer_type == 'non-gradient') \
-                    and (self.optimizer.optimizer_name == 'genetic')):
+            elif (self.optimizer.optimizer_type == "non-gradient") and (
+                self.optimizer.optimizer_name == "genetic"
+            ):
                 # Only genetic algorithm for now is being used
                 self.weights, self.bias = self.optimizer.optimize(
                     error=total_training_error,
                     accuracy=train_accuracy,
                     weights=self.weights,
-                    bias=self.bias)
+                    bias=self.bias,
+                )
 
             else:
-                log.exception("Something went wrong! Optimizer type is not being used correctly.")
+                log.exception(
+                    "Something went wrong! Optimizer type is not being used correctly."
+                )
 
             # -------------------------------------------------------------- #
             #                          Validating                            #
             # -------------------------------------------------------------- #
 
-            if ((validations_set_percent > 0.0) or (validations_set_size > 0)):
+            if (validations_set_percent > 0.0) or (validations_set_size > 0):
                 for v in range(0, validations_set_size):
                     # Forward Propagation
-                    total_validation_error, validation_accuracy, _ = \
-                        self.optimizer.forward_prop_fit(
-                            X=x_validation_set[v],
-                            Y=y_validation_set[v],
-                            accuracy_results=validation_accuracy,
-                            total_training_error=total_validation_error,
-                            weights=self.weights,
-                            bias=self.bias)
+                    (
+                        total_validation_error,
+                        validation_accuracy,
+                        _,
+                    ) = self.optimizer.forward_prop_fit(
+                        X=x_validation_set[v],
+                        Y=y_validation_set[v],
+                        accuracy_results=validation_accuracy,
+                        total_training_error=total_validation_error,
+                        weights=self.weights,
+                        bias=self.bias,
+                    )
 
                 # Averaging
                 total_validation_error /= validations_set_size
@@ -400,25 +450,29 @@ class Network(Plots):
 
             # Saving for confusion matrix
             all_predictions = []
-            actual_values=[]
+            actual_values = []
 
             for t in range(y_test_len):
-                total_test_error, test_accuracy, ff_test_result = \
-                    self.optimizer.forward_prop_fit(
-                        X=x_test[t],
-                        Y=y_test[t],
-                        accuracy_results=test_accuracy,
-                        total_training_error=total_test_error,
-                        weights=self.weights,
-                        bias=self.bias)
+                (
+                    total_test_error,
+                    test_accuracy,
+                    ff_test_result,
+                ) = self.optimizer.forward_prop_fit(
+                    X=x_test[t],
+                    Y=y_test[t],
+                    accuracy_results=test_accuracy,
+                    total_training_error=total_test_error,
+                    weights=self.weights,
+                    bias=self.bias,
+                )
 
                 temp_all_predictions = []
-                temp_actual_values=[]
+                temp_actual_values = []
 
                 # Testing accuracy
                 categorical_prediction = np.argmax(ff_test_result[-1])
                 temp_all_predictions.append(categorical_prediction)
-                actual_output= np.argmax(y_test[t])
+                actual_output = np.argmax(y_test[t])
                 temp_actual_values.append(actual_output)
 
                 # Arrays used for confusion matrix
@@ -432,7 +486,6 @@ class Network(Plots):
             # -------------------------------------------------------------- #
             #                    Confusion Matrix                            #
             # -------------------------------------------------------------- #
-
 
             # Original idea was to stream the confusion matrix, but it only
             # needs to be show once at the end.
@@ -448,28 +501,32 @@ class Network(Plots):
             # self.confusion_matrix.append(confusion_matrix(actual_values, all_predictions))
 
             # Non-Gradient (Genetic)
-            if (type(validation_accuracy)==list): # Means that we have more
-                log.info("="*30)
+            if type(validation_accuracy) == list:  # Means that we have more
+                log.info("=" * 30)
                 log.info(f"epoch {i+1}/{epochs}")
-                log.info("*"*5, "Training", "*"*5)
+                log.info("*" * 5, "Training", "*" * 5)
                 log.info(f"train_loss = \n{total_training_error}")
                 log.info(f"train_accuracy = \n{train_accuracy}")
-                log.info("-"*5, "Validation", "-"*5)
+                log.info("-" * 5, "Validation", "-" * 5)
                 log.info(f"val_loss = \n{total_validation_error}")
                 log.info(f"val_accuracy = \n{validation_accuracy}")
-                log.info("-"*5, "Validation", "-"*5)
+                log.info("-" * 5, "Validation", "-" * 5)
                 log.info(f"total_loss = \n{total_test_error}")
                 log.info(f"test_accuracy = \n{test_accuracy}")
-                log.info("-"*30)
+                log.info("-" * 30)
                 log.info("\n")
 
-            elif (type(validation_accuracy)==float):
+            elif type(validation_accuracy) == float:
                 # Gradient Based
-                log.info(f"""epoch {i+1}/{epochs} train_loss = {total_training_error} - train_accuracy = {train_accuracy} | val_loss = {total_validation_error} - val_accuracy = {validation_accuracy} | test_loss={total_test_error} - test_accuracy = {test_accuracy} \r""")
+                log.info(
+                    f"""epoch {i+1}/{epochs} train_loss = {total_training_error} - train_accuracy = {train_accuracy} | val_loss = {total_validation_error} - val_accuracy = {validation_accuracy} | test_loss={total_test_error} - test_accuracy = {test_accuracy} \r"""
+                )
 
             else:
                 # No validation set used
-                log.info(f"""epoch {i+1}/{epochs} train_loss = {total_training_error} - train_accuracy = {train_accuracy} | test_loss={total_test_error} - test_accuracy = {test_accuracy} \r""")
+                log.info(
+                    f"""epoch {i+1}/{epochs} train_loss = {total_training_error} - train_accuracy = {train_accuracy} | test_loss={total_test_error} - test_accuracy = {test_accuracy} \r"""
+                )
 
             # -------------------------------------------------------------- #
             #                         Saving Model                           #
@@ -479,11 +536,12 @@ class Network(Plots):
             self.epoch_training_accuracy_plot.append(train_accuracy)
 
             try:
-                if (validations_set_percent>0.0) or (len(x_validate)>0):
+                if (validations_set_percent > 0.0) or (len(x_validate) > 0):
                     self.epoch_error_validation_plot.append(total_validation_error)
                     self.epoch_validation_accuracy_plot.append(validation_accuracy)
-            except:
+            except Exception as err:
                 log.info("No validation set")
+                log.debug(f"Exception {err}")
 
             self.epoch_error_testing_plot.append(total_test_error)
             self.epoch_testing_accuracy_plot.append(test_accuracy)
@@ -497,69 +555,91 @@ class Network(Plots):
             #                      Stopping Condition                        #
             # -------------------------------------------------------------- #
 
-            if (self.early_stopping is not None):
+            if self.early_stopping is not None:
                 # Number of epochs actually run
-                self.total_epochs += 1 # NOTE: actually has an offset of 1
+                self.total_epochs += 1  # NOTE: actually has an offset of 1
                 try:
                     """Only take the top performing for genetic and only one element for
                     the gradient based methods.
                     """
-                    for es in range(1): #len(validation_accuracy)):
-                        if (self.optimizer == 'non-gradient'):
-                            epoch_error_validation_plot_temp = np.array(self.epoch_error_validation_plot, dtype=object)
-                            epoch_error_validation_plot_per_parent = epoch_error_validation_plot_temp[:,es].tolist()
+                    for es in range(1):  # len(validation_accuracy)):
+                        if self.optimizer == "non-gradient":
+                            epoch_error_validation_plot_temp = np.array(
+                                self.epoch_error_validation_plot, dtype=object
+                            )
+                            epoch_error_validation_plot_per_parent = (
+                                epoch_error_validation_plot_temp[:, es].tolist()
+                            )
                         else:
-                            epoch_error_validation_plot_per_parent = self.epoch_error_validation_plot
+                            epoch_error_validation_plot_per_parent = (
+                                self.epoch_error_validation_plot
+                            )
 
                         # ----- Early stopping ----- #
                         early_stop, self.GL = self.early_stopping.early_stopping(
-                            epoch_error_validation_plot_per_parent)
+                            epoch_error_validation_plot_per_parent
+                        )
 
-                        if (early_stop == True):
+                        if early_stop:
                             log.info("Early stopping stopped training.")
-                            self.optimal_error_position = self.total_epochs - \
-                                np.argmin(epoch_error_validation_plot_per_parent[::-1][0:self.k_epochs])
+                            self.optimal_error_position = self.total_epochs - np.argmin(
+                                epoch_error_validation_plot_per_parent[::-1][
+                                    0 : self.k_epochs
+                                ]
+                            )
                             break
 
                         # ----- Training Progress ----- #
-                        pkt_stop, self.pkt_threshold = self.early_stopping.training_progress(
-                            epoch_error_validation_plot_per_parent, self.pkt_threshold)
+                        (
+                            pkt_stop,
+                            self.pkt_threshold,
+                        ) = self.early_stopping.training_progress(
+                            epoch_error_validation_plot_per_parent, self.pkt_threshold
+                        )
 
-                        if (pkt_stop == True):
+                        if pkt_stop:
                             log.info("P_k(t) stopped training.")
-                            self.optimal_error_position = self.total_epochs - \
-                                np.argmin(epoch_error_validation_plot_per_parent[::-1][0:self.k_epochs])
+                            self.optimal_error_position = self.total_epochs - np.argmin(
+                                epoch_error_validation_plot_per_parent[::-1][
+                                    0 : self.k_epochs
+                                ]
+                            )
                             break
 
-                    if ((pkt_stop == True) or (early_stop == True)):
-                        log.info("We are done training because stopping criterion is met.")
+                    if (pkt_stop) or (early_stop):
+                        log.info(
+                            "We are done training because stopping criterion is met."
+                        )
                         break
 
-                except:
-                    log.debug(f"Skipping the stopping criterion, epoch = {i}.")
+                except Exception as err:
+                    log.info(f"Skipping the stopping criterion, epoch = {i}.")
+                    log.debug(f"Exception was = {err}.")
                     pass
 
             # -------------------------------------------------------------- #
             #                        Live Plotting                           #
             # -------------------------------------------------------------- #
-            if self.plots_config.get('type') == "streamlit":
+            if self.plots_config.get("type") == "streamlit":
                 # Assuming only live plotting will be used in streamlit UI
                 self.plots_gen.update_data(self_data=self)
                 self.plots_gen.plot_epoch_error()
                 self.plots_gen.plot_epoch_accuracy()
 
-        if self.plots_config!={}:
-            self.confusion_matrix = confusion_matrix(temp_actual_values, temp_all_predictions)
+        if self.plots_config != {}:
+            self.confusion_matrix = confusion_matrix(
+                temp_actual_values, temp_all_predictions
+            )
             self.plots_gen.plot_confusion_matrix(self.confusion_matrix)
 
-            if self.plots_config.get('type') == "plotly":
+            if self.plots_config.get("type") == "plotly":
                 self.plots_gen.update_data(self_data=self)
                 self.plots_gen.plot_epoch_error()
                 self.plots_gen.plot_epoch_accuracy()
 
         # Final Accuracies
         self.final_train_accuracy = train_accuracy
-        if (type(validation_accuracy)==list):
+        if type(validation_accuracy) == list:
             self.final_validation_accuracy = validation_accuracy
         self.final_test_accuracy = test_accuracy
         log.info("Done Training Model.")
@@ -579,9 +659,7 @@ class Network(Plots):
         """
 
         # X is a single element
-        return self.optimizer.predict(X=X,
-                                    weights=self.weights,
-                                    bias=self.bias)
+        return self.optimizer.predict(X=X, weights=self.weights, bias=self.bias)
 
     def save_model(self, file_dir):
         """Saves model to a pickle file.
@@ -591,11 +669,13 @@ class Network(Plots):
         file_dir : str
             The directory to which the model will be saved
         """
-        model_params={key:value for key, value in vars(self).items()}
-        with open(f'{file_dir}', 'wb') as f:
+        model_params = {key: value for key, value in vars(self).items()}
+        with open(f"{file_dir}", "wb") as f:
             pickle.dump(model_params, f)
 
-        log.info(f'The following class variables were saved: {[(key, value) for key, value in vars(self).items()]}')
+        log.info(
+            f"The following class variables were saved: {[(key, value) for key, value in vars(self).items()]}"
+        )
         log.info(f"Saved model successfully to {file_dir}")
 
     def load_model(self, file_dir, **kwargs):
@@ -608,25 +688,29 @@ class Network(Plots):
         kwargs:
             activation_functions
         """
-        with open(f'{file_dir}', 'rb') as f:
+        with open(f"{file_dir}", "rb") as f:
             pickle_dict = dict(pickle.load(f))
 
         # Loading the pickle elements to the class
         for key_pic, value in pickle_dict.items():
-            if (key_pic != "optimizer"):
+            if key_pic != "optimizer":
                 # Allows user to select their optimizer
                 setattr(self, key_pic, value)
 
-        log.info(f"Elements contained in class: {[key for key, value in vars(self).items()]}")
+        log.info(
+            f"Elements contained in class: {[key for key, value in vars(self).items()]}"
+        )
         log.info(f"Optimal error position: {self.optimal_error_position}")
-        log.info(f"Validation accuracy of previous model: {self.epoch_validation_accuracy_plot[self.optimal_error_position-1]}")
+        log.info(
+            f"Validation accuracy of previous model: {self.epoch_validation_accuracy_plot[self.optimal_error_position-1]}"
+        )
 
         # Load the optimal weights (The one from the best epoch)
-        self.weights = self.mega_weights_array[self.optimal_error_position-1]
+        self.weights = self.mega_weights_array[self.optimal_error_position - 1]
 
         # Determine if bias is being used
-        if ('use_bias' in kwargs.keys()):
-            self.use_bias = kwargs.get('use_bias')
+        if "use_bias" in kwargs.keys():
+            self.use_bias = kwargs.get("use_bias")
 
         # Initialize Bias Usage
         self.optimizer.init_bias_usage(self.use_bias)
@@ -635,36 +719,40 @@ class Network(Plots):
             log.info("Bias is being used")
 
             # Checking if we do have a bias array
-            if (type(self.bias)==list):
-                self.bias = self.mega_bias_array[self.optimal_error_position-1]
+            if type(self.bias) == list:
+                self.bias = self.mega_bias_array[self.optimal_error_position - 1]
             else:
                 self.bias = []
-                for l in range(1, len(self.layers)):
+                for idx in range(1, len(self.layers)):
                     self.bias.append(
-                        np.random.rand(1, self.layers[l][0]) - 0.5,
+                        np.random.rand(1, self.layers[idx][0]) - 0.5,
                     )
 
-                log.info("Bias was not used in the previous model, so creating structure")
+                log.info(
+                    "Bias was not used in the previous model, so creating structure"
+                )
 
         else:
             # If bias is not being used make equal to zero
             self.bias = 0
 
         # Loading layers into the optimizer
-        self.optimizer.layers=self.layers
+        self.optimizer.layers = self.layers
 
         # Ability to change activation functions
-        if ('activation_functions' in kwargs.keys()):
-            self.optimizer.init_activation_functions(activation_functions=kwargs.get('activation_functions'))
-            log.info('Using new activation functions.')
+        if "activation_functions" in kwargs.keys():
+            self.optimizer.init_activation_functions(
+                activation_functions=kwargs.get("activation_functions")
+            )
+            log.info("Using new activation functions.")
         else:
             self.optimizer.init_activation_functions()
             log.info("Using the same activation functions.")
 
         # Ability to change error function
-        if ('error_function' in kwargs.keys()):
-            self.optimizer.init_error_func(kwargs.get('error_function'))
-            log.info('Using new error_function functions.')
+        if "error_function" in kwargs.keys():
+            self.optimizer.init_error_func(kwargs.get("error_function"))
+            log.info("Using new error_function functions.")
         else:
             self.optimizer.init_error_func(self.error_function)
             log.info("Using the same error function.")

@@ -5,7 +5,9 @@ from nnfs.neural_network.optimizers.optimizer import Optimizer
 import numpy as np
 
 from nnfs.utils.logs import create_logger
+
 log = create_logger(__name__)
+
 
 class GradientOptimizer(FeedForward, BackProp, Optimizer):
     """Basis of all gradient based optimizations. This class
@@ -13,8 +15,9 @@ class GradientOptimizer(FeedForward, BackProp, Optimizer):
     common amongst the different gradient based optimization
     methods.
     """
+
     def __init__(self):
-        self.optimizer_type = 'gradient'
+        self.optimizer_type = "gradient"
         log.info(f"Type of optimizer: {self.optimizer_type}")
         Optimizer.__init__(self)
 
@@ -43,29 +46,28 @@ class GradientOptimizer(FeedForward, BackProp, Optimizer):
             bias = []
 
         if self.initialization_method is None:
-            optimizer_params = dict(name='standard')
+            optimizer_params = dict(name="standard")
         else:
             # Weights initializer
             optimizer_params = self.initialization_method
             log.info(f"The initialization paramters are {optimizer_params}")
-            intializer=getattr(Optimizer(), optimizer_params['name'])
+            intializer = getattr(Optimizer(), optimizer_params["name"])
 
         # Initialize random weights and biases (Find different way to init)
         for i in range(1, num_layers):
-            optimizer_params['dim0'] = self.layers[i-1][0]
-            optimizer_params['dim1'] =self.layers[i][0]
+            optimizer_params["dim0"] = self.layers[i - 1][0]
+            optimizer_params["dim1"] = self.layers[i][0]
 
-            if (optimizer_params['name']=="standard"):
+            if optimizer_params["name"] == "standard":
                 # Default
-                resulting_init = np.random.rand(
-                    optimizer_params['dim0'],
-                    optimizer_params['dim1'])-0.5
+                resulting_init = (
+                    np.random.rand(optimizer_params["dim0"], optimizer_params["dim1"])
+                    - 0.5
+                )
             else:
                 resulting_init = intializer(**optimizer_params)
 
-            weights.append(
-                resulting_init
-            )
+            weights.append(resulting_init)
             if self.use_bias:
                 bias.append(
                     np.random.rand(1, self.layers[i][0]) - 0.5,
@@ -82,17 +84,17 @@ class GradientOptimizer(FeedForward, BackProp, Optimizer):
 
     def init_propagations(self):
         # Initializing FeedForward
-        FeedForward.__init__(self,
-                                use_bias=self.use_bias,
-                                activation_functions=self.activation_functions
-                            )
+        FeedForward.__init__(
+            self, use_bias=self.use_bias, activation_functions=self.activation_functions
+        )
 
         # Initializing Back Propagation
-        BackProp.__init__(self,
-                            use_bias=self.use_bias,
-                            activation_functions=self.activation_functions,
-                            error_function=self.error_function
-                            )
+        BackProp.__init__(
+            self,
+            use_bias=self.use_bias,
+            activation_functions=self.activation_functions,
+            error_function=self.error_function,
+        )
 
     def init_measures(self, weights):
         """
@@ -109,15 +111,24 @@ class GradientOptimizer(FeedForward, BackProp, Optimizer):
         test_accuarcy_results = 0
         total_test_error = 0
 
-        return train_accuracy_results, total_training_error, \
-                validation_accuarcy_results, total_validation_error, \
-                    test_accuarcy_results, total_test_error
+        return (
+            train_accuracy_results,
+            total_training_error,
+            validation_accuarcy_results,
+            total_validation_error,
+            test_accuarcy_results,
+            total_test_error,
+        )
 
-    def forward_prop_fit(self,
-                        X, Y,
-                        accuracy_results, # TODO: Make into kwargs
-                        total_training_error, # TODO
-                        weights, bias):
+    def forward_prop_fit(
+        self,
+        X,
+        Y,
+        accuracy_results,  # TODO: Make into kwargs
+        total_training_error,  # TODO
+        weights,
+        bias,
+    ):
         """Function used for training the gradient based network.
 
         Parameters
@@ -144,7 +155,7 @@ class GradientOptimizer(FeedForward, BackProp, Optimizer):
         ff_results
             Output of the final layer of the network
         """
-        weights_val = weights # Make a copy of the array
+        weights_val = weights  # Make a copy of the array
         # y_predicted = data_layer[-1]
         if self.use_bias:
             ff_results = self.feedforward(X, weights=weights_val, bias=bias)
@@ -157,7 +168,7 @@ class GradientOptimizer(FeedForward, BackProp, Optimizer):
         total_training_error += final_layer_output
 
         # --- Training Accuracy
-        if (np.argmax(final_layer) == np.argmax(Y)):
+        if np.argmax(final_layer) == np.argmax(Y):
             # Keeping the total correct predictions of classification task
             accuracy_results += 1
 
@@ -193,7 +204,9 @@ class GradientOptimizer(FeedForward, BackProp, Optimizer):
     def backpropagation(self, Y, ff_results, weights, data_layer):
         # Getting loss according to error function
         # Error of all parents?
-        delta_weight_arr, delta_bias_arr = self.backprop(Y, ff_results, weights, data_layer)
+        delta_weight_arr, delta_bias_arr = self.backprop(
+            Y, ff_results, weights, data_layer
+        )
 
         return delta_weight_arr, delta_bias_arr
 

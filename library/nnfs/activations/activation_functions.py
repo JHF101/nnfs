@@ -32,11 +32,12 @@ def sigmoid(x, derivative=0):
         - Derivative of output
     """
     # x = np.array(x)
-    if derivative==0:
-        return 1/(1+np.exp(-x))
+    if derivative == 0:
+        return 1 / (1 + np.exp(-x))
     else:
-        sig = 1/(1+np.exp(-x))
-        return sig*(1-sig)
+        sig = 1 / (1 + np.exp(-x))
+        return sig * (1 - sig)
+
 
 def tanh(x, derivative=0):
     """Tanh function.
@@ -58,10 +59,11 @@ def tanh(x, derivative=0):
         - Derivative of tanh
     """
     # x = np.array(x)
-    if derivative==0:
+    if derivative == 0:
         return np.tanh(x)
     else:
-        return 1-np.tanh(x)**2
+        return 1 - np.tanh(x) ** 2
+
 
 def relu(x, derivative=0):
     """
@@ -82,17 +84,18 @@ def relu(x, derivative=0):
         - Derivative of output
     """
     # x = np.array(x)
-    if derivative==0:
+    if derivative == 0:
         return x * (x > 0)
     else:
-        x = np.where(x<=0, 0, 1)
+        x = np.where(x <= 0, 0, 1)
         return x
+
 
 def softmax(x, derivative=0):
     """Softmax function.
 
-    Note: The softmax function is usually used in the final layer of the network
-    to predict a multinomial distribution.
+    Note: The softmax function is usually used in the final layer of the
+    network to predict a multinomial distribution.
 
     Parameters
     ----------
@@ -113,14 +116,15 @@ def softmax(x, derivative=0):
         # e_i = np.exp(x)
         # return e_i / e_i.sum()
         # Numerically stable
-        e_i = np.exp(x-np.max(x))
+        e_i = np.exp(x - np.max(x))
         return e_i / e_i.sum()
     else:
         s = x
-        s = s.reshape(-1,1)
+        s = s.reshape(-1, 1)
         result = np.diagflat(s) - np.dot(s, s.T)
-        result=np.diagonal(result).reshape(1, result.shape[0])
-        return np.array(result) # Extracting the diagonals from the array
+        result = np.diagonal(result).reshape(1, result.shape[0])
+        return np.array(result)  # Extracting the diagonals from the array
+
 
 def linear(x, derivative=0):
     """Linear activation function (Identity Function).
@@ -142,10 +146,11 @@ def linear(x, derivative=0):
         - Linear output
         - Derivative of output
     """
-    if derivative==0:
+    if derivative == 0:
         return np.ones(x.shape)
     else:
         return np.array(x)
+
 
 def leaky_relu(x, derivative=0):
     """Similar to the relu function but does not have the dead
@@ -170,11 +175,12 @@ def leaky_relu(x, derivative=0):
     """
     # x = np.array(x)
     alpha = 0.1
-    if derivative==0:
-        return np.maximum(alpha* x, x)
+    if derivative == 0:
+        return np.maximum(alpha * x, x)
     else:
-        x = np.where(x<=0, alpha, 1)
+        x = np.where(x <= 0, alpha, 1)
         return x
+
 
 def elu(x, derivative=0):
     """
@@ -196,12 +202,13 @@ def elu(x, derivative=0):
     """
     # x = np.array(x)
     alpha = 0.1
-    if derivative==0:
-        x = np.where(x>=0, x, alpha*(np.exp(x)-1))
+    if derivative == 0:
+        x = np.where(x >= 0, x, alpha * (np.exp(x) - 1))
         return x
     else:
-        x = np.where(x>=0, alpha*(np.exp(x)), 1)
+        x = np.where(x >= 0, alpha * (np.exp(x)), 1)
         return x
+
 
 # Cross Entropy
 # https://deepnotes.io/softmax-crossentropy

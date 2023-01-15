@@ -3,14 +3,19 @@ from nnfs.propagation.feedforward import FeedForward
 from nnfs.neural_network.optimizers.optimizer import Optimizer
 
 from nnfs.utils.logs import create_logger
+
 log = create_logger(__name__)
+
 
 class GeneticOptimizer(FeedForward, Optimizer):
     """
     - An Empirical Study of Non-binary Genetic Algorithm based
         Neural Approaches for Classification.
     """
-    def __init__(self, number_of_parents=6, fitness_eval='error', weights_initialization=None):
+
+    def __init__(
+        self, number_of_parents=6, fitness_eval="error", weights_initialization=None
+    ):
         """
         Parameters
         ----------
@@ -23,18 +28,18 @@ class GeneticOptimizer(FeedForward, Optimizer):
 
         self.initialization_method = weights_initialization
 
-        if number_of_parents%2==0:
+        if number_of_parents % 2 == 0:
             self.number_of_parents = number_of_parents
         else:
             raise Exception("Number of parents should be even.")
 
-        if fitness_eval=="accuracy" or fitness_eval=="error":
+        if fitness_eval == "accuracy" or fitness_eval == "error":
             self.fitness_eval = fitness_eval
         else:
             raise Exception("'accuracy' or 'error' should be used the fitness metric.")
 
-        self.optimizer_type = 'non-gradient'
-        self.optimizer_name = 'genetic'
+        self.optimizer_type = "non-gradient"
+        self.optimizer_name = "genetic"
 
         log.info(f"Optimizer Name: {self.optimizer_name}")
         log.info(f"Type of optimizer: {self.optimizer_type}")
@@ -74,24 +79,27 @@ class GeneticOptimizer(FeedForward, Optimizer):
                 single_parent_bias = []
 
             if self.initialization_method is None:
-                optimizer_params = dict(name='standard')
+                optimizer_params = dict(name="standard")
             else:
                 # Weights initializer
                 optimizer_params = self.initialization_method
                 log.info(f"The initialization paramters are {optimizer_params}")
                 # intializer=getattr(Initializers(), optimizer_params['name'])
                 # Get access to the initializer class
-                intializer=getattr(Optimizer(), optimizer_params['name'])
+                intializer = getattr(Optimizer(), optimizer_params["name"])
 
             for i in range(1, len(self.layers)):
-                optimizer_params['dim0'] = self.layers[i-1][0]
-                optimizer_params['dim1'] =self.layers[i][0]
+                optimizer_params["dim0"] = self.layers[i - 1][0]
+                optimizer_params["dim1"] = self.layers[i][0]
 
-                if (optimizer_params['name']=="standard"):
+                if optimizer_params["name"] == "standard":
                     # Default
-                    resulting_init = np.random.rand(
-                        optimizer_params['dim0'],
-                        optimizer_params['dim1'])-0.5
+                    resulting_init = (
+                        np.random.rand(
+                            optimizer_params["dim0"], optimizer_params["dim1"]
+                        )
+                        - 0.5
+                    )
                 else:
                     resulting_init = intializer(**optimizer_params)
 
@@ -125,9 +133,7 @@ class GeneticOptimizer(FeedForward, Optimizer):
         """
         # Initializing FeedForward
         FeedForward.__init__(
-            self,
-            use_bias=self.use_bias,
-            activation_functions=self.activation_functions
+            self, use_bias=self.use_bias, activation_functions=self.activation_functions
         )
 
     def init_measures(self, weights):
@@ -161,12 +167,12 @@ class GeneticOptimizer(FeedForward, Optimizer):
 
         # Catches the first iteration, when the number of children are
         # twice that of the parents
-        if (self.number_of_parents == weight_length):
-            validation_accuracy_results = np.zeros(2*weight_length)
-            total_validation_error = np.zeros(2*weight_length)
+        if self.number_of_parents == weight_length:
+            validation_accuracy_results = np.zeros(2 * weight_length)
+            total_validation_error = np.zeros(2 * weight_length)
 
-            test_accuracy_results = np.zeros(2*weight_length)
-            total_test_error = np.zeros(2*weight_length)
+            test_accuracy_results = np.zeros(2 * weight_length)
+            total_test_error = np.zeros(2 * weight_length)
 
         else:
             validation_accuracy_results = np.zeros(weight_length)
@@ -175,9 +181,14 @@ class GeneticOptimizer(FeedForward, Optimizer):
             test_accuracy_results = np.zeros(weight_length)
             total_test_error = np.zeros(weight_length)
 
-        return train_accuracy_results, total_training_error, \
-                validation_accuracy_results, total_validation_error, \
-                    test_accuracy_results, total_test_error
+        return (
+            train_accuracy_results,
+            total_training_error,
+            validation_accuracy_results,
+            total_validation_error,
+            test_accuracy_results,
+            total_test_error,
+        )
 
     def arith_crossover(self, lambda_val, parent_arr):
         """Arithmetic crossover.
@@ -200,10 +211,10 @@ class GeneticOptimizer(FeedForward, Optimizer):
         children = []
         for q in range(0, len(parent_arr), 2):
             # First child
-            k_ij = lambda_val*parent_arr[q]+(1-lambda_val)*parent_arr[q+1]
+            k_ij = lambda_val * parent_arr[q] + (1 - lambda_val) * parent_arr[q + 1]
             children.append(k_ij)
             # Second child
-            k_ij = lambda_val*parent_arr[q+1]+(1-lambda_val)*parent_arr[q]
+            k_ij = lambda_val * parent_arr[q + 1] + (1 - lambda_val) * parent_arr[q]
             children.append(k_ij)
 
         return children
@@ -229,7 +240,7 @@ class GeneticOptimizer(FeedForward, Optimizer):
         parents = []
         parents_structure = []
         # Length of flatten weights, we already have the dimension of the weights
-        for z in range(0, len(param)): # Looping through all the parents
+        for z in range(0, len(param)):  # Looping through all the parents
             flat_parent_lengths = [0]
             flat_parent = []
 
@@ -260,7 +271,7 @@ class GeneticOptimizer(FeedForward, Optimizer):
         """
         # This would be the length of the parent - 1
 
-        for f in range( 0, len(children) ):
+        for f in range(0, len(children)):
             mutation_arr = np.random.random(children[f].shape) - 0.5
             mutation_arr = np.where(np.array(mutation_arr[f]) > 0, mutation_arr, 0)
             children[f] = np.array(children[f]) + mutation_arr
@@ -292,16 +303,13 @@ class GeneticOptimizer(FeedForward, Optimizer):
 
             child_weights = []
 
-            for single in range(0,len(parents_structure[z])-1):
+            for single in range(0, len(parents_structure[z]) - 1):
 
                 child_weights.append(
-                    children[z][ # Was changed
-                            parents_structure[z][single] : parents_structure[z][single+1]
-                        ]
-                        .reshape(
-                            param[z][single].shape
-                        )
-                    )
+                    children[z][  # Was changed
+                        parents_structure[z][single] : parents_structure[z][single + 1]
+                    ].reshape(param[z][single].shape)
+                )
 
             # Restructured array
             new_param.append(child_weights)
@@ -310,11 +318,9 @@ class GeneticOptimizer(FeedForward, Optimizer):
 
         return final_param
 
-    def forward_prop_fit(self,
-                        X, Y,
-                        accuracy_results,
-                        total_training_error,
-                        weights, bias):
+    def forward_prop_fit(
+        self, X, Y, accuracy_results, total_training_error, weights, bias
+    ):
         """Forward propagation resulting in training error,
         accuracy results and layer output.
 
@@ -347,23 +353,21 @@ class GeneticOptimizer(FeedForward, Optimizer):
         ff_results = []
         for p in range(len(weights)):
 
-            weights_gentic = weights[p] # Make a copy of the array
+            weights_gentic = weights[p]  # Make a copy of the array
             if self.use_bias:
                 bias_genetic = bias[p]
 
             # Extracting the final layer output [-1]
             ff_results.append(
-                self.feedforward(x=X,
-                    weights=weights_gentic,
-                    bias=bias_genetic)[-1]
-                )
+                self.feedforward(x=X, weights=weights_gentic, bias=bias_genetic)[-1]
+            )
 
             # Getting loss according to error function
             total_training_error[p] += self.error_function(Y, ff_results[p])
 
             # Training Accuracy
-            if (np.argmax(ff_results[p]) == np.argmax(Y)):
-                accuracy_results[p] += 1 # Used for genetic algorithm
+            if np.argmax(ff_results[p]) == np.argmax(Y):
+                accuracy_results[p] += 1  # Used for genetic algorithm
 
         return total_training_error, accuracy_results, ff_results
 
@@ -396,17 +400,17 @@ class GeneticOptimizer(FeedForward, Optimizer):
         NotImplementedError
         """
         # Which method we are using to improve the population
-        if (self.fitness_eval == 'error'):
+        if self.fitness_eval == "error":
             fitness_measure = error
             best_performers = sorted(
-                range(len(fitness_measure)),
-                    key=lambda x: fitness_measure[x])
+                range(len(fitness_measure)), key=lambda x: fitness_measure[x]
+            )
 
-        elif (self.fitness_eval == 'accuracy'):
+        elif self.fitness_eval == "accuracy":
             fitness_measure = accuracy
             best_performers = sorted(
-                range(len(fitness_measure)),
-                    key=lambda x: fitness_measure[x])[::-1]
+                range(len(fitness_measure)), key=lambda x: fitness_measure[x]
+            )[::-1]
 
         else:
             raise NotImplementedError("Please choose an optimizer")
@@ -428,9 +432,9 @@ class GeneticOptimizer(FeedForward, Optimizer):
                 temp_bias.append(bias[a])
 
         # Reordering the best performers
-        weights = temp_weights[0:self.number_of_parents]
+        weights = temp_weights[0 : self.number_of_parents]
         if self.use_bias:
-            bias = temp_bias[0:self.number_of_parents]
+            bias = temp_bias[0 : self.number_of_parents]
         # ---------------------------------------------------------------- #
         #                        Parent Selection                          #
         # ---------------------------------------------------------------- #
@@ -442,11 +446,10 @@ class GeneticOptimizer(FeedForward, Optimizer):
         if self.use_bias:
             parents_bias, parents_bias_structure = self.tournament_selection(bias)
 
-
-        parents_weight = np.array(parents_weight) # There will be a number of parents
+        parents_weight = np.array(parents_weight)  # There will be a number of parents
 
         if self.use_bias:
-            parents_bias = np.array(parents_bias) # There will be a number of parents
+            parents_bias = np.array(parents_bias)  # There will be a number of parents
 
         # ---------------------------------------------------------------- #
         #                           Crossover                              #
@@ -455,13 +458,13 @@ class GeneticOptimizer(FeedForward, Optimizer):
         # TODO: Add other methods of crossover
         lambda_val = np.random.random()
         children_weights = self.arith_crossover(
-            lambda_val=lambda_val,
-            parent_arr=parents_weight)
+            lambda_val=lambda_val, parent_arr=parents_weight
+        )
 
         if self.use_bias:
             children_bias = self.arith_crossover(
-                lambda_val=lambda_val,
-                parent_arr=parents_bias)
+                lambda_val=lambda_val, parent_arr=parents_bias
+            )
 
         # ---------------------------------------------------------------- #
         #                           Mutation                               #
@@ -478,18 +481,17 @@ class GeneticOptimizer(FeedForward, Optimizer):
         weights = self.evaluation(
             param=weights,
             children=children_weights,
-            parents_structure=parents_weight_structure
+            parents_structure=parents_weight_structure,
         )
 
         if self.use_bias:
             bias = self.evaluation(
                 param=bias,
                 children=children_bias,
-                parents_structure=parents_bias_structure
+                parents_structure=parents_bias_structure,
             )
 
         if self.use_bias:
             return weights, bias
         else:
             return weights, 0
-

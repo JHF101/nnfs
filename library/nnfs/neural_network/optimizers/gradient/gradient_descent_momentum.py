@@ -3,13 +3,14 @@ from nnfs.utils.logs import create_logger
 
 log = create_logger(__name__)
 
+
 class GradientDescentWithMomentum(GradientOptimizer):
     def __init__(self, learning_rate, beta, weights_initialization=None):
         super().__init__()
         self.initialization_method = weights_initialization
         self.beta = beta
         self.learning_rate = learning_rate
-        self.optimizer_name = 'gradient descent with momentum'
+        self.optimizer_name = "gradient descent with momentum"
         log.info(f"Optimizer Name: {self.optimizer_name}")
 
     def optimize(self, **kwargs):
@@ -24,17 +25,17 @@ class GradientDescentWithMomentum(GradientOptimizer):
             bias = kwargs["bias"]
             mega_delta_bias_array = kwargs["mega_delta_bias_array"]
 
-        for w in range(0,len(weights)):
-            if (len(mega_delta_weights_array)>1):
+        for w in range(0, len(weights)):
+            if len(mega_delta_weights_array) > 1:
                 # --- Weights
                 v_dW = mega_delta_weights_array[-1][w] - mega_delta_weights_array[-2][w]
-                v_dW = self.beta* v_dW + (1-self.beta)*dE_dwij_t[w]
+                v_dW = self.beta * v_dW + (1 - self.beta) * dE_dwij_t[w]
                 weights[w] -= self.learning_rate * v_dW
 
                 # --- Bias
                 if self.use_bias:
                     v_dB = mega_delta_bias_array[-1][w] - mega_delta_bias_array[-2][w]
-                    v_dB = self.beta* v_dB + (1-self.beta)*dE_dbij_t[w]
+                    v_dB = self.beta * v_dB + (1 - self.beta) * dE_dbij_t[w]
                     bias[w] -= self.learning_rate * v_dB
             else:
                 # Using normal GD if we cannot look back

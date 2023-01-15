@@ -2,6 +2,8 @@ import numpy as np
 from nnfs.utils.logs import create_logger
 
 log = create_logger(__name__)
+
+
 class BackProp:
     def __init__(self, use_bias, activation_functions, error_function):
         self.activation_functions = activation_functions
@@ -17,12 +19,14 @@ class BackProp:
 
         delta_err = np.matmul(output_error, weights.T)
 
-        #The output of the node before activation wrt the weights: d_E_total/d_w
+        # The output of the node before activation wrt the weights: d_E_total/d_w
         delta_weight = np.matmul(forward_prop_input_data.T, output_error)
 
         return delta_err, delta_weight
 
-    def back_prop_activations(self, output_error, forward_prop_input_data, activation_func=None):
+    def back_prop_activations(
+        self, output_error, forward_prop_input_data, activation_func=None
+    ):
         """
         Getting the gradient of layer by taking the derivative of the activation
         function.
@@ -71,26 +75,30 @@ class BackProp:
         data_layer_count = -1
 
         # Full back propagation
-        for i in range(0, int(2*len(weights))):
+        for i in range(0, int(2 * len(weights))):
             # Even layer
-            if (i%2 == 0):
+            if i % 2 == 0:
                 log.info(f"Iteration number {i}")
                 # Derivative of the activation function: dout_y/dnet_y
-                delta_err = self.back_prop_activations(output_error=delta_err,
-                                                       forward_prop_input_data=data_layer[data_layer_count],
-                                                       activation_func=self.activation_functions[data_layer_count])
+                delta_err = self.back_prop_activations(
+                    output_error=delta_err,
+                    forward_prop_input_data=data_layer[data_layer_count],
+                    activation_func=self.activation_functions[data_layer_count],
+                )
 
                 if self.use_bias:
                     delta_bias_arr.append(delta_err)
 
-                data_layer_count -= 1 # Has a different indexing schema
+                data_layer_count -= 1  # Has a different indexing schema
 
             # Odd layer
             else:
                 # Derivatives of dE/dnet_y and dnet_y/dw_ij
-                delta_err, delta_weight = self.back_prop_weights(output_error=delta_err,
-                                                                forward_prop_input_data=data_layer[data_layer_count],
-                                                                weights=weights[count_layer])
+                delta_err, delta_weight = self.back_prop_weights(
+                    output_error=delta_err,
+                    forward_prop_input_data=data_layer[data_layer_count],
+                    weights=weights[count_layer],
+                )
 
                 delta_weight_arr.append(delta_weight)
                 count_layer -= 1

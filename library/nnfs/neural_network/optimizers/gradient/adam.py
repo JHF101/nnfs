@@ -4,12 +4,16 @@ from nnfs.utils.logs import create_logger
 
 log = create_logger(__name__)
 
+
 class Adam(GradientOptimizer):
     """Computes individual adaptive learning rates for different parameters
     from estimates of first and second moments of the gradients.
     Combines advantages of AdaGrad and RMSProp.
     """
-    def __init__(self, learning_rate=0.001, beta1=0.9, beta2=0.999, weights_initialization=None):
+
+    def __init__(
+        self, learning_rate=0.001, beta1=0.9, beta2=0.999, weights_initialization=None
+    ):
         """
         Parameters
         ----------
@@ -28,7 +32,7 @@ class Adam(GradientOptimizer):
         self.beta1 = beta1
         self.beta2 = beta2
         self.learning_rate = learning_rate
-        self.optimizer_name = 'Adaptive Moment Estimation (adam) optimizer'
+        self.optimizer_name = "Adaptive Moment Estimation (adam) optimizer"
         log.info(f"Optimizer Name: {self.optimizer_name}")
 
         # Requires a moving average
@@ -38,7 +42,7 @@ class Adam(GradientOptimizer):
         self.v_dW = None
         self.v_dB = None
 
-        self.eps = 10**(-8)
+        self.eps = 10 ** (-8)
         # Counting variable for number of iterations
         self.t = 0
 
@@ -72,32 +76,34 @@ class Adam(GradientOptimizer):
                 for b in dE_dbij_t:
                     self.v_dB.append(np.zeros(shape=b.shape))
 
-        self.t += 1 # TODO: Handle overflow errors
+        self.t += 1  # TODO: Handle overflow errors
         # Number of iteration of optimizations
         for w in range(0, len(weights)):
             # --- Weights
             dW = dE_dwij_t[w]
 
             # Momentum
-            self.v_dW[w] = self.beta1*self.v_dW[w] + (1-self.beta1)*dW
+            self.v_dW[w] = self.beta1 * self.v_dW[w] + (1 - self.beta1) * dW
             # RMS Prop
-            self.s_dW[w] = self.beta2*self.s_dW[w] + (1-self.beta2)*np.power(dW, 2)
+            self.s_dW[w] = self.beta2 * self.s_dW[w] + (1 - self.beta2) * np.power(
+                dW, 2
+            )
 
             # Handling overflow
-            beta1_t = 1-self.beta1**self.t
+            beta1_t = 1 - self.beta1**self.t
             # beta1_t = beta1_t if beta1_t>self.eps else self.eps
 
-            beta2_t = 1-self.beta2**self.t
+            beta2_t = 1 - self.beta2**self.t
             # beta2_t = beta2_t if beta2_t>self.eps else self.eps
 
             # Adjusting bias
             # Momentum
-            self.v_dW[w] = self.v_dW[w]/beta1_t
+            self.v_dW[w] = self.v_dW[w] / beta1_t
             # RMSProp
-            self.s_dW[w] = self.s_dW[w]/beta2_t
+            self.s_dW[w] = self.s_dW[w] / beta2_t
 
             # Adjusting weights
-            denom = np.sqrt(self.s_dW[w])+self.eps
+            denom = np.sqrt(self.s_dW[w]) + self.eps
             weights[w] -= self.learning_rate * np.divide(self.v_dW[w], denom)
 
             # --- Bias
@@ -105,17 +111,19 @@ class Adam(GradientOptimizer):
                 dB = dE_dbij_t[w]
 
                 # Momentum
-                self.v_dB[w] = self.beta1*self.v_dB[w] + (1-self.beta1)*dB
+                self.v_dB[w] = self.beta1 * self.v_dB[w] + (1 - self.beta1) * dB
                 # RMS Prop
-                self.s_dB[w] = self.beta2*self.s_dB[w] + (1-self.beta2)*(np.power(dB, 2))
+                self.s_dB[w] = self.beta2 * self.s_dB[w] + (1 - self.beta2) * (
+                    np.power(dB, 2)
+                )
 
                 # Adjusting bias
                 # Momentum
-                self.v_dB[w] = self.v_dB[w]/beta1_t
+                self.v_dB[w] = self.v_dB[w] / beta1_t
                 # RMSProp
-                self.s_dB[w] = self.s_dB[w]/beta2_t
+                self.s_dB[w] = self.s_dB[w] / beta2_t
 
-                denom = np.sqrt(self.s_dB[w])+self.eps
+                denom = np.sqrt(self.s_dB[w]) + self.eps
                 bias[w] -= self.learning_rate * np.divide(self.v_dB[w], denom)
 
                 log.info(f"self.s_dW[w] {self.s_dW[w]}")

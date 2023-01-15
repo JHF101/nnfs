@@ -1,5 +1,6 @@
 import numpy as np
 
+
 # TODO: Consider fully connected and then dropout as well
 # I think dropout might just be a multiplication of a mask
 class FeedForward:
@@ -25,28 +26,26 @@ class FeedForward:
         data_layer.append(x)
 
         if self.use_bias:
-            if ('weights' not in kwargs.keys()) and ('bias' not in kwargs.keys()):
-                print('kwarg items', kwargs.keys())
+            if ("weights" not in kwargs.keys()) and ("bias" not in kwargs.keys()):
+                print("kwarg items", kwargs.keys())
                 raise NotImplementedError("The weights or biases are not being used")
 
         else:
-            if 'weights' not in kwargs.keys():
-                print('kwarg items', kwargs.keys())
+            if "weights" not in kwargs.keys():
+                print("kwarg items", kwargs.keys())
                 raise NotImplementedError("The weights have not been used")
 
         # Do a full propagation left to right
-        weight_len = len(kwargs['weights'])
+        weight_len = len(kwargs["weights"])
         for i in range(weight_len):
             result = self.forward_prop_per_layer(
-                weight=kwargs['weights'][i],
+                weight=kwargs["weights"][i],
                 input_data=data_layer[i],
-                bias=kwargs['bias'][i] if self.use_bias else 0
-                )
+                bias=kwargs["bias"][i] if self.use_bias else 0,
+            )
 
             # Apply the activation function and save to data layer
             # We are only interested in the outputs after the activation for back prop
-            data_layer.append(
-                self.activation_functions[i+1](result)
-                )
+            data_layer.append(self.activation_functions[i + 1](result))
 
-        return data_layer # Returning the data layer output (the output is at [-1])
+        return data_layer  # Returning the data layer output (the output is at [-1])
