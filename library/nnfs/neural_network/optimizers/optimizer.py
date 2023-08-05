@@ -1,5 +1,4 @@
-from optimizers.initializers import Initializers
-
+from nnfs.neural_network.optimizers.initializers import Initializers
 from nnfs.utils.logs import create_logger
 
 log = create_logger(__name__)

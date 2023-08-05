@@ -127,3 +127,6 @@ class MNIST:
             (dataset_dict["train_images"], dataset_dict["train_labels"]),
             (dataset_dict["test_images"], dataset_dict["test_labels"]),
         )
+
+    def clean_datasets(self):
+        os.rmdir(self.DATASET_DIR)

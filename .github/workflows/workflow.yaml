@@ -1,0 +1,30 @@
+name: Library Builder
+
+# triggers for our workflow
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      # Check code syntax
+      - uses: actions/setup-python@v3
+      - run: pip install bandit black codespell flake8 mypy pyupgrade
+      - run: bandit --recursive --skip B101 . || true # B101 is assert statements
+      - run: black --check . || true
+      - run: codespell || true
+      - run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+      - run: flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --show-source --statistics
+      - run: pip install -r requirements.txt || true
+      - run: mypy --install-types --non-interactive . || true
+      - run: shopt -s globstar && pyupgrade --py36-plus **/*.py || true
+
+      - name: Build
+        run: |
+          docker compose up -d --build

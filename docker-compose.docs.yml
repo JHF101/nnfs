@@ -6,7 +6,7 @@ services:
     build:
       dockerfile: ./library/docs/Dockerfile
       args:
-        - AUTHOR_NAME=JHF
+        - AUTHOR_NAME=JHF101
         - VERSION=0.4
         - CODEBASE_NAME=nnfs
     volumes:
