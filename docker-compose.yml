@@ -14,13 +14,15 @@ services:
       # - 5000:5000 # Mlfow port
     # volumes:
     #   - ./:/app
+    # tty: true
+    # stdin_open: true
 
   documenter:
     container_name: documentor
     build:
       dockerfile: ./library/docs/Dockerfile
       args:
-        - AUTHOR_NAME=JHF
+        - AUTHOR_NAME=JHF101
         - VERSION=0.4
         - CODEBASE_NAME=nnfs
 
@@ -29,7 +31,6 @@ services:
 
     volumes:
       - ./library/docs/documents:/library/docs/documents
-
 
 volumes:
   documents:

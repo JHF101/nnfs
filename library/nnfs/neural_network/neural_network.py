@@ -53,8 +53,7 @@ class Network(Plots):
                     'confusion_matrix':<dir>,
                 }
         """
-        # Model Reload and Fine-tuning
-        if load_model is not False:
+        if not load_model:
             self.use_bias = use_bias
             log.info(f"Is bias being used? {self.use_bias}")
 
@@ -122,7 +121,7 @@ class Network(Plots):
             # The point at which training was stopped
             self.optimal_error_position = 0
         else:
-            # Expecting model
+            # Model Reload and Fine-tuning
             self.optimizer = optimizer
 
         self.final_train_accuracy = None

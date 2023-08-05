@@ -38,6 +38,7 @@ class Proben1:
         """
         self.WORKING_DIR = os.getcwd() + "/"
         self.DATASET_DIR = self.WORKING_DIR + "proben1/"
+        self.file_dirs = None
 
     def download_data(self):
         """Downloads the data in the correct format from the Github
@@ -88,9 +89,13 @@ class Proben1:
                     )
 
         self.file_dirs = file_dirs
+        return file_dirs
 
     def get_filenames(self, data_set_name):
         filenames = []
+        if self.file_dirs is None:
+            self.get_dataset_dirs()
+
         for dirs in self.file_dirs:
             if data_set_name in dirs["dataset"]:
                 for i in range(len(dirs["directory"])):
@@ -101,6 +106,9 @@ class Proben1:
         # Returns an array of tuples of the processed data
         # The user can the choose which element of the array that
         # They would like to use for training
+        if self.file_dirs is None:
+            self.get_filenames(data_set_name)
+
         for dirs in self.file_dirs:
             if data_set_name in dirs["dataset"]:
                 return self.file_parser(dirs["directory"])
@@ -254,3 +262,7 @@ class Proben1:
             )
 
         return data_set_output_array
+
+    def clean_datasets(self):
+        """Removes the dataset"""
+        os.rmdir(self.DATASET_DIR)
