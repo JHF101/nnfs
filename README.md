@@ -15,5 +15,12 @@ The documentation for the demo program is [Demo Docs](program/nnfs_demo.md).
 The following videos show the UI and some of the functionality of the library, but visualized:
 
 - [UI](videos/Neural%20Networks%20From%20Scratch%20UI.mp4)
-- [Live Graphing](videos/Neural%20Network%20Live%20Graphing.mp4)
-- [NN Visualizer](videos/Neural%20Network%20Visualizer.mp4)
+
+
+
+https://github.com/JHF101/nnfs/assets/63376348/8baaa871-5875-4679-acbf-a8faedb8e926
+
+
+
+https://github.com/JHF101/nnfs/assets/63376348/fff8789a-c740-4f98-ac2b-0da3f8bffae9
+
