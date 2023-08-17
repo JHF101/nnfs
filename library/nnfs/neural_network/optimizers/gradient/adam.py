@@ -58,13 +58,9 @@ class Adam(GradientOptimizer):
 
         # Initializing the shape of the weights # TODO: Do list comprehension
         if self.s_dW is None:
-            self.s_dW = []
-            for i in dE_dwij_t:
-                self.s_dW.append(np.zeros(shape=i.shape))
+            self.s_dW = [np.zeros(shape=i.shape) for i in dE_dwij_t]
         if self.v_dW is None:
-            self.v_dW = []
-            for i in dE_dwij_t:
-                self.v_dW.append(np.zeros(shape=i.shape))
+            self.v_dW = [np.zeros(shape=i.shape) for i in dE_dwij_t]
 
         if self.use_bias:
             if self.s_dB is None:

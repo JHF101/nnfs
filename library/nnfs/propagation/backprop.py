@@ -34,6 +34,7 @@ class BackProp:
         # Essentially performing the chain rule
         delta_err = activation_func(forward_prop_input_data, derivative=1)
         # The output of the node wrt the output of the node before activation: d_out/d_net
+        delta_err = delta_err.astype("float64")
         delta_err *= output_error
         return delta_err
 
