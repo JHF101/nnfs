@@ -60,7 +60,7 @@ class EarlyStopping:
 
             # Training progress
             P_k_t = 1000 * ((numerator / denominator) - 1)
-            log.info(f"P_k_t: {P_k_t}")
+            log.debug(f"P_k_t: {P_k_t}")
 
             if P_k_t < pkt_threshold:
                 return True, pkt_threshold
@@ -95,7 +95,7 @@ class EarlyStopping:
 
         # Generalization Loss
         GL = 100 * ((epoch_error_validation_plot[-1] / E_opt) - 1)
-        log.info(f"GL: {GL}")
+        log.debug(f"GL: {GL}")
         if self.alpha < GL:
             return True, GL
         else:

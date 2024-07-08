@@ -3,14 +3,6 @@ FROM python:3.10-slim as base_libs
 RUN apt-get update && \
     apt-get install --no-install-recommends -y build-essential && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
-# FROM python:3.10-alpine as base_libs
-# RUN apk add --no-cache \
-#         build-base \
-#         gcc \
-#         gfortran \
-#         openblas-dev \
-#         musl-dev \
-#         linux-headers
 
 COPY ./library/requirements.txt .
 RUN python -m pip install --upgrade pip setuptools

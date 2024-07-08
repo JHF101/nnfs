@@ -5,6 +5,7 @@ import wget
 import gzip
 import glob
 import shutil
+import requests
 
 from nnfs.utils.logs import create_logger
 
@@ -22,37 +23,45 @@ class MNIST:
     def download_data(self):
         try:
             os.mkdir(self.DATASET_DIR)
-            wget.download(
-                "http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz",
-                out=self.DATASET_DIR,
-            )
-            wget.download(
-                "http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz",
-                out=self.DATASET_DIR,
-            )
-            wget.download(
-                "http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz",
-                out=self.DATASET_DIR,
-            )
-            wget.download(
-                "http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz",
-                out=self.DATASET_DIR,
-            )
-            log.info("Making directory")
+            files = [
+                "train-images-idx3-ubyte.gz",
+                "train-labels-idx1-ubyte.gz",
+                "t10k-images-idx3-ubyte.gz",
+                "t10k-labels-idx1-ubyte.gz",
+            ]
+            base_url = "http://yann.lecun.com/exdb/mnist/"
+            for file in files:
+                url = base_url + file
+                with open(self.DATASET_DIR + file, "wb") as f:
+                    response = requests.get(url)
+                    response.raise_for_status()
+                    f.write(response.content)
+            log.info("Files downloaded successfully.")
+        except requests.exceptions.HTTPError as http_err:
+            log.error(f"HTTP error occurred: {http_err}")
         except Exception as err:
-            log.warning("The file location already exists")
-            log.debug(f"Exception {err}")
+            log.warning("Error downloading files.")
+            log.debug(f"Exception: {err}")
 
-        file_names = glob.glob(self.DATASET_DIR + "*.gz")
-        for file in file_names:
-            with gzip.open(file, "rb") as f_in:
-                with open(file[:-3], "wb") as f_out:
-                    shutil.copyfileobj(f_in, f_out)
-        # Removing .gz file
-        files = glob.glob(self.WORKING_DIR + "*.gz")
-        for f in files:
-            log.info(f"Deleting {f}")
-            os.remove(f)
+        # Extracting and cleaning up downloaded files
+        try:
+            file_names = glob.glob(self.DATASET_DIR + "*.gz")
+            for file in file_names:
+                try:
+                    with gzip.open(file, "rb") as f_in:
+                        with open(file[:-3], "wb") as f_out:
+                            shutil.copyfileobj(f_in, f_out)
+                except gzip.BadGzipFile as gzip_err:
+                    log.warning(f"Failed to extract {file}: {gzip_err}")
+                    continue
+                except Exception as extract_err:
+                    log.warning(f"Error extracting {file}: {extract_err}")
+                    continue
+                else:
+                    log.info(f"Extracted and saved {file[:-3]}")
+                    os.remove(file)
+        except Exception as process_err:
+            log.error(f"Error processing downloaded files: {process_err}")
 
     def load_data(self):
         """
@@ -82,7 +91,7 @@ class MNIST:
 
         # Determine way to get this
         files = os.listdir(self.DATASET_DIR)
-
+        log.info(f"files: {files}")
         # Create a dictionary to store train images, train labels, test images and test labels
         dataset_dict = {}
         for file in files:
@@ -122,6 +131,7 @@ class MNIST:
                         set_type = "train"
                     dataset_dict[set_type + "_" + data_type] = parsed_data
 
+        log.info(f"dataset_dict: {dataset_dict}")
         # Structure from how tensorflow does it
         return (
             (dataset_dict["train_images"], dataset_dict["train_labels"]),

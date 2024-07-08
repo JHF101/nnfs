@@ -8,11 +8,7 @@ services:
       dockerfile: ./program/Dockerfile
     ports:
       - 8501:8501
-      # - 5000:5000 # Mlfow port
     # volumes:
     #   - ./:/app
-    tty: true
-    stdin_open: true
-
-volumes:
-  documents:
+    # tty: true
+    # stdin_open: true

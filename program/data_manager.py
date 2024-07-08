@@ -1,7 +1,8 @@
 from nnfs.data_sources.proben1 import Proben1
 from nnfs.data_sources.mnist import MNIST
 import streamlit as st
-from nnfs.utils.utils import to_categorical
+from nnfs.utils.utils import to_categorical, min_max_scaler, standard_scaler
+import numpy as np
 
 
 def proben1_manager():
@@ -67,15 +68,32 @@ def data_manager():
         Dictionary containing the dataset, input and output based on features
         and labels
     """
-    # TODO : Add ability to normalize datasets or do other manipulations
 
     # TODO: Add more datasets
     datasets = {
-        "proben1": 0,
-        "mnist": 1,
+        "proben1": {"id": 0, "url": "https://github.com/jeffheaton/proben1"},
+        "mnist": {
+            "id": 1,
+            "url": "http://yann.lecun.com/exdb/mnist/",
+        },  # If the site is back online
     }
 
-    datasets_selector = st.selectbox("Select a DataSource", datasets.keys())
+    options = [key if key != "mnist" else "mnist (disabled)" for key in datasets.keys()]
+    datasets_selector = st.selectbox("Select a DataSource", options)
+
+    if datasets_selector == "mnist (disabled)":
+        st.warning(
+            "The MNIST dataset is currently disabled because the site is offline."
+        )
+        st.stop()  # Stops the execution of the rest of the code
+
+    selected_dataset = (
+        datasets_selector if datasets_selector != "mnist (disabled)" else "mnist"
+    )
+
+    # Display dataset link
+    dataset_url = datasets[selected_dataset]["url"]
+    st.markdown(f"[Go to {selected_dataset} dataset site]({dataset_url})")
 
     with st.form(key="datasets_forms"):
         if datasets_selector == "proben1":
@@ -86,6 +104,31 @@ def data_manager():
         _ = st.form_submit_button(label="Submit")
 
     (x_train, y_train, x_validate, y_validate, x_test, y_test) = dataset
+
+    # Combine all data splits for scaling
+    combined_data = np.concatenate((x_train, x_validate, x_test), axis=0)
+
+    scalers = {
+        "None": 0,
+        "MinMax": 1,
+        "Standard": 1,
+    }
+    scaler = st.selectbox("Select a Scaling Method for the Dataset", scalers.keys())
+
+    if scaler != "None":
+        # Apply scaler if specified
+        if scaler == "MinMax":
+            combined_data = min_max_scaler(combined_data)
+        elif scaler == "Standard":
+            combined_data = standard_scaler(combined_data)
+
+        # Split back into individual data splits
+        split_idx1 = len(x_train)
+        split_idx2 = len(x_train) + len(x_validate)
+
+        x_train = combined_data[:split_idx1]
+        x_validate = combined_data[split_idx1:split_idx2]
+        x_test = combined_data[split_idx2:]
 
     # -------------------------------------------------------------------- #
     #                         START DATASET PREP                           #
@@ -100,6 +143,7 @@ def data_manager():
         # --- Input and output layer size
         input_layer_size = 28 * 28  # x_train[0].shape[0]
         output_layer_size = 10  # y_train[0].shape[0]
+        dataset_type = "image"
 
     elif datasets_selector == "proben1":
         x_train = x_train.reshape(x_train.shape[0], 1, x_train.shape[1])
@@ -110,19 +154,7 @@ def data_manager():
 
         x_test = x_test.reshape(x_test.shape[0], 1, x_test.shape[1])
         y_test = y_test.reshape(y_test.shape[0], 1, y_test.shape[1])
-
-        # TODO: Add the ability to normalize the data
-        # normalizing_factor_x = x_train.max()
-        # normalizing_factor_y = y_train.max()
-
-        # x_train /= normalizing_factor_x
-        # y_train /= normalizing_factor_y
-
-        # x_validate /= normalizing_factor_x
-        # y_validate /= normalizing_factor_y
-
-        # x_test /= normalizing_factor_x
-        # y_test /= normalizing_factor_y
+        dataset_type = "numerical"
 
         # --- Input and output layer size
         input_layer_size = x_train[0].shape[1]
@@ -137,6 +169,7 @@ def data_manager():
         "y_test": y_test,
         "input_layer_size": input_layer_size,
         "output_layer_size": output_layer_size,
+        "dataset_type": dataset_type,
     }
 
     return result

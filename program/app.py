@@ -3,8 +3,10 @@ import os
 import nnfs
 import streamlit as st
 from itertools import count
-
+import pickle
+import io
 import numpy as np
+import pandas as pd
 from data_manager import data_manager
 from nn_visualizer import DrawNN
 
@@ -47,6 +49,7 @@ def counter(_count=count(1)):
 with st.sidebar:
     # Data Sources
     st.write(f"Step {counter()}: Select a data source.")
+
     # Dataset selection
     datasets = data_manager()
 
@@ -132,6 +135,42 @@ if st.button("Show Neural Network Architecture"):
     network = DrawNN([i[0] for i in layers])
     network.draw()
 
+
+# ---------------------------------- #
+#          Datasets Form             #
+# ---------------------------------- #
+def reshape_and_concat(x_data, y_data, is_image=False):
+    x_df = pd.DataFrame(x_data.reshape(x_data.shape[0], -1))
+    if is_image:
+        y_df = pd.DataFrame(y_data.argmax(axis=1), columns=["Label"])
+    else:
+        label_columns = [f"Label{i+1}" for i in range(y_data.shape[2])]
+        y_df = pd.DataFrame(
+            y_data.reshape(y_data.shape[0], y_data.shape[2]), columns=label_columns
+        )
+    return pd.concat([x_df, y_df], axis=1)
+
+
+def display_datasets(datasets):
+    is_image = datasets["dataset_type"] != "numerical"
+    st.write("### Training Data")
+    st.dataframe(reshape_and_concat(datasets["x_train"], datasets["y_train"], is_image))
+
+    st.write("### Validation Data")
+    if datasets["x_validate"] is not None and datasets["y_validate"] is not None:
+        st.dataframe(
+            reshape_and_concat(datasets["x_validate"], datasets["y_validate"], is_image)
+        )
+    st.write("### Test Data")
+    st.dataframe(reshape_and_concat(datasets["x_test"], datasets["y_test"]))
+
+    st.write("### Test Data")
+    st.dataframe(reshape_and_concat(datasets["x_test"], datasets["y_test"], is_image))
+
+
+display_datasets(datasets)
+
+
 # ---------------------------------- #
 #        Confirmation Form           #
 # ---------------------------------- #
@@ -191,24 +230,39 @@ if st.button("Train the model"):
     if not os.path.exists(model_dir):
         os.makedirs(model_dir)
 
-    import pickle
-
     del_params = []
     model_params = {key: value for key, value in vars(nn_output).items()}
     for k, v in model_params.items():
-        print(type(v))
         if type(v) == nnfs.common.plotting_functions.Plots:
             del_params.append(k)
 
     for i in del_params:
         model_params.pop(i)
-    print(model_params)
 
-    # Cannot save streamlit objects
-    with open(f"{model_dir}-{model_name}.pkl", "wb") as f:
-        pickle.dump(model_params, f)  # not saving correctly
+    # Function to save the model to a bytes object
+    def save_model_to_bytes(model_params, model_dir, model_name):
+        # Create a bytes buffer
+        buffer = io.BytesIO()
 
-    # nn_output.save_model(file_dir=model_dir+"/"+model_name+'.pkl')
+        # Save the model to the buffer
+        pickle.dump(model_params, buffer)
+
+        # Set the buffer's position to the beginning
+        buffer.seek(0)
+
+        return buffer
+
+    # Save the model to bytes
+    model_buffer = save_model_to_bytes(model_params, model_dir, model_name)
+
+    # Create a download button
+    st.download_button(
+        label="Download Pickle Model",
+        data=model_buffer,
+        file_name=f"{model_dir}-{model_name}.pkl",
+        mime="application/octet-stream",
+    )
+
     print("Saved model successfully")
 
     # if dir_name!='':
@@ -236,8 +290,6 @@ if st.button("Train the model"):
     #     # f.write(str(nn_output.final_validation_accuracy))
     #     f.write(str(nn_output.final_test_accuracy))
     # log_artifacts("models")
-
-# TODO: Add button to save model
 
 # TODO: Add text input to load in model
 

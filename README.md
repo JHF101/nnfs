@@ -2,6 +2,12 @@
 
 "Neural Network from Scratch" is my implementation of a neural network starting from first principles. It includes both forward and backward propagations, along with a variety of gradient-based and non-gradient-based optimizers. The main goal of this project was to deepen my understanding of neural network mechanics. Over time, this project has evolved into a comprehensive library, equipped with tools like Docker to generate documentation, and a demo UI project designed to showcase the library's features in an accessible and interactive manner.
 
+To run the application all that is required is to have docker compose installed and run the following:
+
+```
+docker compose up -d
+```
+
 For more details, you can explore the [Neural Network from Scratch library documentation](library/nnfs_library.md).
 
 ## Documentation

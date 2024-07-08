@@ -46,5 +46,65 @@ def to_categorical(array):
     return result
 
 
+def min_max_scaler(data):
+    """
+    Min-Max scaler function to scale input data between 0 and 1.
+
+    Parameters
+    ----------
+    data : numpy array or list of lists
+        The input data to be scaled.
+
+    Returns
+    -------
+    numpy array
+        Scaled data between 0 and 1.
+    """
+    # Convert data to numpy array if it's not already
+    data = np.array(data)
+
+    # Calculate min and max for each feature (column)
+    min_vals = data.min(axis=0)
+    max_vals = data.max(axis=0)
+
+    # Avoid division by zero if min and max are the same
+    max_vals[max_vals == min_vals] += 1e-6
+
+    # Scale the data to [0, 1]
+    scaled_data = (data - min_vals) / (max_vals - min_vals)
+
+    return scaled_data
+
+
+def standard_scaler(data):
+    """
+    Standard scaler function to standardize input data to have mean 0 and standard deviation 1.
+
+    Parameters
+    ----------
+    data : numpy array or list of lists
+        The input data to be standardized.
+
+    Returns
+    -------
+    numpy array
+        Standardized data with mean 0 and standard deviation 1.
+    """
+    # Convert data to numpy array if it's not already
+    data = np.array(data)
+
+    # Calculate mean and standard deviation for each feature (column)
+    mean_vals = data.mean(axis=0)
+    std_vals = data.std(axis=0)
+
+    # Avoid division by zero if standard deviation is 0
+    std_vals[std_vals == 0] = 1e-6
+
+    # Standardize the data
+    standardized_data = (data - mean_vals) / std_vals
+
+    return standardized_data
+
+
 # if __name__=="__main__":
 #     print(to_categorical(np.array([7,7,6,7])))

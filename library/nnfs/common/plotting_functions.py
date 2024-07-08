@@ -245,9 +245,7 @@ class Plots:
 
         for i in range(0, loop_value):
             if self.optimizer.optimizer_type == "non-gradient":
-                pass  # XXX: For now
-                # weight_dim = self.weights[0][i].shape[1]
-                # architecture += str(weight_dim) + "-" + str(self.activation_functions[0][i+1].__name__)[0] + "+"
+                architecture += str(self.number_of_parents)
             else:
                 weight_dim = self.weights[i].shape[1]
                 # Activation function
@@ -279,8 +277,7 @@ class Plots:
             Confusion matrix returned from seaborn.
         """
         df = pd.DataFrame(confusion_matrix)
-        dfc = df
-        z = dfc.values.tolist()
+        z = df.values.tolist()
         z_text = [[str(y) for y in x] for x in z]
         fig = ff.create_annotated_heatmap(
             z,

@@ -155,25 +155,25 @@ class Proben1:
                     structure_value = int(read_line[t].split("=")[-1])
                     if idx_counter == 0:
                         bool_in = structure_value
-                        log.info("Bool_in", bool_in)
+                        log.debug("Bool_in", bool_in)
                     elif idx_counter == 1:
                         real_in = structure_value
-                        log.info("Real_in", real_in)
+                        log.debug("Real_in", real_in)
                     elif idx_counter == 2:
                         bool_out = structure_value
-                        log.info("Bool_out", bool_out)
+                        log.debug("Bool_out", bool_out)
                     elif idx_counter == 3:
                         real_out = structure_value
-                        log.info("Real_out", real_out)
+                        log.debug("Real_out", real_out)
                     elif idx_counter == 4:
                         training_examples = structure_value
-                        log.info("Training Examples", training_examples)
+                        log.debug("Training Examples", training_examples)
                     elif idx_counter == 5:
                         validation_examples = structure_value
-                        log.info("Validation Examples", validation_examples)
+                        log.debug("Validation Examples", validation_examples)
                     elif idx_counter == 6:
                         test_examples = structure_value
-                        log.info("Test Examples", test_examples)
+                        log.debug("Test Examples", test_examples)
 
                 # --------------------------------------------------- #
                 #           Structure the Dataset                     #
@@ -183,20 +183,20 @@ class Proben1:
                         # Inputs
                         data_set_input_length = 0
                         if bool_in != 0:
-                            log.info(f"{__name__} has boolean inputs")
+                            log.debug(f"{__name__} has boolean inputs")
                             data_set_input_length = bool_in
                         elif real_in != 0:
-                            log.info(f"{__name__} has Real valued inputs")
+                            log.debug(f"{__name__} has Real valued inputs")
                             data_set_input_length = real_in
                         else:
                             raise Exception("There is no input data length")
 
                         data_set_output_length = 0
                         if bool_out != 0:
-                            log.info("It has boolean outputs")
+                            log.debug("It has boolean outputs")
                             data_set_output_length = bool_out
                         elif real_out != 0:
-                            log.info("It has Real valued outputs")
+                            log.debug("It has Real valued outputs")
                             data_set_output_length = real_out
                         else:
                             raise Exception("There is no output data length")

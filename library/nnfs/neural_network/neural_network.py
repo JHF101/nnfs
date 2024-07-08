@@ -465,39 +465,17 @@ class Network(Plots):
                     bias=self.bias,
                 )
 
-                temp_all_predictions = []
-                temp_actual_values = []
-
                 # Testing accuracy
                 categorical_prediction = np.argmax(ff_test_result[-1])
-                temp_all_predictions.append(categorical_prediction)
-                actual_output = np.argmax(y_test[t])
-                temp_actual_values.append(actual_output)
+                ground_truth = np.argmax(y_test[t])
 
                 # Arrays used for confusion matrix
-                all_predictions.append(temp_all_predictions)
-                actual_values.append(temp_actual_values)
+                all_predictions.append(categorical_prediction)
+                actual_values.append(ground_truth)
 
             # Averaging
             total_test_error /= y_test_len
             test_accuracy /= y_test_len
-
-            # -------------------------------------------------------------- #
-            #                    Confusion Matrix                            #
-            # -------------------------------------------------------------- #
-
-            # Original idea was to stream the confusion matrix, but it only
-            # needs to be show once at the end.
-
-            # actual_values = np.array(actual_values)
-            # all_predictions = np.array(all_predictions)
-            ## Get the columns of the predictions
-            # TODO: This is causing big errors
-            # for cm in range(all_predictions.shape[0]):
-            #     self.confusion_matrix.append(
-            #         confusion_matrix(actual_values[cm,:], all_predictions[cm,:]) # This is wrong
-            #     )
-            # self.confusion_matrix.append(confusion_matrix(actual_values, all_predictions))
 
             # Non-Gradient (Genetic)
             if type(validation_accuracy) == list:  # Means that we have more
@@ -626,9 +604,10 @@ class Network(Plots):
                 self.plots_gen.plot_epoch_accuracy()
 
         if self.plots_config != {}:
-            self.confusion_matrix = confusion_matrix(
-                temp_actual_values, temp_all_predictions
-            )
+            # -------------------------------------------------------------- #
+            #                    Confusion Matrix                            #
+            # -------------------------------------------------------------- #
+            self.confusion_matrix = confusion_matrix(actual_values, all_predictions)
             self.plots_gen.plot_confusion_matrix(self.confusion_matrix)
 
             if self.plots_config.get("type") == "plotly":

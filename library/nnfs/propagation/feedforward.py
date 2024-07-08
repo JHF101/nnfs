@@ -27,12 +27,10 @@ class FeedForward:
 
         if self.use_bias:
             if ("weights" not in kwargs.keys()) and ("bias" not in kwargs.keys()):
-                print("kwarg items", kwargs.keys())
                 raise NotImplementedError("The weights or biases are not being used")
 
         else:
             if "weights" not in kwargs.keys():
-                print("kwarg items", kwargs.keys())
                 raise NotImplementedError("The weights have not been used")
 
         # Do a full propagation left to right
